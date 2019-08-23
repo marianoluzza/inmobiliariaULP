@@ -8,28 +8,27 @@ using System.Threading.Tasks;
 
 namespace Inmobiliaria_.Net_Core.Models
 {
-	public class RepositorioPropietario : RepositorioBase, IRepositorio<Propietario>
+	public class RepositorioInquilino : RepositorioBase, IRepositorio<Inquilino>
 	{
-		public RepositorioPropietario(IConfiguration configuration) : base(configuration)
+		public RepositorioInquilino(IConfiguration configuration) : base(configuration)
 		{
 			
 		}
 
-		public int Alta(Propietario p)
+		public int Alta(Inquilino p)
 		{
 			int res = -1;
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
-				string sql = $"INSERT INTO Propietarios (Nombre, Apellido, Dni, Telefono, Email, Clave) " +
-					$"VALUES ('{p.Nombre}', '{p.Apellido}','{p.Dni}','{p.Telefono}','{p.Email}','{p.Clave}')";
+				string sql = $"INSERT INTO Inquilinos (Nombre, Apellido, Dni, Telefono, Email) " +
+					$"VALUES ('{p.Nombre}', '{p.Apellido}','{p.Dni}','{p.Telefono}','{p.Email}')";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
 					connection.Open();
 					res = command.ExecuteNonQuery();
                     command.CommandText = "SELECT SCOPE_IDENTITY()";
-                    var id = command.ExecuteScalar();
-                    p.IdPropietario = Convert.ToInt32(id);
+                    p.IdInquilino = (int)command.ExecuteScalar();
                     connection.Close();
 				}
 			}
@@ -40,7 +39,7 @@ namespace Inmobiliaria_.Net_Core.Models
 			int res = -1;
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
-				string sql = $"DELETE FROM Propietarios WHERE IdPropieterio = {id}";
+				string sql = $"DELETE FROM Inquilinos WHERE IdPropieterio = {id}";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
@@ -51,13 +50,13 @@ namespace Inmobiliaria_.Net_Core.Models
 			}
 			return res;
 		}
-		public int Modificacion(Propietario p)
+		public int Modificacion(Inquilino p)
 		{
 			int res = -1;
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
-				string sql = $"UPDATE Propietarios SET Nombre='{p.Nombre}', Apellido='{p.Apellido}', Dni'{p.Dni}', Telefono'{p.Telefono}', Email'{p.Email}', Clave'{p.Clave}' " +
-					$"WHERE IdPropietario = {p.IdPropietario}";
+				string sql = $"UPDATE Inquilinos SET Nombre='{p.Nombre}', Apellido='{p.Apellido}', Dni'{p.Dni}', Telefono'{p.Telefono}', Email'{p.Email}' " +
+					$"WHERE IdInquilino = {p.IdInquilino}";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
@@ -69,13 +68,13 @@ namespace Inmobiliaria_.Net_Core.Models
 			return res;
 		}
 
-		public IList<Propietario> ObtenerTodos()
+		public IList<Inquilino> ObtenerTodos()
 		{
-			IList<Propietario> res = new List<Propietario>();
+			IList<Inquilino> res = new List<Inquilino>();
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
-				string sql = $"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave" +
-                    $" FROM Propietarios";
+				string sql = $"SELECT IdInquilino, Nombre, Apellido, Dni, Telefono, Email, Clave" +
+                    $" FROM Inquilinos";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
@@ -83,15 +82,14 @@ namespace Inmobiliaria_.Net_Core.Models
 					var reader = command.ExecuteReader();
 					while (reader.Read())
 					{
-						Propietario p = new Propietario
+						Inquilino p = new Inquilino
 						{
-							IdPropietario = reader.GetInt32(0),
+							IdInquilino = reader.GetInt32(0),
 							Nombre = reader.GetString(1),
 							Apellido = reader.GetString(2),
 							Dni = reader.GetString(3),
 							Telefono = reader.GetString(4),
 							Email = reader.GetString(5),
-							Clave = reader.GetString(6),
 						};
 						res.Add(p);
 					}
@@ -101,13 +99,13 @@ namespace Inmobiliaria_.Net_Core.Models
 			return res;
 		}
 
-		public Propietario ObtenerPorId(int id)
+		public Inquilino ObtenerPorId(int id)
 		{
-			Propietario p = null;
+			Inquilino p = null;
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
-				string sql = $"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave FROM Propietarios" +
-					$" WHERE IdPropietario=@id";
+				string sql = $"SELECT IdInquilino, Nombre, Apellido, Dni, Telefono, Email, Clave FROM Inquilinos" +
+					$" WHERE IdInquilino=@id";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
                     command.Parameters.Add("@id", SqlDbType.Int).Value = id;
@@ -116,15 +114,14 @@ namespace Inmobiliaria_.Net_Core.Models
 					var reader = command.ExecuteReader();
 					while (reader.Read())
 					{
-						p = new Propietario
+						p = new Inquilino
 						{
-							IdPropietario = reader.GetInt32(0),
+							IdInquilino = reader.GetInt32(0),
 							Nombre = reader.GetString(1),
 							Apellido = reader.GetString(2),
 							Dni = reader.GetString(3),
 							Telefono = reader.GetString(4),
 							Email = reader.GetString(5),
-							Clave = reader.GetString(6),
 						};
 						return p;
 					}

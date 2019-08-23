@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Inmobiliaria_.Net_Core.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -16,15 +17,27 @@ namespace Inmobiliaria_.Net_Core
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddMvc();
-			services.AddTransient<IRepositorioPropietario, RepositorioPropietario>();
-		}
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/Home/Login";
+                    options.LogoutPath = "/Home/Logout";
+                });
+            services.AddMvc();
+			services.AddTransient<IRepositorio<Propietario>, RepositorioPropietario>();
+            services.AddTransient<IRepositorio<Inquilino>, RepositorioInquilino>();
+        }
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 		{
 			app.UseStaticFiles();
-			if (env.IsDevelopment())
+            app.UseCookiePolicy(new CookiePolicyOptions
+            {
+               MinimumSameSitePolicy = SameSiteMode.None,
+            });
+            app.UseAuthentication();
+            if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 			}
