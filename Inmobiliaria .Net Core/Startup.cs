@@ -22,7 +22,12 @@ namespace Inmobiliaria_.Net_Core
                 {
                     options.LoginPath = "/Home/Login";
                     options.LogoutPath = "/Home/Logout";
+                    options.AccessDeniedPath = "/Home/Restringido";
                 });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Administrador", policy => policy.RequireClaim("Admin"));
+            });
             services.AddMvc();
 			services.AddTransient<IRepositorio<Propietario>, RepositorioPropietario>();
             services.AddTransient<IRepositorio<Inquilino>, RepositorioInquilino>();

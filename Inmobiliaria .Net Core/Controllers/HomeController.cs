@@ -43,6 +43,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
                     new Claim(ClaimTypes.Name, "m@m.com"),
                     new Claim("FullName", "Mariano"),
                     new Claim(ClaimTypes.Role, "Administrator"),
+                    new Claim("Admin", "algun valor"),
                 };
 
                 var claimsIdentity = new ClaimsIdentity(
@@ -100,6 +101,19 @@ namespace Inmobiliaria_.Net_Core.Controllers
             var identity = (ClaimsIdentity)User.Identity;
             IEnumerable<Claim> claims = identity.Claims;
             return View(claims);
+        }
+
+        [Authorize(Policy="Administrador")]
+        public ActionResult Admin()
+        {
+            var identity = (ClaimsIdentity)User.Identity;
+            IEnumerable<Claim> claims = identity.Claims;
+            return View(claims);
+        }
+
+        public ActionResult Restringido()
+        {
+            return View();
         }
     }
 }
