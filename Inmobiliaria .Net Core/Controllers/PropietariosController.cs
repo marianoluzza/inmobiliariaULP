@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Inmobiliaria_.Net_Core.Models;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -48,6 +49,12 @@ namespace Inmobiliaria_.Net_Core.Controllers
                 TempData["Nombre"] = propietario.Nombre;
                 if (ModelState.IsValid)
                 {
+                    propietario.Clave = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                        password: propietario.Clave,
+                        salt: System.Text.Encoding.ASCII.GetBytes("SALADA"),
+                        prf: KeyDerivationPrf.HMACSHA1,
+                        iterationCount: 1000,
+                        numBytesRequested: 256 / 8));
                     repositorio.Alta(propietario);
                     TempData["Id"] = propietario.IdPropietario;
                     return RedirectToAction(nameof(Index));

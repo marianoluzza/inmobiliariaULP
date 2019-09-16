@@ -19,35 +19,52 @@
                 <a class="py-2 d-none d-md-inline-block" asp-controller="Propietarios" asp-action="Index"><span class="lnr lnr-user"></span> Propietarios</a>
                 <a class="py-2 d-none d-md-inline-block" asp-controller="Inmuebles" asp-action="Index"><span class="lnr lnr-apartment"></span> Inmuebles</a>
                 <a class="py-2 d-none d-md-inline-block" asp-controller="Alquileres" asp-action="Index"><span class="lnr lnr-enter"></span> Alquileres</a>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <a class="py-2 d-none d-md-inline-block float-right" asp-controller="Home" asp-action="Logout"><span class="lnr lnr-user"></span> @User.Identity.Name</a>
+                }
+                else
+                {
+                    <a class="py-2 d-none d-md-inline-block float-right" href="@Url.Link("login",null)"><span class="lnr lnr-user"></span> Acceder</a>                    
+                }
             </div>
         </nav>
     </header>
     <main role="main">
         <div class="container mt-3">
-            @if (ViewBag.Id != null)
-            {//alta exitosa
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <strong>¡Éxito!</strong> La entidad fue dada de alta con id: @ViewBag.Id
+       @if (ViewBag.Id != null)
+        {//alta exitosa
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>¡Éxito!</strong> La entidad fue dada de alta con id: @ViewBag.Id
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true"><span class="lnr lnr-cross-circle"></span></span>
+                </button>
+            </div>
+        }
+        else if (ViewBag.Mensaje != null)
+        {//alta exitosa
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>¡Error!</strong> @ViewBag.Mensaje
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true"><span class="lnr lnr-cross-circle"></span></span>
+            </button>
+        </div>
+        }
+        else if (!String.IsNullOrWhiteSpace(ViewBag.Error))
+        {//ocurrió un error
+            <environment names="Development">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>¡Error!</strong> Ocurrió: @ViewBag.Error
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true"><span class="lnr lnr-cross-circle"></span></span>
                     </button>
-                </div>
-            }
-            else if (!String.IsNullOrWhiteSpace(ViewBag.Error))
-            {//ocurrió un error
-                <environment names="Development">
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <strong>¡Error!</strong> Ocurrió: @ViewBag.Error
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true"><span class="lnr lnr-cross-circle"></span></span>
-                        </button>
-                        <a class="btn btn-primary" data-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false"><span class="lnr lnr-plus-circle"></a>
-                        <div class="collapse multi-collapse" id="multiCollapseExample1">
-                            @ViewBag.StackTrace
-                        </div>
+                    <a class="btn btn-primary" data-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false"><span class="lnr lnr-plus-circle"></a>
+                    <div class="collapse multi-collapse" id="multiCollapseExample1">
+                        @ViewBag.StackTrace
                     </div>
-                </environment>
-            }
+                </div>
+            </environment>
+        }
             <div class="m-1 p-1">
                 @RenderBody()
             </div>

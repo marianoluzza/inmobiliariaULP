@@ -9,11 +9,19 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace Inmobiliaria_.Net_Core.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IRepositorioPropietario propietarios;
+
+        public HomeController(IRepositorioPropietario propietarios)
+        {
+            this.propietarios = propietarios;
+        }
+
         public IActionResult Index()
         {
             ViewBag.Titulo = "Página de Inicio";
@@ -38,12 +46,24 @@ namespace Inmobiliaria_.Net_Core.Controllers
         {
             try
             {
+
+                string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                    password: loginView.Clave,
+                    salt: System.Text.Encoding.ASCII.GetBytes("SALADA"),
+                    prf: KeyDerivationPrf.HMACSHA1,
+                    iterationCount: 1000,
+                    numBytesRequested: 256 / 8));
+                var p = propietarios.ObtenerPorEmail(loginView.Usuario);
+                if (p == null || p.Clave != hashed)
+                {
+                    ViewBag.Mensaje = "Datos inválidos";
+                    return View();
+                }
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, "m@m.com"),
-                    new Claim("FullName", "Mariano"),
-                    new Claim(ClaimTypes.Role, "Administrator"),
-                    new Claim("Admin", "algun valor"),
+                    new Claim(ClaimTypes.Name, p.Email),
+                    new Claim("FullName", p.Nombre + " " + p.Apellido),
+                    new Claim(ClaimTypes.Role, p.IdPropietario < 10? "Administrador":"Propietario"),
                 };
 
                 var claimsIdentity = new ClaimsIdentity(
@@ -103,7 +123,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
             return View(claims);
         }
 
-        [Authorize(Policy="Administrador")]
+        [Authorize(Policy = "Administrador")]
         public ActionResult Admin()
         {
             var identity = (ClaimsIdentity)User.Identity;

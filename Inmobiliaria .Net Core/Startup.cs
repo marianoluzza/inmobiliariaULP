@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Inmobiliaria_.Net_Core.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -26,10 +27,11 @@ namespace Inmobiliaria_.Net_Core
                 });
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("Administrador", policy => policy.RequireClaim("Admin"));
+                options.AddPolicy("Administrador", policy => policy.RequireClaim(ClaimTypes.Role, "Administrador"));
             });
             services.AddMvc();
 			services.AddTransient<IRepositorio<Propietario>, RepositorioPropietario>();
+            services.AddTransient<IRepositorioPropietario, RepositorioPropietario>();
             services.AddTransient<IRepositorio<Inquilino>, RepositorioInquilino>();
         }
 
@@ -48,10 +50,14 @@ namespace Inmobiliaria_.Net_Core
 			}
 			app.UseMvc(routes =>
 			{
-				routes.MapRoute(
-				name: "default",
-				template: "{controller=Home}/{action=Index}/{id?}");
-			});
+                routes.MapRoute(
+				    name: "login",
+				    template: "login/{**accion}",
+                    defaults: new { controller= "Home", action="Login"});
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller=Home}/{action=Index}/{id?}");
+            });
 		}
 	}
 }

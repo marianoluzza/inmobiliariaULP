@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Inmobiliaria_.Net_Core.Models
 {
-	public class RepositorioPropietario : RepositorioBase, IRepositorio<Propietario>
+	public class RepositorioPropietario : RepositorioBase, IRepositorioPropietario
 	{
 		public RepositorioPropietario(IConfiguration configuration) : base(configuration)
 		{
@@ -114,7 +114,7 @@ namespace Inmobiliaria_.Net_Core.Models
                     command.CommandType = CommandType.Text;
 					connection.Open();
 					var reader = command.ExecuteReader();
-					while (reader.Read())
+					if (reader.Read())
 					{
 						p = new Propietario
 						{
@@ -126,12 +126,43 @@ namespace Inmobiliaria_.Net_Core.Models
 							Email = reader.GetString(5),
 							Clave = reader.GetString(6),
 						};
-						return p;
 					}
 					connection.Close();
 				}
 			}
 			return p;
-		}
-	}
+        }
+
+        public Propietario ObtenerPorEmail(string emai)
+        {
+            Propietario p = null;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string sql = $"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave FROM Propietarios" +
+                    $" WHERE Email=@emai";
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    command.Parameters.Add("@emai", SqlDbType.VarChar).Value = emai;
+                    command.CommandType = CommandType.Text;
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        p = new Propietario
+                        {
+                            IdPropietario = reader.GetInt32(0),
+                            Nombre = reader.GetString(1),
+                            Apellido = reader.GetString(2),
+                            Dni = reader.GetString(3),
+                            Telefono = reader.GetString(4),
+                            Email = reader.GetString(5),
+                            Clave = reader.GetString(6),
+                        };
+                    }
+                    connection.Close();
+                }
+            }
+            return p;
+        }
+    }
 }
