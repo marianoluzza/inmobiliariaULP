@@ -30,9 +30,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.Email)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Clave)
-            </th>
             <th></th>
         </tr>
     </thead>
@@ -58,12 +55,7 @@
                 @Html.DisplayFor(modelItem => item.Email)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Clave)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { id=item.IdPropietario }) |
-                @Html.ActionLink("Details", "Details", new { id=item.IdPropietario }) |
-                @Html.ActionLink("Delete", "Delete", new { id=item.IdPropietario })
+                <a asp-controller="Propietarios" asp-action="Edit" asp-route-id="@item.IdPropietario" title="Editar"><span class="lnr lnr-pencil"></span></a>
             </td>
         </tr>
 }

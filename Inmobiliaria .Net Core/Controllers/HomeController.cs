@@ -16,20 +16,18 @@ namespace Inmobiliaria_.Net_Core.Controllers
     public class HomeController : Controller
     {
         private readonly IRepositorioPropietario propietarios;
+        private readonly DataContext contexto;
 
-        public HomeController(IRepositorioPropietario propietarios)
+        public HomeController(IRepositorioPropietario propietarios, DataContext contexto)
         {
             this.propietarios = propietarios;
+            this.contexto = contexto;
         }
 
         public IActionResult Index()
         {
             ViewBag.Titulo = "Página de Inicio";
-            List<string> clientes = new List<string>();
-            clientes.Add("Juan");
-            clientes.Add("José");
-            clientes.Add("Héctor");
-            clientes.Add("Hernán");
+            List<string> clientes = contexto.Propietarios.Select(x => x.Nombre + " " + x.Apellido).ToList();
             return View(clientes);
         }
 

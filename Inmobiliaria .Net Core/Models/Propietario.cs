@@ -8,6 +8,7 @@ namespace Inmobiliaria_.Net_Core.Models
 {
 	public class Propietario
 	{
+        [Key]
 		public int IdPropietario { get; set; }
 		[Required]
 		public string Nombre { get; set; }
@@ -18,6 +19,7 @@ namespace Inmobiliaria_.Net_Core.Models
 		public string Telefono { get; set; }
 		[Required, EmailAddress]
 		public string Email { get; set; }
-		public string Clave { get; set; }
+        [Required, DataType(DataType.Password)]
+        public string Clave { get; set; }
 	}
 }

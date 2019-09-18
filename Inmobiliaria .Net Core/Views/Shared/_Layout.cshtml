@@ -58,7 +58,7 @@
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true"><span class="lnr lnr-cross-circle"></span></span>
                     </button>
-                    <a class="btn btn-primary" data-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false"><span class="lnr lnr-plus-circle"></a>
+                    <a class="btn btn-primary" data-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false"><span class="lnr lnr-plus-circle"></span></a>
                     <div class="collapse multi-collapse" id="multiCollapseExample1">
                         @ViewBag.StackTrace
                     </div>
@@ -76,8 +76,7 @@
         </div>
     </footer>
     @RenderSection("Scripts", false)
-    @await Html.PartialAsync("_ValidationScriptsPartial")
-
+    @await Html.PartialAsync("_ScriptsPartial")    
     <script type="text/javascript">
         function init() {
             $('.alert').alert();
