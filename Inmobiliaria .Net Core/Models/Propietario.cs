@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace Inmobiliaria_.Net_Core.Models
 {
-	public class Propietario
-	{
+    public class Propietario
+    {
         [Key]
-		public int IdPropietario { get; set; }
+        [Display(Name = "Código")]
+        public int IdPropietario { get; set; }
 		[Required]
 		public string Nombre { get; set; }
 		[Required]

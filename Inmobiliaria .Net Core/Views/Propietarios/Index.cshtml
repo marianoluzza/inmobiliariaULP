@@ -1,13 +1,13 @@
 ﻿@model IEnumerable<Inmobiliaria_.Net_Core.Models.Propietario>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Propietarios";
 }
 
-<h1>Index</h1>
+<h1>Propietarios</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Crear nuevo</a>
 </p>
 <table class="table">
     <thead>
@@ -55,7 +55,8 @@
                 @Html.DisplayFor(modelItem => item.Email)
             </td>
             <td>
-                <a asp-controller="Propietarios" asp-action="Edit" asp-route-id="@item.IdPropietario" title="Editar"><span class="lnr lnr-pencil"></span></a>
+                <a asp-action="Edit" asp-route-id="@item.IdPropietario" title="Editar"><span class="lnr lnr-pencil"></span></a>&nbsp;
+                <a asp-action="Eliminar" asp-route-id="@item.IdPropietario" title="Eliminar"><span class="lnr lnr-cross"></span></a>
             </td>
         </tr>
 }

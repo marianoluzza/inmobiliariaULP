@@ -10,24 +10,25 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.Extensions.Configuration;
 
 namespace Inmobiliaria_.Net_Core.Controllers
 {
     public class HomeController : Controller
     {
         private readonly IRepositorioPropietario propietarios;
-        private readonly DataContext contexto;
+        private readonly IConfiguration config;
 
-        public HomeController(IRepositorioPropietario propietarios, DataContext contexto)
+        public HomeController(IRepositorioPropietario propietarios, IConfiguration config)
         {
             this.propietarios = propietarios;
-            this.contexto = contexto;
+            this.config = config;
         }
 
         public IActionResult Index()
         {
             ViewBag.Titulo = "Página de Inicio";
-            List<string> clientes = contexto.Propietarios.Select(x => x.Nombre + " " + x.Apellido).ToList();
+            List<string> clientes = propietarios.ObtenerTodos().Select(x => x.Nombre + " " + x.Apellido).ToList();
             return View(clientes);
         }
 
@@ -47,7 +48,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 
                 string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                     password: loginView.Clave,
-                    salt: System.Text.Encoding.ASCII.GetBytes("SALADA"),
+                    salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
                     prf: KeyDerivationPrf.HMACSHA1,
                     iterationCount: 1000,
                     numBytesRequested: 256 / 8));

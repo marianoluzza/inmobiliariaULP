@@ -40,7 +40,7 @@ namespace Inmobiliaria_.Net_Core.Models
 			int res = -1;
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
-				string sql = $"DELETE FROM Propietarios WHERE IdPropieterio = {id}";
+				string sql = $"DELETE FROM Propietarios WHERE IdPropietario = {id}";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
@@ -56,7 +56,7 @@ namespace Inmobiliaria_.Net_Core.Models
 			int res = -1;
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
-				string sql = $"UPDATE Propietarios SET Nombre='{p.Nombre}', Apellido='{p.Apellido}', Dni'{p.Dni}', Telefono'{p.Telefono}', Email'{p.Email}', Clave'{p.Clave}' " +
+				string sql = $"UPDATE Propietarios SET Nombre='{p.Nombre}', Apellido='{p.Apellido}', Dni='{p.Dni}', Telefono='{p.Telefono}', Email='{p.Email}', Clave='{p.Clave}' " +
 					$"WHERE IdPropietario = {p.IdPropietario}";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
@@ -133,16 +133,16 @@ namespace Inmobiliaria_.Net_Core.Models
 			return p;
         }
 
-        public Propietario ObtenerPorEmail(string emai)
+        public Propietario ObtenerPorEmail(string email)
         {
             Propietario p = null;
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 string sql = $"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave FROM Propietarios" +
-                    $" WHERE Email=@emai";
+                    $" WHERE Email=@email";
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
-                    command.Parameters.Add("@emai", SqlDbType.VarChar).Value = emai;
+                    command.Parameters.Add("@email", SqlDbType.VarChar).Value = email;
                     command.CommandType = CommandType.Text;
                     connection.Open();
                     var reader = command.ExecuteReader();
@@ -163,6 +163,40 @@ namespace Inmobiliaria_.Net_Core.Models
                 }
             }
             return p;
+        }
+
+        public IList<Propietario> BuscarPorNombre(string nombre)
+        {
+            List<Propietario> res = new List<Propietario>();
+            Propietario p = null;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string sql = $"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave FROM Propietarios" +
+                    $" WHERE Nombre LIKE %@nombre% OR Apellido LIKE %@nombre";
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    command.Parameters.Add("@nombre", SqlDbType.VarChar).Value = nombre;
+                    command.CommandType = CommandType.Text;
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        p = new Propietario
+                        {
+                            IdPropietario = reader.GetInt32(0),
+                            Nombre = reader.GetString(1),
+                            Apellido = reader.GetString(2),
+                            Dni = reader.GetString(3),
+                            Telefono = reader.GetString(4),
+                            Email = reader.GetString(5),
+                            Clave = reader.GetString(6),
+                        };
+                        res.Add(p);
+                    }
+                    connection.Close();
+                }
+            }
+            return res;
         }
     }
 }
