@@ -35,8 +35,7 @@ namespace Inmobiliaria_.Net_Core
                     options.LoginPath = "/Home/Login";
                     options.LogoutPath = "/Home/Logout";
                     options.AccessDeniedPath = "/Home/Restringido";
-                });
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                })
                 .AddJwtBearer(options =>
                 {
                     options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters

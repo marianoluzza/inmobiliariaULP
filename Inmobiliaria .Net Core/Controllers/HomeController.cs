@@ -45,7 +45,6 @@ namespace Inmobiliaria_.Net_Core.Controllers
         {
             try
             {
-
                 string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                     password: loginView.Clave,
                     salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
@@ -62,7 +61,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
                 {
                     new Claim(ClaimTypes.Name, p.Email),
                     new Claim("FullName", p.Nombre + " " + p.Apellido),
-                    new Claim(ClaimTypes.Role, p.IdPropietario < 10? "Administrador":"Propietario"),
+                    //new Claim(ClaimTypes.Role, p.IdPropietario < 10? "Administrador":"Propietario"),
+                    new Claim(ClaimTypes.Role, "Administrador"),
                 };
 
                 var claimsIdentity = new ClaimsIdentity(

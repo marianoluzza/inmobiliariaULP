@@ -13,25 +13,32 @@
         <nav class="site-header sticky-top py-1">
             <div class="container d-flex flex-column flex-md-row justify-content-between">
                 <a class="py-2" asp-controller="Home" asp-action="Index"><span class="lnr lnr-home"></span> Inicio</a>
-                <a class="py-2 d-none d-md-inline-block" asp-controller="Propietarios" asp-action="Index"><span class="lnr lnr-users"></span> Propietarios</a>
-                <a class="py-2 d-none d-md-inline-block" asp-controller="Inmuebles" asp-action="Index"><span class="lnr lnr-apartment"></span> Inmuebles</a>
-                <a class="py-2 d-none d-md-inline-block" asp-controller="Alquileres" asp-action="Index"><span class="lnr lnr-license"></span> Contratos</a>
+                @if (User.IsInRole("Administrador"))
+                {
+                    <a class="py-2 d-none d-md-inline-block" asp-controller="Propietarios" asp-action="Index"><span class="lnr lnr-user"></span> Propietarios</a>
+                    <a class="py-2 d-none d-md-inline-block" asp-controller="Inmuebles" asp-action="Index"><span class="lnr lnr-apartment"></span> Inmuebles</a>
+                    <a class="py-2 d-none d-md-inline-block" asp-controller="Alquileres" asp-action="Index"><span class="lnr lnr-enter"></span> Alquileres</a>
+                }
+                @if (User.IsInRole("Propietario"))
+                {
+                    <a class="py-2 d-none d-md-inline-block" asp-controller="Propietarios" asp-action="Perfil"><span class="lnr lnr-user"></span> Mis Datos</a>
+                }
                 @if (User.Identity.IsAuthenticated)
                 {
-                <div class="dropdown">
-                    <a class="btn btn-primary dropdown-toggle text-light" href="#" role="button" id="userMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-reference="parent" data-display="static">
-                        <span class="lnr lnr-user"></span> @User.Identity.Name
-                    </a>
-                    
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                        <a class="dropdown-item text-dark" asp-controller="Propietario" asp-action="Edit"><i class="lnr lnr-user"></i> Perfil</a>
-                        <a class="dropdown-item text-dark" asp-controller="Home" asp-action="Logout"><i class="lnr lnr-exit"></i> Salir</a>
+                    <div class="dropdown">
+                        <a class="btn btn-primary dropdown-toggle text-light" href="#" role="button" id="userMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-reference="parent" data-display="static">
+                            <span class="lnr lnr-user"></span> @User.Identity.Name
+                        </a>
+
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <a class="dropdown-item text-dark" asp-controller="Propietario" asp-action="Edit"><i class="lnr lnr-user"></i> Perfil</a>
+                            <a class="dropdown-item text-dark" asp-controller="Home" asp-action="Logout"><i class="lnr lnr-exit"></i> Salir</a>
+                        </div>
                     </div>
-                </div>
                 }
                 else
                 {
-                <a class="py-2 d-none d-md-inline-block float-right" href="@Url.Link("login",null)"><span class="lnr lnr-enter"></span> Acceder</a>
+                    <a class="py-2 d-none d-md-inline-block float-right" href="@Url.Link("login",null)"><span class="lnr lnr-enter"></span> Acceder</a>
                 }
             </div>
         </nav>
