@@ -83,7 +83,7 @@ namespace Inmobiliaria_.Net_Core.Api
                     {
                         new Claim(ClaimTypes.Name, p.Email),
                         new Claim("FullName", p.Nombre + " " + p.Apellido),
-                        new Claim(ClaimTypes.Role, p.IdPropietario < 10? "Administrador":"Propietario"),
+                        new Claim(ClaimTypes.Role, "Propietario"),
                     };
 
                     var token = new JwtSecurityToken(
@@ -112,7 +112,7 @@ namespace Inmobiliaria_.Net_Core.Api
                 {
                     contexto.Propietarios.Add(entidad);
                     contexto.SaveChanges();
-                    return CreatedAtAction(nameof(Get), new { id = entidad.IdPropietario });
+                    return CreatedAtAction(nameof(Get), new { id = entidad.IdPropietario }, entidad);
                 }
                 return BadRequest();
             }
