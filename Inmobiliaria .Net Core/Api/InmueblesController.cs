@@ -83,7 +83,7 @@ namespace Inmobiliaria_.Net_Core.Api
         {
             try
             {
-                if (ModelState.IsValid && contexto.Inmuebles.Include(e=>e.Duenio).FirstOrDefault(e => e.Id == id && e.Duenio.Email == User.Identity.Name) != null)
+                if (ModelState.IsValid && contexto.Inmuebles.AsNoTracking().Include(e=>e.Duenio).FirstOrDefault(e => e.Id == id && e.Duenio.Email == User.Identity.Name) != null)
                 {
                     entidad.Id = id;
                     contexto.Inmuebles.Update(entidad);
