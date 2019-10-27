@@ -117,6 +117,28 @@ namespace Inmobiliaria_.Net_Core.Api
             {
                 return BadRequest(ex);
             }
-        }
-    }
+		}
+
+		// DELETE api/<controller>/5
+		[HttpDelete("BajaLogica/{id}")]
+		public async Task<IActionResult> BajaLogica(int id)
+		{
+			try
+			{
+				var entidad = contexto.Inmuebles.Include(e => e.Duenio).FirstOrDefault(e => e.Id == id && e.Duenio.Email == User.Identity.Name);
+				if (entidad != null)
+				{
+					entidad.Superficie = -1;//cambiar por estado = 0
+					contexto.Inmuebles.Update(entidad);
+					contexto.SaveChanges();
+					return Ok();
+				}
+				return BadRequest();
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex);
+			}
+		}
+	}
 }
