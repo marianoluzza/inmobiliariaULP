@@ -18,12 +18,10 @@ namespace Inmobiliaria_.Net_Core.Api
     public class InmueblesController : Controller
     {
         private readonly DataContext contexto;
-        private readonly IConfiguration config;
 
-        public InmueblesController(DataContext contexto, IConfiguration config)
+        public InmueblesController(DataContext contexto)
         {
             this.contexto = contexto;
-            this.config = config;
         }
 
         // GET: api/<controller>

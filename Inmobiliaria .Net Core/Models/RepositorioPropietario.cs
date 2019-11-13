@@ -21,15 +21,20 @@ namespace Inmobiliaria_.Net_Core.Models
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
 				string sql = $"INSERT INTO Propietarios (Nombre, Apellido, Dni, Telefono, Email, Clave) " +
-					$"VALUES ('{p.Nombre}', '{p.Apellido}','{p.Dni}','{p.Telefono}','{p.Email}','{p.Clave}')";
+					$"VALUES (@nombre, @apellido, @dni, @telefono, @email, @clave);" +
+					$"SELECT SCOPE_IDENTITY();";//devuelve el id insertado
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
+					command.Parameters.AddWithValue("@nombre", p.Nombre);
+					command.Parameters.AddWithValue("@apellido", p.Apellido);
+					command.Parameters.AddWithValue("@dni", p.Dni);
+					command.Parameters.AddWithValue("@telefono", p.Telefono);
+					command.Parameters.AddWithValue("@email", p.Email);
+					command.Parameters.AddWithValue("@clave", p.Clave);
 					connection.Open();
-					res = command.ExecuteNonQuery();
-                    command.CommandText = "SELECT SCOPE_IDENTITY()";
-                    var id = command.ExecuteScalar();
-                    p.IdPropietario = Convert.ToInt32(id);
+					res = Convert.ToInt32(command.ExecuteScalar());
+                    p.IdPropietario = res;
                     connection.Close();
 				}
 			}
@@ -40,10 +45,11 @@ namespace Inmobiliaria_.Net_Core.Models
 			int res = -1;
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
-				string sql = $"DELETE FROM Propietarios WHERE IdPropietario = {id}";
+				string sql = $"DELETE FROM Propietarios WHERE IdPropietario = @id";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
+					command.Parameters.AddWithValue("@id", id);
 					connection.Open();
 					res = command.ExecuteNonQuery();
 					connection.Close();
@@ -56,11 +62,18 @@ namespace Inmobiliaria_.Net_Core.Models
 			int res = -1;
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
-				string sql = $"UPDATE Propietarios SET Nombre='{p.Nombre}', Apellido='{p.Apellido}', Dni='{p.Dni}', Telefono='{p.Telefono}', Email='{p.Email}', Clave='{p.Clave}' " +
-					$"WHERE IdPropietario = {p.IdPropietario}";
+				string sql = $"UPDATE Propietarios SET Nombre=@nombre, Apellido=@apellido, Dni=@dni, Telefono=@telefono, Email=@email, Clave=@clave " +
+					$"WHERE IdPropietario = @id";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
+					command.Parameters.AddWithValue("@nombre", p.Nombre);
+					command.Parameters.AddWithValue("@apellido", p.Apellido);
+					command.Parameters.AddWithValue("@dni", p.Dni);
+					command.Parameters.AddWithValue("@telefono", p.Telefono);
+					command.Parameters.AddWithValue("@email", p.Email);
+					command.Parameters.AddWithValue("@clave", p.Clave);
+					command.Parameters.AddWithValue("@id", p.IdPropietario);
 					connection.Open();
 					res = command.ExecuteNonQuery();
 					connection.Close();
@@ -142,8 +155,8 @@ namespace Inmobiliaria_.Net_Core.Models
                     $" WHERE Email=@email";
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
-                    command.Parameters.Add("@email", SqlDbType.VarChar).Value = email;
                     command.CommandType = CommandType.Text;
+                    command.Parameters.Add("@email", SqlDbType.VarChar).Value = email;
                     connection.Open();
                     var reader = command.ExecuteReader();
                     if (reader.Read())

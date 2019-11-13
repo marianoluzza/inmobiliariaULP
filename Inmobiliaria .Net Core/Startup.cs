@@ -58,8 +58,9 @@ namespace Inmobiliaria_.Net_Core
             services.AddTransient<IRepositorioPropietario, RepositorioPropietario>();
             services.AddTransient<IRepositorio<Inquilino>, RepositorioInquilino>();
             services.AddTransient<IRepositorioInmueble, RepositorioInmueble>();
-            services.AddDbContext<DataContext>(options => options.UseSqlServer(configuration["ConnectionStrings:DefaultConnection"]));
-
+            services.AddDbContext<DataContext>(
+				options => options.UseSqlServer(
+					configuration["ConnectionStrings:DefaultConnection"]));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
