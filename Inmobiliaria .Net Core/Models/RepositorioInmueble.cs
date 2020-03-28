@@ -21,16 +21,21 @@ namespace Inmobiliaria_.Net_Core.Models
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
 				string sql = $"INSERT INTO Inmuebles (Direccion, Ambientes, Superficie, Latitud, Longitud, PropietarioId) " +
-					$"VALUES ('{entidad.Direccion}', '{entidad.Ambientes}','{entidad.Superficie}','{entidad.Latitud}','{entidad.Longitud}','{entidad.PropietarioId}')";
-				using (SqlCommand command = new SqlCommand(sql, connection))
+					"VALUES (@direccion, @ambientes, @superficie, @latitud, @longitud, @propietarioId);" +
+					"SELECT SCOPE_IDENTITY();";//devuelve el id insertado (LAST_INSERT_ID para mysql)
+				using (var command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
+					command.Parameters.AddWithValue("@direccion", entidad.Direccion);
+					command.Parameters.AddWithValue("@ambientes", entidad.Ambientes);
+					command.Parameters.AddWithValue("@superficie", entidad.Superficie);
+					command.Parameters.AddWithValue("@latitud", entidad.Latitud);
+					command.Parameters.AddWithValue("@longitud", entidad.Longitud);
+					command.Parameters.AddWithValue("@propietarioId", entidad.PropietarioId);
 					connection.Open();
-					res = command.ExecuteNonQuery();
-                    command.CommandText = "SELECT SCOPE_IDENTITY()";
-                    var id = command.ExecuteScalar();
-                    entidad.Id = Convert.ToInt32(id);
-                    connection.Close();
+					res = Convert.ToInt32(command.ExecuteScalar());
+					e.Id = res;
+					connection.Close();
 				}
 			}
 			return res;
@@ -51,22 +56,24 @@ namespace Inmobiliaria_.Net_Core.Models
 			}
 			return res;
 		}
-		public int Modificacion(Inmueble inmueble)
+		public int Modificacion(Inmueble entidad)
 		{
 			int res = -1;
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
-                string sql = $"UPDATE Inmuebles SET Direccion=@direccion, Ambientes=@ambientes, Superficie=@superficie, Latitud=@latitud, Longitud=@longitud, PropietarioId=@propietarioId " +
-					$"WHERE Id = {inmueble.Id}";
+                string sql = "UPDATE Inmuebles SET " +
+					"Direccion=@direccion, Ambientes=@ambientes, Superficie=@superficie, Latitud=@latitud, Longitud=@longitud, PropietarioId=@propietarioId " +
+					"WHERE Id = @id";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
-                    command.Parameters.Add("@direccion", SqlDbType.VarChar).Value = inmueble.Direccion;
-                    command.Parameters.Add("@ambientes", SqlDbType.Int).Value = inmueble.Ambientes;
-                    command.Parameters.Add("@superficie", SqlDbType.Int).Value = inmueble.Superficie;
-                    command.Parameters.Add("@latitud", SqlDbType.Decimal).Value = inmueble.Latitud;
-                    command.Parameters.Add("@longitud", SqlDbType.Decimal).Value = inmueble.Longitud;
-                    command.Parameters.Add("@propietarioId", SqlDbType.Int).Value = inmueble.PropietarioId;
-                    command.CommandType = CommandType.Text;
+					command.Parameters.AddWithValue("@direccion", entidad.Direccion);
+					command.Parameters.AddWithValue("@ambientes", entidad.Ambientes);
+					command.Parameters.AddWithValue("@superficie", entidad.Superficie);
+					command.Parameters.AddWithValue("@latitud", entidad.Latitud);
+					command.Parameters.AddWithValue("@longitud", entidad.Longitud);
+					command.Parameters.AddWithValue("@propietarioId", entidad.PropietarioId);
+					command.Parameters.AddWithValue("@id", entidad.Id);
+					command.CommandType = CommandType.Text;
 					connection.Open();
 					res = command.ExecuteNonQuery();
 					connection.Close();
@@ -80,8 +87,9 @@ namespace Inmobiliaria_.Net_Core.Models
 			IList<Inmueble> res = new List<Inmueble>();
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
-				string sql = $"SELECT Id, Direccion, Ambientes, Superficie, Latitud, Longitud, PropietarioId, p.Nombre, p.Apellido" +
-                    $" FROM Inmuebles i INNER JOIN Propietarios p ON i.PropietarioId = p.IdPropietario";
+				string sql = "SELECT Id, Direccion, Ambientes, Superficie, Latitud, Longitud, PropietarioId," +
+					" p.Nombre, p.Apellido" +
+                    " FROM Inmuebles i INNER JOIN Propietarios p ON i.PropietarioId = p.IdPropietario";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
