@@ -22,7 +22,7 @@ namespace Inmobiliaria_.Net_Core.Models
 			{
 				string sql = $"INSERT INTO Propietarios (Nombre, Apellido, Dni, Telefono, Email, Clave) " +
 					$"VALUES (@nombre, @apellido, @dni, @telefono, @email, @clave);" +
-					$"SELECT SCOPE_IDENTITY();";//devuelve el id insertado
+					"SELECT SCOPE_IDENTITY();";//devuelve el id insertado (LAST_INSERT_ID para mysql)
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
@@ -182,10 +182,11 @@ namespace Inmobiliaria_.Net_Core.Models
         {
             List<Propietario> res = new List<Propietario>();
             Propietario p = null;
-            using (SqlConnection connection = new SqlConnection(connectionString))
+			nombre = "%" + nombre + "%";
+			using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 string sql = $"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave FROM Propietarios" +
-                    $" WHERE Nombre LIKE %@nombre% OR Apellido LIKE %@nombre";
+                    $" WHERE Nombre LIKE @nombre OR Apellido LIKE @nombre";
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
                     command.Parameters.Add("@nombre", SqlDbType.VarChar).Value = nombre;

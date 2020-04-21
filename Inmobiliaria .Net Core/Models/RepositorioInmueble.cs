@@ -34,7 +34,7 @@ namespace Inmobiliaria_.Net_Core.Models
 					command.Parameters.AddWithValue("@propietarioId", entidad.PropietarioId);
 					connection.Open();
 					res = Convert.ToInt32(command.ExecuteScalar());
-					e.Id = res;
+					entidad.Id = res;
 					connection.Close();
 				}
 			}

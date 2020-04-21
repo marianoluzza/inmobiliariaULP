@@ -30,13 +30,13 @@ namespace Inmobiliaria_.Net_Core
 		public void ConfigureServices(IServiceCollection services)
 		{
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
+                .AddCookie(options =>//el sitio web valida con cookie
                 {
                     options.LoginPath = "/Home/Login";
                     options.LogoutPath = "/Home/Logout";
                     options.AccessDeniedPath = "/Home/Restringido";
                 })
-                .AddJwtBearer(options =>
+                .AddJwtBearer(options =>//la api web valida con token
                 {
                     options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                     {
@@ -51,7 +51,8 @@ namespace Inmobiliaria_.Net_Core
                 });
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("Administrador", policy => policy.RequireClaim(ClaimTypes.Role, "Administrador"));
+                //options.AddPolicy("Empleado", policy => policy.RequireClaim(ClaimTypes.Role, "Administrador", "Empleado"));
+                options.AddPolicy("Administrador", policy => policy.RequireRole("Administrador"));
             });
             services.AddMvc();
 			services.AddTransient<IRepositorio<Propietario>, RepositorioPropietario>();
