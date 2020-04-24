@@ -12,7 +12,7 @@ namespace Inmobiliaria_.Net_Core.Models
 	{
 		public RepositorioPropietario(IConfiguration configuration) : base(configuration)
 		{
-			
+
 		}
 
 		public int Alta(Propietario p)

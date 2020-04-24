@@ -32,8 +32,8 @@ namespace Inmobiliaria_.Net_Core
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>//el sitio web valida con cookie
                 {
-                    options.LoginPath = "/Home/Login";
-                    options.LogoutPath = "/Home/Logout";
+                    options.LoginPath = "/Usuarios/Login";
+                    options.LogoutPath = "/Usuarios/Logout";
                     options.AccessDeniedPath = "/Home/Restringido";
                 })
                 .AddJwtBearer(options =>//la api web valida con token
@@ -52,13 +52,19 @@ namespace Inmobiliaria_.Net_Core
             services.AddAuthorization(options =>
             {
                 //options.AddPolicy("Empleado", policy => policy.RequireClaim(ClaimTypes.Role, "Administrador", "Empleado"));
-                options.AddPolicy("Administrador", policy => policy.RequireRole("Administrador"));
+                options.AddPolicy("Administrador", policy => policy.RequireRole("Administrador", "SuperAdministrador"));
             });
+            /*
+            Transient objects are always different; a new instance is provided to every controller and every service.
+            Scoped objects are the same within a request, but different across different requests.
+            Singleton objects are the same for every object and every request.
+            */
             services.AddMvc();
 			services.AddTransient<IRepositorio<Propietario>, RepositorioPropietario>();
             services.AddTransient<IRepositorioPropietario, RepositorioPropietario>();
             services.AddTransient<IRepositorio<Inquilino>, RepositorioInquilino>();
             services.AddTransient<IRepositorioInmueble, RepositorioInmueble>();
+                services.AddTransient<IRepositorioUsuario, RepositorioUsuario>();
             services.AddDbContext<DataContext>(
 				options => options.UseSqlServer(
 					configuration["ConnectionStrings:DefaultConnection"]));
@@ -91,10 +97,13 @@ namespace Inmobiliaria_.Net_Core
                 routes.MapRoute(
 				    name: "login",
 				    template: "login/{**accion}",
-                    defaults: new { controller= "Home", action="Login"});
+                    defaults: new { controller= "Usuarios", action="Login"});
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
+                routes.MapRoute(
+                    name: "fechas",
+                    template: "{controller=Home}/{action=Fecha}/{anio}/{mes}/{dia}");
             });
 		}
 	}

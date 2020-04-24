@@ -1,0 +1,73 @@
+﻿@model Inmobiliaria_.Net_Core.Models.Usuario
+
+<h1>@ViewBag.Title</h1>
+
+<h4>Usuario</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+		<form asp-action="Edit">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<div class="form-group">
+				<label asp-for="Id" class="control-label"></label>
+				<input asp-for="Id" class="form-control" />
+				<span asp-validation-for="Id" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Nombre" class="control-label"></label>
+				<input asp-for="Nombre" class="form-control" />
+				<span asp-validation-for="Nombre" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Apellido" class="control-label"></label>
+				<input asp-for="Apellido" class="form-control" />
+				<span asp-validation-for="Apellido" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Email" class="control-label"></label>
+				<input asp-for="Email" class="form-control" />
+				<span asp-validation-for="Email" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Clave" class="control-label"></label>
+				<input asp-for="Clave" class="form-control" />
+				<span asp-validation-for="Clave" class="text-danger"></span>
+			</div>
+			@if (User.IsInRole("Administrador"))
+			{
+				<div class="form-group">
+					<label class="control-label">Rol</label>
+					<select class="form-control" name="Rol">
+						@foreach (var kvp in (IDictionary<int, string>)ViewBag.Roles)
+						{
+							@:<option @(kvp.Key == Model.Rol ? "selected" : "") value="@kvp.Key">@kvp.Value</option>
+						}
+					</select>
+					<span asp-validation-for="Rol" class="text-danger"></span>
+				</div>
+			}
+			<div class="form-group">
+				<label asp-for="Avatar" class="control-label"></label><br />
+			@if (Model.Avatar != "")
+			{
+				<img src="@Model.Avatar" />
+			}
+			else
+			{
+				<p>Sin avatar</p>
+			}
+			</div>
+			<div class="form-group">
+				<input type="submit" value="Save" class="btn btn-primary" />
+			</div>
+		</form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

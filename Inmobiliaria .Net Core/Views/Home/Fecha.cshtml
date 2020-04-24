@@ -1,0 +1,32 @@
+﻿
+@{
+	ViewData["Title"] = "Fecha";
+	DateTime fecha = (DateTime)ViewBag.Fecha;
+	DateTime fechaNavidad = new DateTime(fecha.Year, 12, 25);
+	var diferencia = fechaNavidad - fecha;
+	var diasTotales = diferencia.TotalDays;
+}
+
+<h1>Fecha</h1>
+<p>@fecha.ToShortDateString()</p>
+@switch (diasTotales)
+{
+	case 1:
+		<p>¡Mañana es Navidad!</p>
+		break;
+	case 0:
+		<p>¡Hoy es Navidad!</p>
+		break;
+	default:
+		@if (diasTotales > 0)
+		{
+			<p>¡Faltan @diasTotales días para Navidad!</p>
+		}
+		else
+		{
+			<p>Ya pasó Navidad</p>
+		}
+		break;
+}
+<a href="@Url.RouteUrl("fechas", new { anio = DateTime.Now.Year, mes = 12, dia = 25 })" >¡Acelerar!</a>
+
