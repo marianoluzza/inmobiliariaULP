@@ -33,7 +33,7 @@
 				<input asp-for="Clave" class="form-control" />
 				<span asp-validation-for="Clave" class="text-danger"></span>
 			</div>
-			@if (User.IsInRole("Administrador"))
+			@if (User.IsInRole("Administrador") || User.IsInRole("SuperAdministrador"))
 			{
 				<div class="form-group">
 					<label class="control-label">Rol</label>
