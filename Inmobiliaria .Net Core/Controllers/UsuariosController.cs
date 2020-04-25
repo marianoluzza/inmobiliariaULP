@@ -83,7 +83,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
                     //Path.GetFileName(u.AvatarFile.FileName);//este nombre se puede repetir
                     string fileName = "avatar_" + u.Id + Path.GetExtension(u.AvatarFile.FileName);
                     string pathCompleto = Path.Combine(path, fileName);
-                    u.Avatar = Path.Combine("Uploads", fileName);
+                    u.Avatar = Path.Combine("/Uploads", fileName);
                     using (FileStream stream = new FileStream(pathCompleto, FileMode.Create))
                     {
                         u.AvatarFile.CopyTo(stream);

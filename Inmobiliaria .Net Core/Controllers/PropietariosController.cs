@@ -26,8 +26,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
         public ActionResult Index()
         {
             var lista = repositorio.ObtenerTodos();
-            if (TempData.ContainsKey("Id"))
-                ViewBag.Id = TempData["Id"];
+            ViewBag.Id = TempData["Id"];
             if (TempData.ContainsKey("Mensaje"))
                 ViewBag.Mensaje = TempData["Mensaje"];
             return View(lista);
@@ -70,7 +69,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
             catch (Exception ex)
             {
                 ViewBag.Error = ex.Message;
-                ViewBag.StackTrate = ex.StackTrace;
+                ViewBag.StackTrace = ex.StackTrace;
                 return View(propietario);
             }
         }

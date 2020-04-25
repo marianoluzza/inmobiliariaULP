@@ -7,8 +7,10 @@
 	<link href="~/css/main.css" rel="stylesheet" />
 	<link rel="stylesheet" href="https://cdn.linearicons.com/free/1.0.0/icon-font.min.css">
 	<link rel="icon" href="~/img/favicon.png" type="image/x-icon" />
+    <!--Posibles estilos a aplicar. False porque es opcional. La página que lo necesita, declara la sección.-->
+	@RenderSection("Styles", false)
 	<title>@ViewBag.Title</title>
-</head>
+</head>a
 <body onload="init()">
     <header>
         <nav class="site-header sticky-top py-1">
