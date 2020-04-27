@@ -109,10 +109,45 @@
     </footer>
     @RenderSection("Scripts", false)
     @await Html.PartialAsync("_ScriptsPartial")    
-    <script type="text/javascript">
-        function init() {
-            $('.alert').alert();
+<script type="text/javascript">
+    function init() {
+        $('.alert').alert();
+    }
+
+    function buscarPropietarios(q) {
+		return $.ajax({//documentación: https://api.jquery.com/jquery.ajax/
+            url: `@Url.Action("Buscar", "Propietarios")/${q}`,
+            //method: "GET",
+            //data: {...},
+        }).done(res => {
+            console.log("Búsqueda: ", res);
+        }).fail(res => {
+            console.log("Error: ", res);
+        });
+	}
+
+    function modalLogin() {
+        var modal = document.getElementById("modal_login");
+        var abrirModal = () => {//función flecha
+            //modales: https://getbootstrap.com/docs/4.0/components/modal/
+            $('#modal_login').modal("show");
         }
-    </script>
+        if (!modal) {
+            $.ajax({
+                url: `@Url.Action("LoginModal", "Usuarios")`,
+			}).done(res => {
+                console.log("Modal: ", res);
+                var div = document.createElement("div");
+                div.innerHTML = res;
+				document.body.appendChild(div);
+                abrirModal();
+            }).fail(res => {
+                console.log("Error: ", res);
+            });
+        } else {
+			abrirModal();
+		}
+	}
+</script>
 </body>
 </html>

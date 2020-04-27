@@ -92,7 +92,7 @@ namespace Inmobiliaria_.Net_Core
 			{
 				app.UseDeveloperExceptionPage();//página amarilla de errores
 			}
-			app.UseMvc(routes =>
+            app.UseMvc(routes =>
 			{
                 routes.MapRoute(
 				    name: "login",

@@ -170,6 +170,27 @@ namespace Inmobiliaria_.Net_Core.Controllers
                 return View();
             }
         }
+        [Authorize]
+        public IActionResult Avatar()
+        {
+            var u = repositorio.ObtenerPorEmail(User.Identity.Name);
+            string fileName = "avatar_" + u.Id + Path.GetExtension(u.Avatar);
+            string wwwPath = environment.WebRootPath;
+            string path = Path.Combine(wwwPath, "Uploads");
+            string pathCompleto = Path.Combine(path, fileName);
+
+            //leer el archivo
+            byte[] fileBytes = System.IO.File.ReadAllBytes(pathCompleto);
+            //devolverlo
+            return File(fileBytes, System.Net.Mime.MediaTypeNames.Application.Octet, fileName);
+        }
+
+        [AllowAnonymous]
+        // GET: Usuarios/Login/
+        public ActionResult LoginModal()
+        {
+            return PartialView("_LoginModal", new LoginView());
+        }
 
         [AllowAnonymous]
         // GET: Usuarios/Login/

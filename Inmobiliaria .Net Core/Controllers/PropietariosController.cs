@@ -13,10 +13,10 @@ namespace Inmobiliaria_.Net_Core.Controllers
 {
     public class PropietariosController : Controller
     {
-        private readonly IRepositorio<Propietario> repositorio;
+        private readonly IRepositorioPropietario repositorio;
         private readonly IConfiguration config;
 
-        public PropietariosController(IRepositorio<Propietario> repositorio, IConfiguration config)
+        public PropietariosController(IRepositorioPropietario repositorio, IConfiguration config)
         {
             this.repositorio = repositorio;
             this.config = config;
@@ -36,6 +36,21 @@ namespace Inmobiliaria_.Net_Core.Controllers
         public ActionResult Details(int id)
         {
             return View();
+        }
+
+        // GET: Propietario/Buscar/5
+        [Route("[controller]/Buscar/{q}", Name = "Buscar")]
+        public IActionResult Buscar(string q)
+        {
+            try
+            {
+                var res = repositorio.BuscarPorNombre(q);
+                return Json(new { Datos = res });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = ex.Message });
+            }
         }
 
         // GET: Propietario/Create
@@ -72,13 +87,6 @@ namespace Inmobiliaria_.Net_Core.Controllers
                 ViewBag.StackTrace = ex.StackTrace;
                 return View(propietario);
             }
-        }
-
-        [HttpPost]
-        public JsonResult Buscar(string s)
-        {
-            var res = repositorio.ObtenerTodos().Where(x => x.Nombre.Contains(s) || x.Apellido.Contains(s));
-            return new JsonResult(res);
         }
 
         // GET: Propietario/Edit/5
