@@ -1,4 +1,8 @@
-﻿body {
+﻿html {
+    position: relative;
+    min-height: 100%;
+}
+body {
     margin: 0;
     font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
     font-size: 1rem;
@@ -8,7 +12,9 @@
     text-align: left;
     background-color: #fff;
 }
-
+    body > .container {
+        padding: 60px 15px 0;
+    }
 .site-header {
     background-color: rgba(0, 0, 0, .85);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
@@ -55,8 +61,16 @@
     overflow: hidden;
 }
 
+.fixed-top {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1030;
+}
 
 .footer {
+    position: absolute;
     bottom: 0;
     width: 100%;
     /* Set the fixed height of the footer here */
