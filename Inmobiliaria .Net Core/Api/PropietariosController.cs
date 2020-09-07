@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -17,7 +18,8 @@ using Microsoft.IdentityModel.Tokens;
 namespace Inmobiliaria_.Net_Core.Api
 {
     [Route("api/[controller]")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [ApiController]
     public class PropietariosController : Controller
     {
         private readonly DataContext contexto;
@@ -34,8 +36,14 @@ namespace Inmobiliaria_.Net_Core.Api
         {
             try
             {
+                /*contexto.Inmuebles
+                    .Include(x => x.Duenio)
+                    .Where(x => x.Duenio.Nombre == "")//.ToList() => lista de inmuebles
+                    .Select(x => x.Duenio)
+                    .ToList();//lista de propietarios*/
                 var usuario = User.Identity.Name;
-                return Ok(contexto.Propietarios.SingleOrDefault(x => x.Email == usuario));
+                var res = contexto.Propietarios.Select(x => new  {x.Nombre, x.Apellido, x.Email }).SingleOrDefault(x => x.Email == usuario);
+                return Ok(res);
             }
             catch (Exception ex)
             {

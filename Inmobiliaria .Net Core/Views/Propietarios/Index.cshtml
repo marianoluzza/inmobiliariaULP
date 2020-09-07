@@ -12,9 +12,9 @@
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.IdPropietario)
-            </th>
+			<th>
+				@Html.DisplayNameFor(model => model.IdPropietario)
+			</th>
             <th>
                 @Html.DisplayNameFor(model => model.Nombre)
             </th>
@@ -54,10 +54,12 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Email)
             </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.IdPropietario" title="Editar"><span class="lnr lnr-pencil"></span></a>&nbsp;
-                <a asp-action="Eliminar" asp-route-id="@item.IdPropietario" title="Eliminar"><span class="lnr lnr-cross"></span></a>
-            </td>
+			<td>
+				<a asp-action="Edit" asp-route-id="@item.IdPropietario" title="Editar"><span class="lnr lnr-pencil"></span></a>&nbsp;
+				<a asp-action="Eliminar" asp-route-id="@item.IdPropietario" title="Eliminar"><span class="lnr lnr-cross"></span></a>
+				<a asp-action="PorPropietario" asp-controller="Inmuebles" asp-route-id="@item.IdPropietario" title="Mis Propiedades"><span class="lnr lnr-cross"></span></a>
+                @Html.ActionLink("Mis Propiedades", "PorPropietario", "Inmuebles", new { id= item.IdPropietario })
+			</td>
         </tr>
 }
     </tbody>

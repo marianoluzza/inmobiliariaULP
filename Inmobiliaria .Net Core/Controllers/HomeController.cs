@@ -57,5 +57,11 @@ namespace Inmobiliaria_.Net_Core.Controllers
             ViewBag.Fecha = dt;
             return View();
         }
+
+        public IActionResult Ruta(string valor)
+        {
+            ViewBag.Valor = valor;
+            return View();
+        }
     }
 }

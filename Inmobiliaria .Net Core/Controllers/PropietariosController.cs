@@ -25,11 +25,18 @@ namespace Inmobiliaria_.Net_Core.Controllers
         // GET: Propietario
         public ActionResult Index()
         {
-            var lista = repositorio.ObtenerTodos();
-            ViewBag.Id = TempData["Id"];
-            if (TempData.ContainsKey("Mensaje"))
-                ViewBag.Mensaje = TempData["Mensaje"];
-            return View(lista);
+			try
+            {
+                var lista = repositorio.ObtenerTodos();
+                ViewBag.Id = TempData["Id"];
+                if (TempData.ContainsKey("Mensaje"))
+                    ViewBag.Mensaje = TempData["Mensaje"];
+                return View(lista);
+            }
+			catch (Exception ex)
+			{
+				throw;
+			}
         }
 
         // GET: Propietario/Details/5

@@ -64,7 +64,7 @@ namespace Inmobiliaria_.Net_Core
             services.AddTransient<IRepositorioPropietario, RepositorioPropietario>();
             services.AddTransient<IRepositorio<Inquilino>, RepositorioInquilino>();
             services.AddTransient<IRepositorioInmueble, RepositorioInmueble>();
-                services.AddTransient<IRepositorioUsuario, RepositorioUsuario>();
+            services.AddTransient<IRepositorioUsuario, RepositorioUsuario>();
             services.AddDbContext<DataContext>(
 				options => options.UseSqlServer(
 					configuration["ConnectionStrings:DefaultConnection"]));
@@ -80,6 +80,7 @@ namespace Inmobiliaria_.Net_Core
                 .AllowAnyHeader());
             // Uso de archivos estáticos (*.html, *.css, *.js, etc.)
             app.UseStaticFiles();
+            app.UseRouting();
             // Permitir cookies
             app.UseCookiePolicy(new CookiePolicyOptions
             {
@@ -87,23 +88,18 @@ namespace Inmobiliaria_.Net_Core
             });
             // Habilitar autenticación
             app.UseAuthentication();
+            app.UseAuthorization();
             // App en ambiente de desarrollo?
             if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();//página amarilla de errores
 			}
-            app.UseMvc(routes =>
+            app.UseEndpoints(endpoints =>
 			{
-                routes.MapRoute(
-				    name: "login",
-				    template: "login/{**accion}",
-                    defaults: new { controller= "Usuarios", action="Login"});
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-                routes.MapRoute(
-                    name: "fechas",
-                    template: "{controller=Home}/{action=Fecha}/{anio}/{mes}/{dia}");
+                endpoints.MapControllerRoute("login", "login/{**accion}", new { controller = "Usuarios", action = "Login" });
+                endpoints.MapControllerRoute("rutaFija", "ruteo/{valor}", new { controller = "Home", action = "Ruta", valor = "defecto" });
+                endpoints.MapControllerRoute("fechas", "{controller=Home}/{action=Fecha}/{anio}/{mes}/{dia}");
+                endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
             });
 		}
 	}

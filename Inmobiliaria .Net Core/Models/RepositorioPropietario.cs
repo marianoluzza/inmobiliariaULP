@@ -137,7 +137,7 @@ namespace Inmobiliaria_.Net_Core.Models
 							Dni = reader.GetString(3),
 							Telefono = reader.GetString(4),
 							Email = reader.GetString(5),
-							Clave = reader.GetString(6),
+							Clave = (String)reader["Clave"],
 						};
 					}
 					connection.Close();
