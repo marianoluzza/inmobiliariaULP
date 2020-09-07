@@ -248,7 +248,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
             }
         }
 
-        // GET: Usuarios/Logout
+        // GET: /salir
         [Route("salir", Name = "logout")]
         public async Task<ActionResult> Logout()
         {
