@@ -86,7 +86,10 @@ namespace Inmobiliaria_.Net_Core.Models
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
 				string sql = $"SELECT IdInquilino, Nombre, Apellido, Dni, Telefono, Email" +
-                    $" FROM Inquilinos";
+					$" FROM Inquilinos" +
+					$" ORDER BY Apellido, Nombre";/* +
+					$" OFFSET 0 ROWS " +
+					$" FETCH NEXT 10 ROWS ONLY ";*/
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
