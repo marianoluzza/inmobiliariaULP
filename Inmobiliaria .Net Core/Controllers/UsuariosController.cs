@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Inmobiliaria_.Net_Core.Models;
@@ -13,16 +14,18 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json.Serialization;
 
 namespace Inmobiliaria_.Net_Core.Controllers
 {
     public class UsuariosController : Controller
     {
         private readonly IConfiguration configuration;
-        private readonly IHostingEnvironment environment;
+        private readonly IWebHostEnvironment environment;
         private readonly IRepositorioUsuario repositorio;
 
-        public UsuariosController(IConfiguration configuration, IHostingEnvironment environment, IRepositorioUsuario repositorio)
+        public UsuariosController(IConfiguration configuration, IWebHostEnvironment environment, IRepositorioUsuario repositorio)
         {
             this.configuration = configuration;
             this.environment = environment;
@@ -183,6 +186,46 @@ namespace Inmobiliaria_.Net_Core.Controllers
             byte[] fileBytes = System.IO.File.ReadAllBytes(pathCompleto);
             //devolverlo
             return File(fileBytes, System.Net.Mime.MediaTypeNames.Application.Octet, fileName);
+        }
+
+        // GET: Usuarios/Create
+        [Authorize]
+        public ActionResult Foto()
+        {
+            try
+            {
+                var u = repositorio.ObtenerPorEmail(User.Identity.Name);
+                var stream = System.IO.File.Open(
+                    Path.Combine(environment.WebRootPath, u.Avatar.Substring(1)),
+                    FileMode.Open,
+                    FileAccess.Read);
+                var ext = Path.GetExtension(u.Avatar);
+                return new FileStreamResult(stream, $"image/{ext.Substring(1)}");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        // GET: Usuarios/Create
+        [Authorize]
+        public ActionResult Datos()
+        {
+            try
+            {
+                var u = repositorio.ObtenerPorEmail(User.Identity.Name);
+                string buffer = "Nombre;Apellido;Email" + Environment.NewLine +
+                    $"{u.Nombre};{u.Apellido};{u.Email}";
+                var stream = new MemoryStream(System.Text.Encoding.Unicode.GetBytes(buffer));
+                var res = new FileStreamResult(stream, "text/plain");
+                res.FileDownloadName = "Datos.csv";
+                return res;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         [AllowAnonymous]
