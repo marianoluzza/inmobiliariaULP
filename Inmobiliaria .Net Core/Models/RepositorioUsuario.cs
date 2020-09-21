@@ -28,7 +28,10 @@ namespace Inmobiliaria_.Net_Core.Models
 					command.CommandType = CommandType.Text;
 					command.Parameters.AddWithValue("@nombre", e.Nombre);
 					command.Parameters.AddWithValue("@apellido", e.Apellido);
-					command.Parameters.AddWithValue("@avatar", e.Avatar);
+					if(String.IsNullOrEmpty(e.Avatar))
+						command.Parameters.AddWithValue("@avatar", DBNull.Value);
+					else 
+						command.Parameters.AddWithValue("@avatar", e.Avatar);
 					command.Parameters.AddWithValue("@email", e.Email);
 					command.Parameters.AddWithValue("@clave", e.Clave);
 					command.Parameters.AddWithValue("@rol", e.Rol);
