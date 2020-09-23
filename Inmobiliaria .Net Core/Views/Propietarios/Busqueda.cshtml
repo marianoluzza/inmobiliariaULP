@@ -1,0 +1,62 @@
+﻿@model Inmobiliaria_.Net_Core.Models.Propietario
+
+@{
+	ViewData["Title"] = "Busqueda";
+}
+
+<h1>Busqueda</h1>
+
+<h4>Propietario</h4>
+<hr />
+<div class="row">
+	<div class="col-md-4">
+		<form id="form_buscar">
+			<div class="form-group">
+				<label for="q" class="control-label"></label>
+				<input name="q" class="form-control" placeholder="Nombre a buscar" id="q" />
+			</div>
+			<div class="form-group">
+				<input type="submit" value="Buscar" class="btn btn-primary" />
+			</div>
+		</form>
+	</div>
+</div>
+<div>
+	<table>
+		<thead>
+			<tr>
+				<th>Nombre</th>
+				<th>Apellido</th>
+			</tr>
+		</thead>
+		<tbody id="resultado">
+		</tbody>
+	</table>
+</div>
+
+<div>
+	<a asp-action="Index">Back to List</a>
+</div>
+<script id="t_tabla" type="x-tmpl-mustache">
+	{{#datos}}
+	<tr>
+		<td>{{nombre}}</td>
+		<td>{{apellido}}</td>
+	</tr>
+	{{/datos}}
+</script>
+@section Scripts {
+<script>
+	document.querySelector("#form_buscar").addEventListener("submit", (e) => {
+        e.preventDefault();
+        var q = $("#q").val();
+        $.get(`@Url.Action("Buscar", "Propietarios")/${q}`).done((res) => {
+			console.log(res);
+			var template = document.getElementById('t_tabla').innerHTML;
+			var rendered = Mustache.render(template, res);
+			document.getElementById('resultado').innerHTML = rendered;
+        });
+        return false;
+    });
+</script>
+}

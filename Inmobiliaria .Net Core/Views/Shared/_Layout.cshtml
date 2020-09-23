@@ -7,109 +7,109 @@
 	<link href="~/css/main.css" rel="stylesheet" />
 	<link rel="stylesheet" href="https://cdn.linearicons.com/free/1.0.0/icon-font.min.css">
 	<link rel="icon" href="~/img/favicon.png" type="image/x-icon" />
-    <!--Posibles estilos a aplicar. False porque es opcional. La página que lo necesita, declara la sección.-->
+	<script src="https://unpkg.com/mustache@latest"></script>
+	<!--Posibles estilos a aplicar. False porque es opcional. La página que lo necesita, declara la sección.-->
 	@RenderSection("Styles", false)
 	<title>@ViewBag.Title</title>
 </head>
 <body onload="init()">
 	<header>
-		<nav class="site-header fixed-top py-1"> <!-- sticky-top -->
-				<div class="container d-flex flex-column flex-md-row justify-content-between">
-					@if (!User.Identity.IsAuthenticated)
-					{
-						<a class="py-2" asp-controller="Home" asp-action="Index"><span class="lnr lnr-home"></span> Inicio</a>
-						<a class="py-2 d-none d-md-inline-block float-right" href="@Url.Link("login", null)"><span class="lnr lnr-enter"></span> Acceder</a>
-					}
-					else
-					{
-						<div class="dropdown">
-							<a class="btn btn-primary dropdown-toggle text-light" href="#" role="button" id="homeMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-reference="parent" data-display="static">
-								<span class="lnr lnr-home"></span> Inicio
-							</a>
-							<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-								<a class="dropdown-item text-dark" asp-controller="Home" asp-action="Index"><span class="lnr lnr-home"></span> Inicio</a>
-								<a class="dropdown-item text-dark" asp-controller="Home" asp-action="Seguro"><i class="lnr lnr-layers"></i> Claims</a>
-								<a class="dropdown-item text-dark" asp-controller="Home" asp-action="Fecha" asp-route-anio="@DateTime.Today.Year" asp-route-mes="@DateTime.Today.Month" asp-route-dia="@DateTime.Today.Day"><i class="lnr lnr-calendar-full"></i> Fecha</a>
-							</div>
+		<nav class="site-header fixed-top py-1">
+			<!-- sticky-top -->
+			<div class="container d-flex flex-column flex-md-row justify-content-between">
+				@if (!User.Identity.IsAuthenticated)
+				{
+					<a class="py-2" asp-controller="Home" asp-action="Index"><span class="lnr lnr-home"></span> Inicio</a>
+					<a class="py-2 d-none d-md-inline-block float-right" href="@Url.Link("login", null)"><span class="lnr lnr-enter"></span> Acceder</a>
+				}
+				else
+				{
+					<div class="dropdown">
+						<a class="btn btn-primary dropdown-toggle text-light" href="#" role="button" id="homeMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-reference="parent" data-display="static">
+							<span class="lnr lnr-home"></span> Inicio
+						</a>
+						<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+							<a class="dropdown-item text-dark" asp-controller="Home" asp-action="Index"><span class="lnr lnr-home"></span> Inicio</a>
+							<a class="dropdown-item text-dark" asp-controller="Home" asp-action="Seguro"><i class="lnr lnr-layers"></i> Claims</a>
+							<a class="dropdown-item text-dark" asp-controller="Home" asp-action="Fecha" asp-route-anio="@DateTime.Today.Year" asp-route-mes="@DateTime.Today.Month" asp-route-dia="@DateTime.Today.Day"><i class="lnr lnr-calendar-full"></i> Fecha</a>
 						</div>
-						@if (User.IsInRole("Administrador") || User.IsInRole("SuperAdministrador"))
-						{
-							<a class="py-2 d-none d-md-inline-block" asp-controller="Usuarios" asp-action="Index"><span class="lnr lnr-star"></span> Usuarios</a>
-						}
-						<a class="py-2 d-none d-md-inline-block" asp-controller="Propietarios" asp-action="Index"><span class="lnr lnr-user"></span> Propietarios</a>
-						<a class="py-2 d-none d-md-inline-block" asp-controller="Inmuebles" asp-action="Index"><span class="lnr lnr-apartment"></span> Inmuebles</a>
-						<a class="py-2 d-none d-md-inline-block" asp-controller="Alquileres" asp-action="Index"><span class="lnr lnr-enter"></span> Alquileres</a>
-						<div class="dropdown">
-							<a class="btn btn-primary dropdown-toggle text-light" href="#" role="button" id="userMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-reference="parent" data-display="static">
-								<span class="lnr lnr-user"></span> @User.Identity.Name
-							</a>
+					</div>
+					@if (User.IsInRole("Administrador") || User.IsInRole("SuperAdministrador"))
+					{
+						<a class="py-2 d-none d-md-inline-block" asp-controller="Usuarios" asp-action="Index"><span class="lnr lnr-star"></span> Usuarios</a>
+					}
+					<a class="py-2 d-none d-md-inline-block" asp-controller="Propietarios" asp-action="Index"><span class="lnr lnr-user"></span> Propietarios</a>
+					<a class="py-2 d-none d-md-inline-block" asp-controller="Inmuebles" asp-action="Index"><span class="lnr lnr-apartment"></span> Inmuebles</a>
+					<a class="py-2 d-none d-md-inline-block" asp-controller="Alquileres" asp-action="Index"><span class="lnr lnr-enter"></span> Alquileres</a>
+					<div class="dropdown">
+						<a class="btn btn-primary dropdown-toggle text-light" href="#" role="button" id="userMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-reference="parent" data-display="static">
+							<span class="lnr lnr-user"></span> @User.Identity.Name
+						</a>
 
-							<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-								<a class="dropdown-item text-dark" asp-controller="Usuarios" asp-action="Perfil"><i class="lnr lnr-user"></i> Perfil</a>
-								<a class="dropdown-item text-dark" asp-controller="Usuarios" asp-action="Logout"><i class="lnr lnr-exit"></i> Salir</a>
-							</div>
+						<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+							<a class="dropdown-item text-dark" asp-controller="Usuarios" asp-action="Perfil"><i class="lnr lnr-user"></i> Perfil</a>
+							<a class="dropdown-item text-dark" asp-controller="Usuarios" asp-action="Logout"><i class="lnr lnr-exit"></i> Salir</a>
 						</div>
-					}
+					</div>
+				}
+			</div>
+		</nav>
+	</header>
+	<main role="main" class="container">
+		<div class="">
+			@if (ViewBag.Id != null)
+			{//alta exitosa
+				<div class="alert alert-success alert-dismissible fade show" role="alert">
+					<strong>¡Éxito!</strong> La entidad fue dada de alta con id: @ViewBag.Id
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true"><span class="lnr lnr-cross-circle"></span></span>
+					</button>
 				</div>
-			</nav>
-		</header>
-		<main role="main" class="container">
-			<div class="">
-				@if (ViewBag.Id != null)
-				{//alta exitosa
-					<div class="alert alert-success alert-dismissible fade show" role="alert">
-						<strong>¡Éxito!</strong> La entidad fue dada de alta con id: @ViewBag.Id
-						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-							<span aria-hidden="true"><span class="lnr lnr-cross-circle"></span></span>
-						</button>
-					</div>
-				}
-				else if (ViewBag.Mensaje != null)
-				{//cartel general
-					<div class="alert alert-info alert-dismissible fade show" role="alert">
-						<strong>Información:</strong> @ViewBag.Mensaje
-						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-							<span aria-hidden="true"><span class="lnr lnr-cross-circle"></span></span>
-						</button>
-					</div>
-				}
-				else if (ViewBag.Error != null)
-				{//alta exitosa
+			}
+			else if (ViewBag.Mensaje != null)
+			{//cartel general
+				<div class="alert alert-info alert-dismissible fade show" role="alert">
+					<strong>Información:</strong> @ViewBag.Mensaje
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true"><span class="lnr lnr-cross-circle"></span></span>
+					</button>
+				</div>
+			}
+			else if (ViewBag.Error != null)
+			{//alta exitosa
+				<div class="alert alert-danger alert-dismissible fade show" role="alert">
+					<strong>¡Error!</strong> @ViewBag.Error
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true"><span class="lnr lnr-cross-circle"></span></span>
+					</button>
+				</div>
+			}
+			else if (!String.IsNullOrWhiteSpace(ViewBag.Error))
+			{//ocurrió un error
+				<environment names="Development">
 					<div class="alert alert-danger alert-dismissible fade show" role="alert">
-						<strong>¡Error!</strong> @ViewBag.Error
+						<strong>¡Error!</strong> Ocurrió: @ViewBag.Error
 						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 							<span aria-hidden="true"><span class="lnr lnr-cross-circle"></span></span>
 						</button>
-					</div>
-				}
-				else if (!String.IsNullOrWhiteSpace(ViewBag.Error))
-				{//ocurrió un error
-					<environment names="Development">
-						<div class="alert alert-danger alert-dismissible fade show" role="alert">
-							<strong>¡Error!</strong> Ocurrió: @ViewBag.Error
-							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-								<span aria-hidden="true"><span class="lnr lnr-cross-circle"></span></span>
-							</button>
-							<a class="btn btn-primary" data-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false"><span class="lnr lnr-plus-circle"></span></a>
-							<div class="collapse multi-collapse" id="multiCollapseExample1">
-								@ViewBag.StackTrace
-							</div>
+						<a class="btn btn-primary" data-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false"><span class="lnr lnr-plus-circle"></span></a>
+						<div class="collapse multi-collapse" id="multiCollapseExample1">
+							@ViewBag.StackTrace
 						</div>
-					</environment>
-				}
-				<div class="m-1 p-1">
-					@RenderBody()
-				</div>
+					</div>
+				</environment>
+			}
+			<div class="m-1 p-1">
+				@RenderBody()
 			</div>
-		</main>
-		<footer class="footer">
-			<div class="container">
-				<span class="text-muted">&copy; @DateTime.Today.Year Company, Inc. &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a> <a class="float-right" href="#">Volver arriba</a></span>
-			</div>
-		</footer>
-		@RenderSection("Scripts", false)
-		@await Html.PartialAsync("_ScriptsPartial")
-		<script type="text/javascript">
+		</div>
+	</main>
+	<footer class="footer">
+		<div class="container">
+			<span class="text-muted">&copy; @DateTime.Today.Year Company, Inc. &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a> <a class="float-right" href="#">Volver arriba</a></span>
+		</div>
+	</footer>
+	<script type="text/javascript" onl>
 		function init() {
 			$('.alert').alert();
 		}
@@ -148,6 +148,8 @@
 				abrirModal();
 			}
 		}
-		</script>
-	</body>
+	</script>
+	@RenderSection("Scripts", false)
+	@await Html.PartialAsync("_ScriptsPartial")
+</body>
 	</html>

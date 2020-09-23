@@ -45,6 +45,19 @@ namespace Inmobiliaria_.Net_Core.Controllers
             return View();
         }
 
+        // GET: Propietario/Busqueda
+        public IActionResult Busqueda()
+        {
+            try
+            {
+                return View();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         // GET: Propietario/Buscar/5
         [Route("[controller]/Buscar/{q}", Name = "Buscar")]
         public IActionResult Buscar(string q)

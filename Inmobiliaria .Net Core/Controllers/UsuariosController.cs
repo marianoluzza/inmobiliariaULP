@@ -237,8 +237,9 @@ namespace Inmobiliaria_.Net_Core.Controllers
 
         [AllowAnonymous]
         // GET: Usuarios/Login/
-        public ActionResult Login()
+        public ActionResult Login(string returnUrl)
         {
+            TempData["returnUrl"] = returnUrl;
             return View();
         }
 
@@ -250,6 +251,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
         {
             try
             {
+                var returnUrl = String.IsNullOrEmpty(TempData["returnUrl"] as string)? "/Home" : TempData["returnUrl"].ToString();                
                 if (ModelState.IsValid)
                 {
                     string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
@@ -263,6 +265,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
                     if (e == null || e.Clave != hashed)
                     {
                         ModelState.AddModelError("", "El email o la clave no son correctos");
+                        TempData["returnUrl"] = returnUrl;
                         return View();
                     }
 
@@ -279,9 +282,10 @@ namespace Inmobiliaria_.Net_Core.Controllers
                     await HttpContext.SignInAsync(
                         CookieAuthenticationDefaults.AuthenticationScheme,
                         new ClaimsPrincipal(claimsIdentity));
-
-                    return RedirectToAction(nameof(Index), "Home");
+                    TempData.Remove("returnUrl");
+                    return Redirect(returnUrl);
                 }
+                TempData["returnUrl"] = returnUrl;
                 return View();
             }
             catch (Exception ex)
