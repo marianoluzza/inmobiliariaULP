@@ -46,7 +46,8 @@ namespace Inmobiliaria_.Net_Core
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = configuration["TokenAuthentication:Issuer"],
                         ValidAudience = configuration["TokenAuthentication:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(configuration["TokenAuthentication:SecretKey"])),
+                        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(
+                            configuration["TokenAuthentication:SecretKey"])),
                     };
                 });
             services.AddAuthorization(options =>

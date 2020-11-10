@@ -102,7 +102,7 @@ namespace Inmobiliaria_.Net_Core.Models
 							Nombre = reader.GetString(1),
 							Apellido = reader.GetString(2),
 							Dni = reader.GetString(3),
-							Telefono = reader.GetString(4),
+							Telefono = reader["Telefono"].ToString(),
 							Email = reader.GetString(5),
 							Clave = reader.GetString(6),
 						};
@@ -114,7 +114,7 @@ namespace Inmobiliaria_.Net_Core.Models
 			return res;
 		}
 
-		public Propietario ObtenerPorId(int id)
+		virtual public Propietario ObtenerPorId(int id)
 		{
 			Propietario p = null;
 			using (SqlConnection connection = new SqlConnection(connectionString))

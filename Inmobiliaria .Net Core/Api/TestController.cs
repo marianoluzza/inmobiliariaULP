@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Inmobiliaria_.Net_Core.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -9,7 +11,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace Inmobiliaria_.Net_Core.Api
 {
     [Route("api/[controller]")]
-    public class TestController : Controller
+    [ApiController]
+    public class TestController : ControllerBase
     {
         // GET: api/<controller>
         [HttpGet]
@@ -43,8 +46,23 @@ namespace Inmobiliaria_.Net_Core.Api
 
         // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody]string value)
+        public void Post([FromForm]string value, IFormFile file)
         {
+
+        }
+
+        // POST api/<controller>/usuario/5
+        [HttpPost("usuario/{id}")]
+        public void Post([FromForm] Usuario usuario, int id)
+        {
+
+        }
+
+        // POST api/<controller>/usuario/5
+        [HttpPost("login")]
+        public async Task<IActionResult> Post([FromForm]LoginView login)
+        {
+            return Ok(login);
         }
 
         // PUT api/<controller>/5

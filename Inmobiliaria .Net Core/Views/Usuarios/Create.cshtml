@@ -1,0 +1,60 @@
+﻿@model Inmobiliaria_.Net_Core.Models.Usuario
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Usuario</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+		<form asp-action="Create" enctype="multipart/form-data">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<div class="form-group">
+				<label asp-for="Nombre" class="control-label"></label>
+				<input asp-for="Nombre" class="form-control" />
+				<span asp-validation-for="Nombre" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Apellido" class="control-label"></label>
+				<input asp-for="Apellido" class="form-control" />
+				<span asp-validation-for="Apellido" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Email" class="control-label"></label>
+				<input asp-for="Email" class="form-control" />
+				<span asp-validation-for="Email" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Clave" class="control-label"></label>
+				<input asp-for="Clave" class="form-control" />
+				<span asp-validation-for="Clave" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="AvatarFile" class="control-label"></label>
+				<input type="file" name="AvatarFile" />
+				<span asp-validation-for="AvatarFile" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label class="control-label">Rol</label>
+				<select class="form-control" name="Rol">
+					@foreach (var kvp in (IDictionary<int, string>)ViewBag.Roles)
+					{
+						<option value="@kvp.Key">@kvp.Value</option>
+					}
+				</select>
+				<span asp-validation-for="Rol" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<input type="submit" value="Create" class="btn btn-primary" />
+			</div>
+		</form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

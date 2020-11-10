@@ -8,6 +8,7 @@ using Inmobiliaria_.Net_Core.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -18,9 +19,9 @@ using Microsoft.IdentityModel.Tokens;
 namespace Inmobiliaria_.Net_Core.Api
 {
     [Route("api/[controller]")]
-    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
-    public class PropietariosController : Controller
+    public class PropietariosController : ControllerBase//
     {
         private readonly DataContext contexto;
         private readonly IConfiguration config;
@@ -32,7 +33,7 @@ namespace Inmobiliaria_.Net_Core.Api
         }
         // GET: api/<controller>
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<ActionResult<Propietario>> Get()
         {
             try
             {
@@ -42,8 +43,11 @@ namespace Inmobiliaria_.Net_Core.Api
                     .Select(x => x.Duenio)
                     .ToList();//lista de propietarios*/
                 var usuario = User.Identity.Name;
-                var res = contexto.Propietarios.Select(x => new  {x.Nombre, x.Apellido, x.Email }).SingleOrDefault(x => x.Email == usuario);
-                return Ok(res);
+                /*contexto.Contratos.Include(x => x.Inquilino).Include(x => x.Inmueble).ThenInclude(x => x.Duenio)
+                    .Where(c => c.Inmueble.Duenio.Email....);*/
+                /*var res = contexto.Propietarios.Select(x=> new { x.Nombre, x.Apellido, x.Email })
+                    .SingleOrDefault(x=>x.Email == usuario);*/
+                return contexto.Propietarios.SingleOrDefault(x => x.Email == usuario);
             }
             catch (Exception ex)
             {
@@ -66,9 +70,23 @@ namespace Inmobiliaria_.Net_Core.Api
         }
 
         // GET api/<controller>/5
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAll()
+        {
+            try
+            {
+                return Ok(contexto.Propietarios);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
+        // GET api/<controller>/5
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<IActionResult> Login(LoginView loginView)
+        public async Task<IActionResult> Login([FromForm]LoginView loginView)
         {
             try
             {
@@ -85,7 +103,8 @@ namespace Inmobiliaria_.Net_Core.Api
                 }
                 else
                 {
-                    var key = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(config["TokenAuthentication:SecretKey"]));
+                    var key = new SymmetricSecurityKey(
+                        System.Text.Encoding.ASCII.GetBytes(config["TokenAuthentication:SecretKey"]));
                     var credenciales = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
                     var claims = new List<Claim>
                     {
@@ -112,7 +131,7 @@ namespace Inmobiliaria_.Net_Core.Api
 
         // POST api/<controller>
         [HttpPost]
-        public async Task<IActionResult> Post(Propietario entidad)
+        public async Task<IActionResult> Post([FromForm]Propietario entidad)
         {
             try
             {
@@ -132,25 +151,72 @@ namespace Inmobiliaria_.Net_Core.Api
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public async Task<IActionResult> Put(int id, [FromForm]Propietario entidad)
         {
-            //contexto.Propietarios.Update()
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    entidad.IdPropietario = id;
+                    contexto.Propietarios.Update(entidad);
+                    contexto.SaveChanges();
+                    return Ok(entidad);
+                }
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var p = contexto.Propietarios.Find(id);
+                    if (p == null)
+                        return NotFound();
+                    contexto.Propietarios.Remove(p);
+                    contexto.SaveChanges();
+                    return Ok(p);
+                }
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
         // GET: api/<controller>
         [HttpGet("test")]
         [AllowAnonymous]
-        public async Task<IActionResult> Test()
+        public IActionResult Test()
         {
             try
             {
                 return Ok("anduvo");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
+        // GET: api/<controller>
+        [HttpGet("test")]
+        [AllowAnonymous]
+        public IActionResult Code(int codigo)
+        {
+            try
+            {
+                //StatusCodes.Status418ImATeapot //constantes con códigos
+                return StatusCode(codigo, new { Mensaje = "Anduvo", Error = false });
             }
             catch (Exception ex)
             {

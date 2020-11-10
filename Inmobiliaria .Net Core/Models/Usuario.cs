@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -16,9 +17,9 @@ namespace Inmobiliaria_.Net_Core.Models
 
 	public class Usuario
 	{
-        [Key]
-        [Display(Name = "Código")]
-        public int Id { get; set; }
+		[Key]
+		[Display(Name = "Código")]
+		public int Id { get; set; }
 		[Required]
 		public string Nombre { get; set; }
 		[Required]
@@ -28,7 +29,7 @@ namespace Inmobiliaria_.Net_Core.Models
 		[Required, DataType(DataType.Password)]
 		public string Clave { get; set; }
 		public string Avatar { get; set; }
-		public IFormFile AvatarFile { get; set; }		
+		public IFormFile AvatarFile { get; set; }
 		public int Rol { get; set; }
 
 		public string RolNombre => Rol > 0 ? ((enRoles)Rol).ToString() : "";
