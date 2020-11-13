@@ -13,6 +13,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Hosting;
+using Inmobiliaria_.Net_Core.Controllers;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Inmobiliaria_.Net_Core
 {
@@ -49,19 +51,39 @@ namespace Inmobiliaria_.Net_Core
                         IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(
                             configuration["TokenAuthentication:SecretKey"])),
                     };
+                    // opción extra para usar el token el hub
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            // Read the token out of the query string
+                            var accessToken = context.Request.Query["access_token"];
+                            // If the request is for our hub...
+                            var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) &&
+                                path.StartsWithSegments("/chatsegurohub"))
+                            {//reemplazar la url por la usada en la ruta ⬆
+                                context.Token = accessToken;
+                            }
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
             services.AddAuthorization(options =>
             {
                 //options.AddPolicy("Empleado", policy => policy.RequireClaim(ClaimTypes.Role, "Administrador", "Empleado"));
                 options.AddPolicy("Administrador", policy => policy.RequireRole("Administrador", "SuperAdministrador"));
             });
+            services.AddMvc();
+            services.AddSignalR();//añade signalR
+            //IUserIdProvider permite cambiar el ClaimType usado para obtener el UserIdentifier en Hub
+            services.AddSingleton<IUserIdProvider, UserIdProvider>();
             /*
             Transient objects are always different; a new instance is provided to every controller and every service.
             Scoped objects are the same within a request, but different across different requests.
             Singleton objects are the same for every object and every request.
             */
-            services.AddMvc();
-			services.AddTransient<IRepositorio<Propietario>, RepositorioPropietario>();
+            services.AddTransient<IRepositorio<Propietario>, RepositorioPropietario>();
             services.AddTransient<IRepositorioPropietario, RepositorioPropietario>();
             services.AddTransient<IRepositorio<Inquilino>, RepositorioInquilino>();
             services.AddTransient<IRepositorioInmueble, RepositorioInmueble>();
@@ -101,6 +123,9 @@ namespace Inmobiliaria_.Net_Core
                 endpoints.MapControllerRoute("rutaFija", "ruteo/{valor}", new { controller = "Home", action = "Ruta", valor = "defecto" });
                 endpoints.MapControllerRoute("fechas", "{controller=Home}/{action=Fecha}/{anio}/{mes}/{dia}");
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+                //
+                endpoints.MapHub<ChatHub>("/chathub");//para SignalR
+                endpoints.MapHub<ChatSeguroHub>("/chatsegurohub");//para SignalR
             });
 		}
 	}

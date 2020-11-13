@@ -63,5 +63,15 @@ namespace Inmobiliaria_.Net_Core.Controllers
             ViewBag.Valor = valor;
             return View();
         }
+
+        public IActionResult Chat()
+        {
+            return View();
+        }
+
+        public IActionResult ChatSeguro()
+        {
+            return View();
+        }
     }
 }
