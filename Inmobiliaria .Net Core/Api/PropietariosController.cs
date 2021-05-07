@@ -45,9 +45,9 @@ namespace Inmobiliaria_.Net_Core.Api
                 var usuario = User.Identity.Name;
                 /*contexto.Contratos.Include(x => x.Inquilino).Include(x => x.Inmueble).ThenInclude(x => x.Duenio)
                     .Where(c => c.Inmueble.Duenio.Email....);*/
-                /*var res = contexto.Propietarios.Select(x=> new { x.Nombre, x.Apellido, x.Email })
-                    .SingleOrDefault(x=>x.Email == usuario);*/
-                return contexto.Propietarios.SingleOrDefault(x => x.Email == usuario);
+                /*var res = contexto.Propietarios.Select(x => new { x.Nombre, x.Apellido, x.Email })
+                    .SingleOrDefault(x => x.Email == usuario);*/
+                return await contexto.Propietarios.SingleOrDefaultAsync(x => x.Email == usuario);
             }
             catch (Exception ex)
             {
@@ -61,7 +61,8 @@ namespace Inmobiliaria_.Net_Core.Api
         {
             try
             {
-                return Ok(contexto.Propietarios.SingleOrDefault(x => x.IdPropietario == id));
+                var entidad = await contexto.Propietarios.SingleOrDefaultAsync(x => x.IdPropietario == id);
+                return entidad != null? Ok(entidad) : NotFound();
             }
             catch (Exception ex)
             {
@@ -75,7 +76,7 @@ namespace Inmobiliaria_.Net_Core.Api
         {
             try
             {
-                return Ok(contexto.Propietarios);
+                return Ok(await contexto.Propietarios.ToListAsync());
             }
             catch (Exception ex)
             {
@@ -96,7 +97,7 @@ namespace Inmobiliaria_.Net_Core.Api
                     prf: KeyDerivationPrf.HMACSHA1,
                     iterationCount: 1000,
                     numBytesRequested: 256 / 8));
-                var p = contexto.Propietarios.FirstOrDefault(x => x.Email == loginView.Usuario);
+                var p = await contexto.Propietarios.FirstOrDefaultAsync(x => x.Email == loginView.Usuario);
                 if (p == null || p.Clave != hashed)
                 {
                     return BadRequest("Nombre de usuario o clave incorrecta");
@@ -137,7 +138,7 @@ namespace Inmobiliaria_.Net_Core.Api
             {
                 if (ModelState.IsValid)
                 {
-                    contexto.Propietarios.Add(entidad);
+                    await contexto.Propietarios.AddAsync(entidad);
                     contexto.SaveChanges();
                     return CreatedAtAction(nameof(Get), new { id = entidad.IdPropietario }, entidad);
                 }
@@ -159,7 +160,7 @@ namespace Inmobiliaria_.Net_Core.Api
                 {
                     entidad.IdPropietario = id;
                     contexto.Propietarios.Update(entidad);
-                    contexto.SaveChanges();
+                    await contexto.SaveChangesAsync();
                     return Ok(entidad);
                 }
                 return BadRequest();

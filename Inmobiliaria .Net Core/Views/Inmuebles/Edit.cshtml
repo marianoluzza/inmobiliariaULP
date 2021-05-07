@@ -1,7 +1,8 @@
 ﻿@model Inmobiliaria_.Net_Core.Models.Inmueble
 
 @{
-    ViewData["Title"] = "Edit";
+	ViewData["Title"] = "Edit";
+	var Propietarios = (IList<Propietario>)ViewBag.Propietarios;
 }
 
 <h1>Edit</h1>
@@ -52,7 +53,7 @@
             <div class="form-group">
                 <label class="control-label">Propietario</label>
                 <select class="form-control" name="PropietarioId">
-                    @foreach (var item in (IList<Propietario>)ViewBag.Propietarios)
+                    @foreach (var item in Propietarios)
                     {
                         @:<option @(item.IdPropietario==Model.PropietarioId ? "selected" : "") value="@item.IdPropietario">@(item.Nombre + " " + item.Apellido)</option>
                     }

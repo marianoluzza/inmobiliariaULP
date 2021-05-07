@@ -128,24 +128,23 @@ namespace Inmobiliaria_.Net_Core.Controllers
         [Authorize]
         public ActionResult Edit(int id, Usuario u)
         {
-            var vista = "Edit";
+            var vista = nameof(Edit);//de que vista provengo
             try
             {
-                if (!User.IsInRole("Administrador"))
+                if (!User.IsInRole("Administrador"))//no soy admin
                 {
-                    vista = "Perfil";
+                    vista = nameof(Perfil);//solo puedo ver mi perfil
                     var usuarioActual = repositorio.ObtenerPorEmail(User.Identity.Name);
                     if (usuarioActual.Id != id)//si no es admin, solo puede modificarse él mismo
                         return RedirectToAction(nameof(Index), "Home");
                 }
                 // TODO: Add update logic here
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(vista);
             }
-            catch
-            {
-                ViewBag.Roles = Usuario.ObtenerRoles();
-                return View(vista, u);
+            catch (Exception ex)
+            {//colocar breakpoints en la siguiente línea por si algo falla
+                throw;
             }
         }
 

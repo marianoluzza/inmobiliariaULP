@@ -13,12 +13,12 @@ namespace Inmobiliaria_.Net_Core.Controllers
 {
     public class PropietariosController : Controller
     {
-        private readonly IRepositorioPropietario repositorio;
+        private readonly RepositorioPropietario repositorio;
         private readonly IConfiguration config;
 
-        public PropietariosController(IRepositorioPropietario repositorio, IConfiguration config)
+        public PropietariosController(IConfiguration config)
         {
-            this.repositorio = repositorio;
+            this.repositorio = new RepositorioPropietario(config);
             this.config = config;
         }
 
@@ -29,12 +29,13 @@ namespace Inmobiliaria_.Net_Core.Controllers
             {
                 var lista = repositorio.ObtenerTodos();
                 ViewBag.Id = TempData["Id"];
+                //si viene alguno valor por el tempdata, lo paso al viewdata/viewbag
                 if (TempData.ContainsKey("Mensaje"))
                     ViewBag.Mensaje = TempData["Mensaje"];
                 return View(lista);
             }
 			catch (Exception ex)
-			{
+			{//poner breakpoints para detectar errores
 				throw;
 			}
         }
@@ -42,7 +43,15 @@ namespace Inmobiliaria_.Net_Core.Controllers
         // GET: Propietario/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+			try
+            {
+                var entidad = repositorio.ObtenerPorId(id);
+                return View();
+            }
+            catch (Exception ex)
+            {//poner breakpoints para detectar errores
+                throw;
+            }
         }
 
         // GET: Propietario/Busqueda
@@ -53,8 +62,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
                 return View();
             }
             catch (Exception ex)
-            {
-                throw ex;
+            {//poner breakpoints para detectar errores
+                throw;
             }
         }
 
@@ -76,7 +85,14 @@ namespace Inmobiliaria_.Net_Core.Controllers
         // GET: Propietario/Create
         public ActionResult Create()
         {
-            return View();
+			try
+            {
+                return View();
+            }
+            catch (Exception ex)
+            {//poner breakpoints para detectar errores
+                throw;
+            }
         }
 
         // POST: Propietario/Create
@@ -86,8 +102,9 @@ namespace Inmobiliaria_.Net_Core.Controllers
         {
             try
             {
-                if (ModelState.IsValid)
+                if (ModelState.IsValid)//pregunta si el modelo es válido
                 {
+                    //reemplazo de clave plana por clave con hash
                     propietario.Clave = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                         password: propietario.Clave,
                         salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
@@ -102,22 +119,23 @@ namespace Inmobiliaria_.Net_Core.Controllers
                     return View(propietario);
             }
             catch (Exception ex)
-            {
-                ViewBag.Error = ex.Message;
-                ViewBag.StackTrace = ex.StackTrace;
-                return View(propietario);
+            {//poner breakpoints para detectar errores
+                throw;
             }
         }
 
         // GET: Propietario/Edit/5
         public ActionResult Edit(int id)
         {
-            var p = repositorio.ObtenerPorId(id);
-            if (TempData.ContainsKey("Mensaje"))
-                ViewBag.Mensaje = TempData["Mensaje"];
-            if (TempData.ContainsKey("Error"))
-                ViewBag.Error = TempData["Error"];
-            return View(p);
+            try
+            {
+                var entidad = repositorio.ObtenerPorId(id);
+                return View();
+            }
+            catch (Exception ex)
+            {//poner breakpoints para detectar errores
+                throw;
+            }
         }
 
         // POST: Propietario/Edit/5
@@ -125,10 +143,20 @@ namespace Inmobiliaria_.Net_Core.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, IFormCollection collection)
         {
+            //si en lugar de IFormCollection ponemos Propietario, el enlace de datos lo hace el sistema
             Propietario p = null;
             try
             {
                 p = repositorio.ObtenerPorId(id);
+                //en caso de ser necesario usar: 
+                //
+                //Convert.ToInt32(collection["CAMPO"]);
+                //Convert.ToDecimal(collection["CAMPO"]);
+                //Convert.ToDateTime(collection["CAMPO"]);
+                //int.Parse(collection["CAMPO"]);
+                //decimal.Parse(collection["CAMPO"]);
+                //DateTime.Parse(collection["CAMPO"]);
+                ////////////////////////////////////////
                 p.Nombre = collection["Nombre"];
                 p.Apellido = collection["Apellido"];
                 p.Dni = collection["Dni"];
@@ -139,10 +167,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
-            {
-                ViewBag.Error = ex.Message;
-                ViewBag.StackTrate = ex.StackTrace;
-                return View(p);
+            {//poner breakpoints para detectar errores
+                throw;
             }
         }
 
@@ -154,6 +180,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
             Propietario propietario = null;
             try
             {
+                //recuperar propietario original
                 propietario = repositorio.ObtenerPorId(id);
                 // verificar clave antigüa
                 var pass = Convert.ToBase64String(KeyDerivation.Pbkdf2(
@@ -180,8 +207,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
                     TempData["Mensaje"] = "Contraseña actualizada correctamente";
                     return RedirectToAction(nameof(Index));
                 }
-                else
-                {
+                else//estado inválido
+                {//pasaje de los errores del modelstate a un string en tempData
                     foreach (ModelStateEntry modelState in ViewData.ModelState.Values)
                     {
                         foreach (ModelError error in modelState.Errors)
@@ -203,12 +230,15 @@ namespace Inmobiliaria_.Net_Core.Controllers
         // GET: Propietario/Delete/5
         public ActionResult Eliminar(int id)
         {
-            var p = repositorio.ObtenerPorId(id);
-            if (TempData.ContainsKey("Mensaje"))
-                ViewBag.Mensaje = TempData["Mensaje"];
-            if (TempData.ContainsKey("Error"))
-                ViewBag.Error = TempData["Error"];
-            return View(p);
+			try
+			{
+                var entidad = repositorio.ObtenerPorId(id);
+                return View(entidad);
+            }
+            catch (Exception ex)
+            {//poner breakpoints para detectar errores
+                throw;
+            }
         }
 
         // POST: Propietario/Delete/5
@@ -223,10 +253,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
-            {
-                ViewBag.Error = ex.Message;
-                ViewBag.StackTrate = ex.StackTrace;
-                return View(entidad);
+            {//poner breakpoints para detectar errores
+                throw;
             }
         }
     }

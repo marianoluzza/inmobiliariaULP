@@ -21,7 +21,7 @@ namespace Inmobiliaria_.Net_Core.Models
         public decimal Longitud { get; set; }
         [Display(Name = "Dueño")]
         public int PropietarioId { get; set; }
-        [ForeignKey("PropietarioId")]
+        [ForeignKey(nameof(PropietarioId))]
         public Propietario Duenio { get; set; }
     }
 }

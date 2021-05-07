@@ -15,6 +15,7 @@
 @if (!User.Identity.IsAuthenticated)
 {
 	await Html.RenderPartialAsync("_Login", new LoginView());
+	<a href="@Url.RouteUrl("login")">Ir al login</a>
 }
 <!--
 <partial name="_Login.cshtml" />

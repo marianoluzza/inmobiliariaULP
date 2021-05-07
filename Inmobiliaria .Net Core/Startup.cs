@@ -78,6 +78,7 @@ namespace Inmobiliaria_.Net_Core
             services.AddSignalR();//añade signalR
             //IUserIdProvider permite cambiar el ClaimType usado para obtener el UserIdentifier en Hub
             services.AddSingleton<IUserIdProvider, UserIdProvider>();
+            // SOLO PARA INYECCIÓN DE DEPENDECIAS:
             /*
             Transient objects are always different; a new instance is provided to every controller and every service.
             Scoped objects are the same within a request, but different across different requests.
@@ -88,6 +89,7 @@ namespace Inmobiliaria_.Net_Core
             services.AddTransient<IRepositorio<Inquilino>, RepositorioInquilino>();
             services.AddTransient<IRepositorioInmueble, RepositorioInmueble>();
             services.AddTransient<IRepositorioUsuario, RepositorioUsuario>();
+            // SOLO SI USA ENTITY FRAMEWORK:
             services.AddDbContext<DataContext>(
 				options => options.UseSqlServer(
 					configuration["ConnectionStrings:DefaultConnection"]));
@@ -119,7 +121,7 @@ namespace Inmobiliaria_.Net_Core
 			}
             app.UseEndpoints(endpoints =>
 			{
-                endpoints.MapControllerRoute("login", "login/{**accion}", new { controller = "Usuarios", action = "Login" });
+                endpoints.MapControllerRoute("login", "entrar/{**accion}", new { controller = "Usuarios", action = "Login" });
                 endpoints.MapControllerRoute("rutaFija", "ruteo/{valor}", new { controller = "Home", action = "Ruta", valor = "defecto" });
                 endpoints.MapControllerRoute("fechas", "{controller=Home}/{action=Fecha}/{anio}/{mes}/{dia}");
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");

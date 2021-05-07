@@ -57,7 +57,7 @@
 			<td>
 				<a asp-action="Edit" asp-route-id="@item.IdPropietario" title="Editar"><span class="lnr lnr-pencil"></span></a>&nbsp;
 				<a asp-action="Eliminar" asp-route-id="@item.IdPropietario" title="Eliminar"><span class="lnr lnr-cross"></span></a>
-				<a asp-action="PorPropietario" asp-controller="Inmuebles" asp-route-id="@item.IdPropietario" title="Mis Propiedades"><span class="lnr lnr-cross"></span></a>
+				<a asp-action="PorPropietario" asp-controller="Inmuebles" asp-route-id="@item.IdPropietario" title="Mis Propiedades"><span class="lnr lnr-apartment"></span></a>
                 @Html.ActionLink("Mis Propiedades", "PorPropietario", "Inmuebles", new { id= item.IdPropietario })
 			</td>
         </tr>

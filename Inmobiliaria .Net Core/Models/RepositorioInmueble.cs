@@ -111,7 +111,7 @@ namespace Inmobiliaria_.Net_Core.Models
                                 IdPropietario = reader.GetInt32(6),
                                 Nombre = reader.GetString(7),
                                 Apellido = reader.GetString(8),
-                            }
+							}
 						};
 						res.Add(entidad);
 					}
