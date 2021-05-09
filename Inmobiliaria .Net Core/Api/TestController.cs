@@ -46,9 +46,29 @@ namespace Inmobiliaria_.Net_Core.Api
 
 		// GET api/<controller>/5
 		[HttpGet("{id}")]
-		public string Get(int id)
+		public IActionResult Get(int id)
 		{
-			return "value";
+			return Ok(Contexto.Propietarios.Find(id));
+		}
+
+		// GET api/<controller>/5
+		[HttpGet("emails/{id=0}")]
+		public IActionResult Emails(int id)
+		{
+			if(id > 0)
+				return Ok(Contexto.Propietarios.Where(x => x.IdPropietario == id).Select(x => x.Email).Single());
+			else
+				return Ok(Contexto.Propietarios.Select(x => x.Email).ToList());
+		}
+
+		// GET api/<controller>/5
+		[HttpGet("anonimo/{id}")]
+		public IActionResult GetAnonimo(int id)
+		{
+			return id > 0 ?
+				Ok(Contexto.Propietarios.Where(x => x.IdPropietario == id)
+				.Select(x => new { Id = x.IdPropietario, x.Email }).Single()) :
+				Ok(Contexto.Propietarios.Select(x => new { Id = x.IdPropietario, x.Email }).ToList());
 		}
 
 		// POST api/<controller>
@@ -60,9 +80,10 @@ namespace Inmobiliaria_.Net_Core.Api
 
 		// POST api/<controller>/usuario/5
 		[HttpPost("usuario/{id}")]
-		public void Post([FromForm] Usuario usuario, int id)
+		public Usuario Post([FromForm] Usuario usuario, int id)
 		{
-
+			usuario.Id = id;
+			return usuario;
 		}
 
 		// POST api/<controller>/usuario/5

@@ -70,7 +70,7 @@ namespace Inmobiliaria_.Net_Core.Api
             }
         }
 
-        // GET api/<controller>/5
+        // GET api/<controller>/GetAll
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll()
         {
@@ -84,7 +84,7 @@ namespace Inmobiliaria_.Net_Core.Api
             }
         }
 
-        // GET api/<controller>/5
+        // POST api/<controller>/login
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromForm]LoginView loginView)
@@ -194,7 +194,7 @@ namespace Inmobiliaria_.Net_Core.Api
             }
         }
 
-        // GET: api/<controller>
+        // GET: api/Propietarios/test
         [HttpGet("test")]
         [AllowAnonymous]
         public IActionResult Test()
@@ -209,8 +209,8 @@ namespace Inmobiliaria_.Net_Core.Api
             }
         }
 
-        // GET: api/<controller>
-        [HttpGet("test")]
+        // GET: api/Propietarios/test/5
+        [HttpGet("test/{codigo}")]
         [AllowAnonymous]
         public IActionResult Code(int codigo)
         {
