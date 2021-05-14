@@ -21,5 +21,6 @@ namespace Inmobiliaria_.Net_Core.Models
         public DbSet<PersonaPasatiempo> PersonaPasatiempos { get; set; }
 
         public DbSet<Conectado> Conectados { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
     }
 }

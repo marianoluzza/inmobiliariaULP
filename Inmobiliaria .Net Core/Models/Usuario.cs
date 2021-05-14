@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -29,9 +30,10 @@ namespace Inmobiliaria_.Net_Core.Models
 		[Required, DataType(DataType.Password)]
 		public string Clave { get; set; }
 		public string Avatar { get; set; }
+		[NotMapped]//Para EF
 		public IFormFile AvatarFile { get; set; }
 		public int Rol { get; set; }
-
+		[NotMapped]//Para EF
 		public string RolNombre => Rol > 0 ? ((enRoles)Rol).ToString() : "";
 
 		public static IDictionary<int, string> ObtenerRoles()

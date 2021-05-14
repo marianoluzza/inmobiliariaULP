@@ -15,6 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Hosting;
 using Inmobiliaria_.Net_Core.Controllers;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Inmobiliaria_.Net_Core
 {
@@ -96,7 +97,7 @@ namespace Inmobiliaria_.Net_Core
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
             // Habilitar CORS
             app.UseCors(x => x

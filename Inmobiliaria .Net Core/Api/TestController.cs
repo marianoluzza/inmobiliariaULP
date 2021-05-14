@@ -52,6 +52,13 @@ namespace Inmobiliaria_.Net_Core.Api
 		}
 
 		// GET api/<controller>/5
+		[HttpGet("usuarios/{id=0}")]
+		public IActionResult GetUsers(int id)
+		{
+			return Ok(Contexto.Usuarios.ToList());
+		}
+
+		// GET api/<controller>/5
 		[HttpGet("emails/{id=0}")]
 		public IActionResult Emails(int id)
 		{
