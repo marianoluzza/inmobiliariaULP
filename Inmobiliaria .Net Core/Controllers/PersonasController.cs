@@ -17,13 +17,21 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		public PersonasController(IConfiguration configuration)
 		{
 			this.configuration = configuration;
-			repositorio = new RepositorioPersona(configuration);
+			repositorio = new RepositorioPersona();
 		}
 
 		// GET: PersonasController
 		public ActionResult Index()
 		{
 			var lta = repositorio.ObtenerTodas();
+			ViewBag.Cantidad = 3;
+			var p = new Persona
+			{
+				Id = -1,
+				Nombre = "No existe",
+			};
+			ViewData["Datos"] = p;
+			ViewBag.Otro = "Hola";
 			return View(lta);
 		}
 

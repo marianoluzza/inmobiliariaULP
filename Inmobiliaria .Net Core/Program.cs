@@ -19,6 +19,12 @@ namespace Inmobiliaria_.Net_Core
 
 		public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
 			WebHost.CreateDefaultBuilder(args)
+				.ConfigureLogging(logging =>
+				{
+					logging.ClearProviders();//limpia los proveedores x defecto de log (consola+depuración)
+					logging.AddConsole();//agrega log de consola
+					//logging.AddConfigur(new LoggerConfiguration().WriteTo.File("serilog.txt").CreateLogger())
+				})
 				.UseStartup<Startup>();
 	}
 }

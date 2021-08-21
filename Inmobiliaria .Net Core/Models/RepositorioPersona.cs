@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 
 namespace Inmobiliaria_.Net_Core.Models
 {
-	public class RepositorioPersona : RepositorioBase
+	public class RepositorioPersona
 	{
-		public RepositorioPersona(IConfiguration configuration) : base(configuration)
+		protected readonly string connectionString;
+		public RepositorioPersona()
 		{
-			
+			connectionString = "Server=(localdb)\\MSSQLLocalDB;Database=BDInmobiliaria;Trusted_Connection=True;MultipleActiveResultSets=true";
 		}
 
 		public List<Persona> ObtenerTodas()

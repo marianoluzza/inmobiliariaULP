@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Inmobiliaria_.Net_Core.Controllers
 {
@@ -19,10 +20,11 @@ namespace Inmobiliaria_.Net_Core.Controllers
         private readonly IRepositorioPropietario propietarios;
         private readonly IConfiguration config;
 
-        public HomeController(IRepositorioPropietario propietarios, IConfiguration config)
+        public HomeController(IRepositorioPropietario propietarios, IConfiguration config, ILogger<HomeController> logger)
         {
             this.propietarios = propietarios;
             this.config = config;
+            logger.LogInformation("HomeController creado");
         }
 
         public IActionResult Index()

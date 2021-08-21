@@ -13,12 +13,21 @@ namespace Inmobiliaria_.Net_Core.Controllers
 {
     public class PropietariosController : Controller
     {
-        private readonly RepositorioPropietario repositorio;
+        // Sin inyección de dependencias (crear dentro deel ctor)
+        //private readonly RepositorioPropietario repositorio;
+
+        // Con inyección de dependencias (pedir en el ctor como parámetro)
+        private readonly IRepositorioPropietario repositorio;
         private readonly IConfiguration config;
 
-        public PropietariosController(IConfiguration config)
+        public PropietariosController(IRepositorioPropietario repo, IConfiguration config)
         {
-            this.repositorio = new RepositorioPropietario(config);
+            // Sin inyección de dependencias y sin usar el config (quitar el parámetro repo del ctor)
+            //this.repositorio = new RepositorioPropietario();
+            // Sin inyección de dependencias y pasando el config (quitar el parámetro repo del ctor)
+            //this.repositorio = new RepositorioPropietario(config);
+            // Con inyección de dependencias
+            this.repositorio = repo;
             this.config = config;
         }
 
@@ -29,13 +38,15 @@ namespace Inmobiliaria_.Net_Core.Controllers
             {
                 var lista = repositorio.ObtenerTodos();
                 ViewBag.Id = TempData["Id"];
-                //si viene alguno valor por el tempdata, lo paso al viewdata/viewbag
+                // TempData es para pasar datos entre acciones
+                // ViewBag/Data es para pasar datos del controlador a la vista
+                // Si viene alguno valor por el tempdata, lo paso al viewdata/viewbag
                 if (TempData.ContainsKey("Mensaje"))
                     ViewBag.Mensaje = TempData["Mensaje"];
                 return View(lista);
             }
 			catch (Exception ex)
-			{//poner breakpoints para detectar errores
+			{// Poner breakpoints para detectar errores
 				throw;
 			}
         }
@@ -46,7 +57,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			try
             {
                 var entidad = repositorio.ObtenerPorId(id);
-                return View();
+                return View();//¿qué falta?
             }
             catch (Exception ex)
             {//poner breakpoints para detectar errores
@@ -102,9 +113,9 @@ namespace Inmobiliaria_.Net_Core.Controllers
         {
             try
             {
-                if (ModelState.IsValid)//pregunta si el modelo es válido
+                if (ModelState.IsValid)// Pregunta si el modelo es válido
                 {
-                    //reemplazo de clave plana por clave con hash
+                    // Reemplazo de clave plana por clave con hash
                     propietario.Clave = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                         password: propietario.Clave,
                         salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
@@ -130,7 +141,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
             try
             {
                 var entidad = repositorio.ObtenerPorId(id);
-                return View();
+                return View(entidad);//pasa el modelo a la vista
             }
             catch (Exception ex)
             {//poner breakpoints para detectar errores
@@ -143,12 +154,12 @@ namespace Inmobiliaria_.Net_Core.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, IFormCollection collection)
         {
-            //si en lugar de IFormCollection ponemos Propietario, el enlace de datos lo hace el sistema
+            // Si en lugar de IFormCollection ponemos Propietario, el enlace de datos lo hace el sistema
             Propietario p = null;
             try
             {
                 p = repositorio.ObtenerPorId(id);
-                //en caso de ser necesario usar: 
+                // En caso de ser necesario usar: 
                 //
                 //Convert.ToInt32(collection["CAMPO"]);
                 //Convert.ToDecimal(collection["CAMPO"]);
@@ -180,7 +191,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
             Propietario propietario = null;
             try
             {
-                //recuperar propietario original
+                // recuperar propietario original
                 propietario = repositorio.ObtenerPorId(id);
                 // verificar clave antigüa
                 var pass = Convert.ToBase64String(KeyDerivation.Pbkdf2(
@@ -192,7 +203,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
                 if (propietario.Clave != pass)
                 {
                     TempData["Error"] = "Clave incorrecta";
-                    //se rederige porque no hay vista de cambio de pass, está compartida con Edit
+                    // se rederige porque no hay vista de cambio de pass, está compartida con Edit
                     return RedirectToAction("Edit", new { id = id });
                 }
                 if (ModelState.IsValid)
