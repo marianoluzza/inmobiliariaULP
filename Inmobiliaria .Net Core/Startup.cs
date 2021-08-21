@@ -87,7 +87,7 @@ namespace Inmobiliaria_.Net_Core
             */
             services.AddTransient<IRepositorio<Propietario>, RepositorioPropietario>();
             services.AddTransient<IRepositorioPropietario, RepositorioPropietario>();
-            services.AddTransient<IRepositorio<Inquilino>, RepositorioInquilino>();
+            //services.AddTransient<IRepositorio<Inquilino>, RepositorioInquilino>();
             services.AddTransient<IRepositorioInmueble, RepositorioInmueble>();
             services.AddTransient<IRepositorioUsuario, RepositorioUsuario>();
             // SOLO SI USA ENTITY FRAMEWORK:
