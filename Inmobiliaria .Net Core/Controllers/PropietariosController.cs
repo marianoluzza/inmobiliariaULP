@@ -34,7 +34,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
         // GET: Propietario
         public ActionResult Index()
         {
-			try
+            try
             {
                 var lista = repositorio.ObtenerTodos();
                 ViewBag.Id = TempData["Id"];

@@ -99,6 +99,14 @@ namespace Inmobiliaria_.Net_Core
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+            // Todos estos métodos permiten manejar errores 404
+            // En lugar de devolver el error, devuelve el código
+            //app.UseStatusCodePages();
+            // Hace un redirect cuando ocurren errores
+            //app.UseStatusCodePagesWithRedirects("/Home/Error/{0}");
+            // Hace una reejecución cuando ocurren errores
+            //app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
+
             // Habilitar CORS
             app.UseCors(x => x
                 .AllowAnyOrigin()

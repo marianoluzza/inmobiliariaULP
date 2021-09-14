@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace Inmobiliaria_.Net_Core.Controllers
 {
@@ -53,6 +54,18 @@ namespace Inmobiliaria_.Net_Core.Controllers
             return View();
         }
 
+        [Authorize]
+        public async Task<ActionResult> CambiarClaim()
+        {
+            var identity = (ClaimsIdentity)User.Identity;
+            identity.RemoveClaim(identity.FindFirst("FullName"));
+            identity.AddClaim(new Claim("FullName", "Cosme Fulanito"));
+            await HttpContext.SignInAsync(
+                       CookieAuthenticationDefaults.AuthenticationScheme,
+                       new ClaimsPrincipal(identity));
+            return Redirect(nameof(Seguro));
+        }
+
         public IActionResult Fecha(int anio, int mes, int dia)
         {
             DateTime dt = new DateTime(anio, mes, dia);
@@ -62,8 +75,30 @@ namespace Inmobiliaria_.Net_Core.Controllers
 
         public IActionResult Ruta(string valor)
         {
-            ViewBag.Valor = valor;
+            DateTime posibleFecha;
+            if(DateTime.TryParse(valor, out posibleFecha)) 
+            {
+                ViewBag.Valor = "Escribiste una fecha: " + posibleFecha.ToShortDateString();
+            }
+            else
+			{
+                ViewBag.Valor = valor;
+			}
             return View();
+        }
+
+        public IActionResult Error(int codigo)
+        {
+            var res = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
+			switch (codigo)
+			{
+                case 404:
+                    ViewBag.Ruta = res.OriginalPath;
+                    break;
+				default:
+					break;
+			}
+			return View();
         }
 
         public IActionResult Chat()

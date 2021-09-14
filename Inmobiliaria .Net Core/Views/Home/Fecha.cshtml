@@ -28,5 +28,15 @@
 		}
 		break;
 }
-<a href="@Url.RouteUrl("fechas", new { anio = DateTime.Now.Year, mes = 12, dia = 25 })" >¡Acelerar!</a>
-
+@if (diasTotales > 0)
+{
+	<a href="@Url.RouteUrl("fechas", new { anio = DateTime.Now.Year, mes = 12, dia = 25 })">¡Acelerar!</a>
+}
+else if (diasTotales == 0)
+{ 
+	<p>¡Feliz navidad!</p>
+}
+else
+{
+	<a href="@Url.RouteUrl("fechas", new { anio = DateTime.Now.Year, mes = 12, dia = 25 })">¡Volver en el tiempo!</a>
+}
