@@ -34,7 +34,7 @@ namespace Inmobiliaria_.Net_Core.Api
 					Resultado = new
 					{
 						Clave = "Key",
-						Valor = "Value"
+						Valor = new Random().Next(0, 10000)
 					},
 				});
 			}

@@ -14,11 +14,15 @@ namespace Inmobiliaria_.Net_Core
 	{
 		public static void Main(string[] args)
 		{
-           CreateWebHostBuilder(args).Build().Run();
+			//En visual studio este el "run" recomendado:
+			CreateWebHostBuilder(args).Build().Run();
+			//En VS Code este otro es el "run" recomendado:
+			//CreateKestrel(args).Build().Run();
 		}
 
-		public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-			WebHost.CreateDefaultBuilder(args)
+		public static IWebHostBuilder CreateWebHostBuilder(string[] args)
+		{
+			var host = WebHost.CreateDefaultBuilder(args)
 				.ConfigureLogging(logging =>
 				{
 					logging.ClearProviders();//limpia los proveedores x defecto de log (consola+depuración)
@@ -26,5 +30,24 @@ namespace Inmobiliaria_.Net_Core
 					//logging.AddConfigur(new LoggerConfiguration().WriteTo.File("serilog.txt").CreateLogger())
 				})
 				.UseStartup<Startup>();
+			return host;
+		}
+
+		public static IWebHostBuilder CreateKestrel(string[] args)
+		{
+			var config = new ConfigurationBuilder()
+				.SetBasePath(Directory.GetCurrentDirectory())
+				.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+				.Build();
+			var host = new WebHostBuilder()
+				.UseConfiguration(config)
+				.UseKestrel()
+				.UseContentRoot(Directory.GetCurrentDirectory())
+				//.UseUrls("http://localhost:5000", "https://localhost:5001")//permite escuchar SOLO peticiones locales
+				.UseUrls("http://*:5000", "https://*:5001")//permite escuchar peticiones locales y remotas
+				.UseIISIntegration()
+				.UseStartup<Startup>();
+			return host;
+		}
 	}
 }
