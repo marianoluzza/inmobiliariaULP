@@ -8,6 +8,7 @@ Basado en .Net Core 5. Trabaja con MSSqlLocalDB pero puede cambiarse de motor de
 - [Visual Studio Code](https://code.visualstudio.com/download)
 - [Github Desktop](https://desktop.github.com/)
 - [Framework .Net Core](https://dotnet.microsoft.com/download)
+- [Postman](https://www.postman.com/downloads/)
 - [Diagramas](https://app.diagrams.net/)
 - [Conveyor by Keyoti](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1448185.ConveyorbyKeyoti). Para poder conectarse remotamente al IIS Express que genera Visual Studio.
 

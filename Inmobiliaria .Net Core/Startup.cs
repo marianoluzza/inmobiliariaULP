@@ -96,6 +96,13 @@ namespace Inmobiliaria_.Net_Core
 					configuration["ConnectionStrings:DefaultConnection"]
 				)
 			);
+			/* PARA MySql - usando Pomelo */
+			//services.AddDbContext<DataContext>(
+			//	options => options.UseMySql(
+			//		configuration["ConnectionStrings:DefaultConnection"],
+			//		ServerVersion.AutoDetect(configuration["ConnectionStrings:DefaultConnection"])
+			//	)
+			//);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
