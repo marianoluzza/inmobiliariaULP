@@ -188,7 +188,36 @@ namespace Inmobiliaria_.Net_Core.Controllers
             return File(fileBytes, System.Net.Mime.MediaTypeNames.Application.Octet, fileName);
         }
 
-        // GET: Usuarios/Create
+        [Authorize]
+        public string AvatarBase64()
+        {
+            var u = repositorio.ObtenerPorEmail(User.Identity.Name);
+            string fileName = "avatar_" + u.Id + Path.GetExtension(u.Avatar);
+            string wwwPath = environment.WebRootPath;
+            string path = Path.Combine(wwwPath, "Uploads");
+            string pathCompleto = Path.Combine(path, fileName);
+
+            //leer el archivo
+            byte[] fileBytes = System.IO.File.ReadAllBytes(pathCompleto);
+            //devolverlo
+            return Convert.ToBase64String(fileBytes);
+        }
+
+        [Authorize]
+        [HttpPost("[controller]/[action]/{fileName}")]
+        public IActionResult FromBase64([FromBody]string imagen, [FromRoute] string fileName)
+        {
+            //arma el path
+            string wwwPath = environment.WebRootPath;
+            string path = Path.Combine(wwwPath, "Uploads");
+            string pathCompleto = Path.Combine(path, fileName);
+            //convierto a arreglo de bytes
+            var bytes = Convert.FromBase64String(imagen);
+            //lo escribe
+            System.IO.File.WriteAllBytes(pathCompleto, bytes);
+            return Ok();
+        }
+
         [Authorize]
         public ActionResult Foto()
         {
@@ -208,7 +237,6 @@ namespace Inmobiliaria_.Net_Core.Controllers
             }
         }
 
-        // GET: Usuarios/Create
         [Authorize]
         public ActionResult Datos()
         {
