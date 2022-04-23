@@ -38,6 +38,7 @@ namespace Inmobiliaria_.Net_Core
 					options.LoginPath = "/Usuarios/Login";
 					options.LogoutPath = "/Usuarios/Logout";
 					options.AccessDeniedPath = "/Home/Restringido";
+					//options.ExpireTimeSpan = TimeSpan.FromMinutes(5);//Tiempo de expiración
 				})
 				.AddJwtBearer(options =>//la api web valida con token
 				{

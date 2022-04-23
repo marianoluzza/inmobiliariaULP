@@ -20,7 +20,7 @@
 				@if (!User.Identity.IsAuthenticated)
 				{
 					<a class="py-2" asp-controller="Home" asp-action="Index"><span class="lnr lnr-home"></span> Inicio</a>
-					<a class="py-2 d-none d-md-inline-block float-right" href="@Url.Link("login", null)"><span class="lnr lnr-enter"></span> Acceder</a>
+					<a class="py-2 d-none d-md-inline-block float-right" href='@Url.Link("login", null)'><span class="lnr lnr-enter"></span> Acceder</a>
 				}
 				else
 				{
