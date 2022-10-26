@@ -38,6 +38,7 @@ namespace Inmobiliaria_.Net_Core
 			var config = new ConfigurationBuilder()
 				.SetBasePath(Directory.GetCurrentDirectory())
 				.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+				.AddUserSecrets(System.Reflection.Assembly.GetExecutingAssembly())//para usar los user-secrets de esta app
 				.Build();
 			var host = new WebHostBuilder()
 				.UseConfiguration(config)
@@ -45,6 +46,13 @@ namespace Inmobiliaria_.Net_Core
 				.UseContentRoot(Directory.GetCurrentDirectory())
 				//.UseUrls("http://localhost:5000", "https://localhost:5001")//permite escuchar SOLO peticiones locales
 				.UseUrls("http://*:5000", "https://*:5001")//permite escuchar peticiones locales y remotas
+				/*
+				net 6.0 => 
+				builder.WebHost.ConfigureKestrel(serverOptions =>
+				{
+					serverOptions.ListenAnyIP(5000);
+				});
+				*/
 				.UseIISIntegration()
 				.UseStartup<Startup>();
 			return host;
