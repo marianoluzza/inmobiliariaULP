@@ -53,18 +53,20 @@ namespace Inmobiliaria_.Net_Core
 						IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(
 							configuration["TokenAuthentication:SecretKey"])),
 					};
-					// opción extra para usar el token el hub
+					// opción extra para usar el token en el hub y otras peticiones sin encabezado (enlaces, src de img, etc.)
 					options.Events = new JwtBearerEvents
 					{
 						OnMessageReceived = context =>
 						{
-							// Read the token out of the query string
+							// Leer el token desde el query string
 							var accessToken = context.Request.Query["access_token"];
-							// If the request is for our hub...
+							// Si el request es para el Hub u otra ruta seleccionada...
 							var path = context.HttpContext.Request.Path;
 							if (!string.IsNullOrEmpty(accessToken) &&
-								path.StartsWithSegments("/chatsegurohub"))
-							{//reemplazar la url por la usada en la ruta ⬆
+								(path.StartsWithSegments("/chatsegurohub") ||
+								path.StartsWithSegments("/api/propietarios/reset") ||
+								path.StartsWithSegments("/api/propietarios/token")))
+							{//reemplazar las urls por las necesarias ruta ⬆
 								context.Token = accessToken;
 							}
 							return Task.CompletedTask;
