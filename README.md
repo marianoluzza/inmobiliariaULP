@@ -13,4 +13,4 @@ Basado en .Net Core 5. Trabaja con MSSqlLocalDB pero puede cambiarse de motor de
 - [Conveyor by Keyoti](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1448185.ConveyorbyKeyoti). Para poder conectarse remotamente al IIS Express que genera Visual Studio.
 
 ## Plantilla para Proyectos
-[Plantilla basada en Markdown](https://hackmd.io/@lab3/plantilla_proyecto)
+[Plantilla basada en Markdown](https://hackmd.io/@nttUoarcRQOCiYt3qgy_SQ/plantilla_proyecto)
