@@ -93,6 +93,7 @@ builder.Services.AddDbContext<DataContext>(
 //		ServerVersion.AutoDetect(configuration["ConnectionStrings:DefaultConnection"])
 //	)
 //);
+//SQLite: https://www.nuget.org/packages/Microsoft.Data.Sqlite + https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Sqlite/
 var app = builder.Build();
 // Estos métodos permiten manejar errores 404:
 // En lugar de devolver el error, devuelve el código
