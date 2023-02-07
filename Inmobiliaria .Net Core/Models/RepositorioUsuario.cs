@@ -20,25 +20,26 @@ namespace Inmobiliaria_.Net_Core.Models
 			int res = -1;
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
-				string sql = $"INSERT INTO Usuarios (Nombre, Apellido, Avatar, Email, Clave, Rol) " +
-					$"VALUES (@nombre, @apellido, @avatar, @email, @clave, @rol);" +
-					"SELECT SCOPE_IDENTITY();";//devuelve el id insertado (LAST_INSERT_ID para mysql)
+				string sql = @"INSERT INTO Usuarios 
+					(Nombre, Apellido, Avatar, Email, Clave, Rol) 
+					VALUES (@nombre, @apellido, @avatar, @email, @clave, @rol);
+					SELECT SCOPE_IDENTITY();";//devuelve el id insertado (LAST_INSERT_ID para mysql)
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
 					command.Parameters.AddWithValue("@nombre", e.Nombre);
 					command.Parameters.AddWithValue("@apellido", e.Apellido);
-					if(String.IsNullOrEmpty(e.Avatar))
+					if (String.IsNullOrEmpty(e.Avatar))
 						command.Parameters.AddWithValue("@avatar", DBNull.Value);
-					else 
+					else
 						command.Parameters.AddWithValue("@avatar", e.Avatar);
 					command.Parameters.AddWithValue("@email", e.Email);
 					command.Parameters.AddWithValue("@clave", e.Clave);
 					command.Parameters.AddWithValue("@rol", e.Rol);
 					connection.Open();
 					res = Convert.ToInt32(command.ExecuteScalar());
-                    e.Id = res;
-                    connection.Close();
+					e.Id = res;
+					connection.Close();
 				}
 			}
 			return res;
@@ -48,7 +49,7 @@ namespace Inmobiliaria_.Net_Core.Models
 			int res = -1;
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
-				string sql = $"DELETE FROM Usuarios WHERE Id = @id";
+				string sql = "DELETE FROM Usuarios WHERE Id = @id";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
@@ -65,8 +66,9 @@ namespace Inmobiliaria_.Net_Core.Models
 			int res = -1;
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
-				string sql = $"UPDATE Usuarios SET Nombre=@nombre, Apellido=@apellido, Avatar=@avatar, Email=@email, Clave=@clave, Rol=@rol " +
-					$"WHERE Id = @id";
+				string sql = @"UPDATE Usuarios 
+					SET Nombre=@nombre, Apellido=@apellido, Avatar=@avatar, Email=@email, Clave=@clave, Rol=@rol
+					WHERE Id = @id";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
@@ -90,8 +92,9 @@ namespace Inmobiliaria_.Net_Core.Models
 			IList<Usuario> res = new List<Usuario>();
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
-				string sql = $"SELECT Id, Nombre, Apellido, Avatar, Email, Clave, Rol" +
-                    $" FROM Usuarios";
+				string sql = @"
+					SELECT Id, Nombre, Apellido, Avatar, Email, Clave, Rol
+					FROM Usuarios";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
@@ -101,13 +104,13 @@ namespace Inmobiliaria_.Net_Core.Models
 					{
 						Usuario e = new Usuario
 						{
-							Id = reader.GetInt32(0),
-							Nombre = reader.GetString(1),
-							Apellido = reader.GetString(2),
-							Avatar = reader["Avatar"].ToString(),
-							Email = reader.GetString(4),
-							Clave = reader.GetString(5),
-							Rol = reader.GetInt32(6),
+							Id = reader.GetInt32("Id"),
+							Nombre = reader.GetString("Nombre"),
+							Apellido = reader.GetString("Apellido"),
+							Avatar = reader.GetString("Avatar"),
+							Email = reader.GetString("Email"),
+							Clave = reader.GetString("Clave"),
+							Rol = reader.GetInt32("Rol"),
 						};
 						res.Add(e);
 					}
@@ -119,66 +122,69 @@ namespace Inmobiliaria_.Net_Core.Models
 
 		public Usuario ObtenerPorId(int id)
 		{
-			Usuario e = null;
+			Usuario? e = null;
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
-				string sql = $"SELECT Id, Nombre, Apellido, Avatar, Email, Clave, Rol FROM Usuarios" +
-					$" WHERE Id=@id";
+				string sql = @"SELECT 
+					Id, Nombre, Apellido, Avatar, Email, Clave, Rol 
+					FROM Usuarios
+					WHERE Id=@id";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
-                    command.Parameters.Add("@id", SqlDbType.Int).Value = id;
-                    command.CommandType = CommandType.Text;
+					command.Parameters.Add("@id", SqlDbType.Int).Value = id;
+					command.CommandType = CommandType.Text;
 					connection.Open();
 					var reader = command.ExecuteReader();
 					if (reader.Read())
 					{
 						e = new Usuario
 						{
-							Id = reader.GetInt32(0),
-							Nombre = reader.GetString(1),
-							Apellido = reader.GetString(2),
-							Avatar = reader["Avatar"].ToString(),
-							Email = reader.GetString(4),
-							Clave = reader.GetString(5),
-							Rol = reader.GetInt32(6),
+							Id = reader.GetInt32("Id"),
+							Nombre = reader.GetString("Nombre"),
+							Apellido = reader.GetString("Apellido"),
+							Avatar = reader.GetString("Avatar"),
+							Email = reader.GetString("Email"),
+							Clave = reader.GetString("Clave"),
+							Rol = reader.GetInt32("Rol"),
 						};
 					}
 					connection.Close();
 				}
 			}
 			return e;
-        }
+		}
 
-        public Usuario ObtenerPorEmail(string email)
-        {
-            Usuario e = null;
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                string sql = $"SELECT Id, Nombre, Apellido, Avatar, Email, Clave, Rol FROM Usuarios" +
-                    $" WHERE Email=@email";
-                using (SqlCommand command = new SqlCommand(sql, connection))
-                {
-                    command.CommandType = CommandType.Text;
-                    command.Parameters.Add("@email", SqlDbType.VarChar).Value = email;
-                    connection.Open();
-                    var reader = command.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        e = new Usuario
-                        {
-                            Id = reader.GetInt32(0),
-                            Nombre = reader.GetString(1),
-                            Apellido = reader.GetString(2),
-                            Avatar = reader["Avatar"].ToString(),
-                            Email = reader.GetString(4),
-                            Clave = reader.GetString(5),
-							Rol = reader.GetInt32(6),
+		public Usuario ObtenerPorEmail(string email)
+		{
+			Usuario? e = null;
+			using (SqlConnection connection = new SqlConnection(connectionString))
+			{
+				string sql = @"SELECT
+					Id, Nombre, Apellido, Avatar, Email, Clave, Rol FROM Usuarios
+					WHERE Email=@email";
+				using (SqlCommand command = new SqlCommand(sql, connection))
+				{
+					command.CommandType = CommandType.Text;
+					command.Parameters.Add("@email", SqlDbType.VarChar).Value = email;
+					connection.Open();
+					var reader = command.ExecuteReader();
+					if (reader.Read())
+					{
+						e = new Usuario
+						{
+							Id = reader.GetInt32("Id"),
+							Nombre = reader.GetString("Nombre"),
+							Apellido = reader.GetString("Apellido"),
+							Avatar = reader.GetString("Avatar"),
+							Email = reader.GetString("Email"),
+							Clave = reader.GetString("Clave"),
+							Rol = reader.GetInt32("Rol"),
 						};
-                    }
-                    connection.Close();
-                }
-            }
-            return e;
-        }
-    }
+					}
+					connection.Close();
+				}
+			}
+			return e;
+		}
+	}
 }

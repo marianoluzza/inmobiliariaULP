@@ -30,7 +30,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 				var conectado = new Conectado(p);
 				var yaConectado = await context.Conectados.FindAsync(Context.UserIdentifier);
 				if (yaConectado == null)
-				{ 
+				{
 					await context.Conectados.AddAsync(conectado);
 					await context.SaveChangesAsync();
 				}
@@ -87,6 +87,13 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		{
 			//por default es System.Security.Claims.ClaimTypes.NameIdentifier así que lo cambiamos a Name			
 			return connection.User?.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+			// if(connection.User != null) //equivalente a la línea anterior
+			// {
+			// 	var res = connection.User.FindFirst(System.Security.Claims.ClaimTypes.Name);
+			// 	if(res != null)
+			// 		return res.Value;
+			// }
+			// return null;
 		}
 	}
 }

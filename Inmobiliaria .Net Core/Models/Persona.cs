@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -10,6 +11,9 @@ namespace Inmobiliaria_.Net_Core.Models
 	{
 		public int Id { get; set; }
 		public string Nombre { get; set; }
+
+		[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+		public int? Estado { get; set; }
 
 		public List<PersonaPasatiempo> Pasatiempos { get; set; } = new List<PersonaPasatiempo>();
 	}

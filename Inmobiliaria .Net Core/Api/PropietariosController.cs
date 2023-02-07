@@ -9,10 +9,12 @@ using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using MimeKit;
 
@@ -23,15 +25,17 @@ namespace Inmobiliaria_.Net_Core.Api
 	[Route("api/[controller]")]
 	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 	[ApiController]
-	public class PropietariosController: ControllerBase  //
+	public class PropietariosController : ControllerBase  //
 	{
 		private readonly DataContext contexto;
 		private readonly IConfiguration config;
+		private readonly IWebHostEnvironment environment;
 
-		public PropietariosController(DataContext contexto, IConfiguration config)
+		public PropietariosController(DataContext contexto, IConfiguration config, IWebHostEnvironment env)
 		{
 			this.contexto = contexto;
-			this.config   = config;
+			this.config = config;
+			environment = env;
 		}
 		// GET: api/<controller>
 		[HttpGet]
@@ -77,16 +81,16 @@ namespace Inmobiliaria_.Net_Core.Api
 		public async Task<IActionResult> Token()
 		{
 			try
-			{	//este método si tiene autenticación, al entrar, generar clave aleatorio y enviarla por correo
+			{ //este método si tiene autenticación, al entrar, generar clave aleatorio y enviarla por correo
 				var perfil = new
 				{
 					Email = User.Identity.Name,
 					Nombre = User.Claims.First(x => x.Type == "FullName").Value,
 					Rol = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role).Value
 				};
-				Random rand        = new Random(Environment.TickCount);
+				Random rand = new Random(Environment.TickCount);
 				string randomChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789";
-				string nuevaClave  = "";
+				string nuevaClave = "";
 				for (int i = 0; i < 8; i++)
 				{
 					nuevaClave += randomChars[rand.Next(0, randomChars.Length)];
@@ -102,10 +106,11 @@ namespace Inmobiliaria_.Net_Core.Api
 				};
 				message.Headers.Add("Encabezado", "Valor");//solo si hace falta
 				MailKit.Net.Smtp.SmtpClient client = new SmtpClient();
-				client.ServerCertificateValidationCallback = (object sender, 
-					System.Security.Cryptography.X509Certificates.X509Certificate certificate, 
+				client.ServerCertificateValidationCallback = (object sender,
+					System.Security.Cryptography.X509Certificates.X509Certificate certificate,
 					System.Security.Cryptography.X509Certificates.X509Chain chain,
-					System.Net.Security.SslPolicyErrors sslPolicyErrors) => { return true; };
+					System.Net.Security.SslPolicyErrors sslPolicyErrors) =>
+				{ return true; };
 				client.Connect("smtp.gmail.com", 465, MailKit.Security.SecureSocketOptions.Auto);
 				client.Authenticate(config["SMTPUser"], config["SMTPPass"]);//estas credenciales deben estar en el user secrets
 				await client.SendAsync(message);
@@ -120,13 +125,15 @@ namespace Inmobiliaria_.Net_Core.Api
 		// GET api/<controller>/5
 		[HttpPost("email")]
 		[AllowAnonymous]
-		public async Task<IActionResult> GetByEmail([FromForm]string email)
+		public async Task<IActionResult> GetByEmail([FromForm] string email)
 		{
 			try
-			{	//método sin autenticar, busca el propietario xemail
+			{ //método sin autenticar, busca el propietario x email
 				var entidad = await contexto.Propietarios.FirstOrDefaultAsync(x => x.Email == email);
 				//para hacer: si el propietario existe, mandarle un email con un enlace con el token
 				//ese enlace servirá para resetear la contraseña
+				//Dominio sirve para armar el enlace, en local será la ip y en producción será el dominio www...
+				var dominio = environment.IsDevelopment() ? HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString() : "www.misitio.com";
 				return entidad != null ? Ok(entidad) : NotFound();
 			}
 			catch (Exception ex)
@@ -157,10 +164,10 @@ namespace Inmobiliaria_.Net_Core.Api
 			try
 			{
 				string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-					password         : loginView.Clave,
-					salt             : System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
-					prf              : KeyDerivationPrf.HMACSHA1,
-					iterationCount   : 1000,
+					password: loginView.Clave,
+					salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
+					prf: KeyDerivationPrf.HMACSHA1,
+					iterationCount: 1000,
 					numBytesRequested: 256 / 8));
 				var p = await contexto.Propietarios.FirstOrDefaultAsync(x => x.Email == loginView.Usuario);
 				if (p == null || p.Clave != hashed)
@@ -172,7 +179,7 @@ namespace Inmobiliaria_.Net_Core.Api
 					var key = new SymmetricSecurityKey(
 						System.Text.Encoding.ASCII.GetBytes(config["TokenAuthentication:SecretKey"]));
 					var credenciales = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-					var claims       = new List<Claim>
+					var claims = new List<Claim>
 					{
 						new Claim(ClaimTypes.Name, p.Email),
 						new Claim("FullName", p.Nombre + " " + p.Apellido),
@@ -180,10 +187,10 @@ namespace Inmobiliaria_.Net_Core.Api
 					};
 
 					var token = new JwtSecurityToken(
-						issuer            : config["TokenAuthentication:Issuer"],
-						audience          : config["TokenAuthentication:Audience"],
-						claims            : claims,
-						expires           : DateTime.Now.AddMinutes(60),
+						issuer: config["TokenAuthentication:Issuer"],
+						audience: config["TokenAuthentication:Audience"],
+						claims: claims,
+						expires: DateTime.Now.AddMinutes(60),
 						signingCredentials: credenciales
 					);
 					return Ok(new JwtSecurityTokenHandler().WriteToken(token));
@@ -224,7 +231,7 @@ namespace Inmobiliaria_.Net_Core.Api
 				if (ModelState.IsValid)
 				{
 					entidad.IdPropietario = id;
-					Propietario original  = await contexto.Propietarios.FindAsync(id);
+					Propietario original = await contexto.Propietarios.FindAsync(id);
 					if (String.IsNullOrEmpty(entidad.Clave))
 					{
 						entidad.Clave = original.Clave;
@@ -232,10 +239,10 @@ namespace Inmobiliaria_.Net_Core.Api
 					else
 					{
 						entidad.Clave = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-							password         : entidad.Clave,
-							salt             : System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
-							prf              : KeyDerivationPrf.HMACSHA1,
-							iterationCount   : 1000,
+							password: entidad.Clave,
+							salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
+							prf: KeyDerivationPrf.HMACSHA1,
+							iterationCount: 1000,
 							numBytesRequested: 256 / 8));
 					}
 					contexto.Propietarios.Update(entidad);

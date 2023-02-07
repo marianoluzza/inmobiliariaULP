@@ -27,6 +27,7 @@ namespace Inmobiliaria_.Net_Core.Api
 		{
 			try
 			{
+				//throw new Exception("Ocurrió algo");
 				return Ok(new
 				{
 					Mensaje = "Éxito",
@@ -40,7 +41,7 @@ namespace Inmobiliaria_.Net_Core.Api
 			}
 			catch (Exception ex)
 			{
-				return BadRequest(ex);
+				return BadRequest(new { Mensaje = ex.Message, Error = 1 });
 			}
 		}
 
@@ -49,6 +50,13 @@ namespace Inmobiliaria_.Net_Core.Api
 		public IActionResult Get(int id)
 		{
 			return Ok(Contexto.Propietarios.Find(id));
+		}
+
+		// GET api/<controller>/5
+		[HttpGet("code/{code}")]
+		public IActionResult Code(int code)
+		{
+			return StatusCode(code, "Hola");
 		}
 
 		// GET api/<controller>/5
@@ -62,8 +70,8 @@ namespace Inmobiliaria_.Net_Core.Api
 		[HttpGet("emails/{id=0}")]
 		public IActionResult Emails(int id)
 		{
-			if(id > 0)
-				return Ok(Contexto.Propietarios.Where(x => x.IdPropietario == id).Select(x => x.Email).Single());
+			if (id > 0)
+				return Ok(Contexto.Propietarios.Where(x => x.IdPropietario == id).Select(x => x.Email).SingleOrDefault());
 			else
 				return Ok(Contexto.Propietarios.Select(x => x.Email).ToList());
 		}
@@ -80,9 +88,11 @@ namespace Inmobiliaria_.Net_Core.Api
 
 		// POST api/<controller>
 		[HttpPost]
-		public void Post([FromForm] string value, IFormFile file)
+		public Persona Post([FromBody] Persona value)
 		{
-
+			Contexto.Personas.Add(value);
+			Contexto.SaveChanges();
+			return value;
 		}
 
 		// POST api/<controller>/usuario/5

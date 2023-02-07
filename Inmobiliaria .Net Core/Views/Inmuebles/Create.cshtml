@@ -1,8 +1,9 @@
 ﻿@model Inmobiliaria_.Net_Core.Models.Inmueble
 
 @{
-    ViewData["Title"] = "Create";
-
+	ViewData["Title"] = "Create";
+	//ViewBag.Title = "Create";
+	var ltaPropietarios = (IList<Propietario>)ViewBag.Propietarios;
 }
 
 <h1>Create</h1>
@@ -10,49 +11,49 @@
 <h4>Inmueble</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Direccion" class="control-label"></label>
-                <input asp-for="Direccion" class="form-control" />
-                <span asp-validation-for="Direccion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Ambientes" class="control-label"></label>
-                <input asp-for="Ambientes" class="form-control" />
-                <span asp-validation-for="Ambientes" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Superficie" class="control-label"></label>
-                <input asp-for="Superficie" class="form-control" />
-                <span asp-validation-for="Superficie" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Latitud" class="control-label"></label>
-                <input asp-for="Latitud" class="form-control" />
-                <span asp-validation-for="Latitud" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Longitud" class="control-label"></label>
-                <input asp-for="Longitud" class="form-control" />
-                <span asp-validation-for="Longitud" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Propietario</label>
-                <select class="form-control" name="PropietarioId">
-                    @foreach (var item in (IList<Propietario>)ViewBag.Propietarios)
-                    {
-                        <option value="@item.IdPropietario">@(item.Nombre + " " + item.Apellido)</option>
-                    }
-                </select>
-                <span asp-validation-for="PropietarioId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-                <a class="btn btn-secondary" asp-action="Index">Back to List</a>
-            </div>
-        </form>
-    </div>
+	<div class="col-md-4">
+		<form asp-action="Create">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<div class="form-group">
+				<label asp-for="Direccion" class="control-label"></label>
+				<input asp-for="Direccion" class="form-control" />
+				<span asp-validation-for="Direccion" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Ambientes" class="control-label"></label>
+				<input asp-for="Ambientes" class="form-control" />
+				<span asp-validation-for="Ambientes" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Superficie" class="control-label"></label>
+				<input asp-for="Superficie" class="form-control" />
+				<span asp-validation-for="Superficie" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Latitud" class="control-label"></label>
+				<input asp-for="Latitud" class="form-control" />
+				<span asp-validation-for="Latitud" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Longitud" class="control-label"></label>
+				<input asp-for="Longitud" class="form-control" />
+				<span asp-validation-for="Longitud" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label class="control-label">Propietario</label>
+				<select class="form-control" name="PropietarioId">
+					@foreach (var item in ltaPropietarios)
+					{
+						<option value="@item.IdPropietario">@(item.ToString())</option>
+					}
+				</select>
+				<span asp-validation-for="PropietarioId" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<input type="submit" value="Create" class="btn btn-primary" />
+				<a class="btn btn-secondary" asp-action="Index">Back to List</a>
+			</div>
+		</form>
+	</div>
 </div>
 

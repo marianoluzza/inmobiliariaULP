@@ -2,7 +2,11 @@
 
 @{
 	ViewData["Title"] = "Index";
-	int cantidad = (int)ViewData["Cantidad"];
+	//Operadores ?? ?. ?: 
+	//https://learn.microsoft.com/es-mx/dotnet/csharp/language-reference/operators/null-coalescing-operator
+	//https://learn.microsoft.com/es-mx/dotnet/csharp/language-reference/operators/conditional-operator
+	//https://learn.microsoft.com/es-mx/dotnet/csharp/language-reference/operators/member-access-operators#null-conditional-operators--and-
+	int cantidad = (int)(ViewData["Cantidad"] ?? 0);
 	Persona pDatos = (Persona)ViewBag.Datos;
 	string saludo = (string)ViewBag.Otro;
 }

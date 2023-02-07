@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,7 +21,11 @@ namespace Inmobiliaria_.Net_Core.Models
 			List<Persona> res = new List<Persona>();
 			using (SqlConnection conn = new SqlConnection(connectionString))
 			{
-				string sql = "SELECT Id, Nombre FROM Personas";
+				string sql = @$"
+					SELECT 
+						{nameof(Persona.Id)}, 
+						{nameof(Persona.Nombre)} 
+					FROM Personas";
 				using (SqlCommand comm = new SqlCommand(sql, conn))
 				{
 					conn.Open();
@@ -29,8 +34,8 @@ namespace Inmobiliaria_.Net_Core.Models
 					{
 						res.Add(new Persona
 						{
-							Id = reader.GetInt32(0),
-							Nombre = reader.GetString(1),
+							Id = reader.GetInt32(nameof(Persona.Id)),
+							Nombre = reader.GetString(nameof(Persona.Nombre)),
 						});
 					}
 					conn.Close();

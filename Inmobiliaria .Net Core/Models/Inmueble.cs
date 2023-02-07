@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 
 namespace Inmobiliaria_.Net_Core.Models
 {
+	[Table("Inmuebles")]
 	public class Inmueble
 	{
-        [Display(Name = "Código")]
-        public int Id { get; set; }
+		[Display(Name = "Código")]
+		public int Id { get; set; }
 		[Required]
 		public string Direccion { get; set; }
 		[Required]
@@ -18,10 +19,10 @@ namespace Inmobiliaria_.Net_Core.Models
 		[Required]
 		public int Superficie { get; set; }
 		public decimal Latitud { get; set; }
-        public decimal Longitud { get; set; }
-        [Display(Name = "Dueño")]
-        public int PropietarioId { get; set; }
-        [ForeignKey(nameof(PropietarioId))]
-        public Propietario Duenio { get; set; }
-    }
+		public decimal Longitud { get; set; }
+		[Display(Name = "Dueño")]
+		public int PropietarioId { get; set; }
+		[ForeignKey(nameof(PropietarioId))]
+		public Propietario Duenio { get; set; }
+	}
 }

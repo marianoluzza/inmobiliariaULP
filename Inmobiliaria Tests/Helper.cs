@@ -15,7 +15,8 @@ namespace Inmobiliaria_Tests
 		{
 			var valoresConfig = new Dictionary<string, string>
 			{
-				{"ConnectionStrings:Testing", "Server=(localdb)\\MSSQLLocalDB;Database=BDInmoTest;Trusted_Connection=True;MultipleActiveResultSets=true"},
+				//{"ConnectionStrings:Testing", "Server=(localdb)\\MSSQLLocalDB;Database=BDInmoTest;Trusted_Connection=True;MultipleActiveResultSets=true"},
+				{"ConnectionStrings:Testing", "Server=(localdb)\\MSSQLLocalDB;Integrated Security=true;AttachDbFileName=C:\\Git\\inmobiliariaULP\\Inmobiliaria .Net Core\\Data\\BDInmoTest.mdf"},
 				{"ConnectionStrings:DefaultConnection", "Server=(localdb)\\MSSQLLocalDB;Database=BDInmobiliaria;Trusted_Connection=True;MultipleActiveResultSets=true"},
 				{"Salt", "Salada"},
 				{"TokenAuthentication:SecretKey", "Super_Secreta_es_la_clave_de_esta_APP_shhh"},

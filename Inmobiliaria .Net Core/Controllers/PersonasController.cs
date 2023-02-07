@@ -77,7 +77,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			{
 				return RedirectToAction(nameof(Index));
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				return View();
 			}

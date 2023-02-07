@@ -8,9 +8,9 @@ namespace Inmobiliaria_.Net_Core.Models
 {
 	public class Inquilino
 	{
-        [Key]
-        [Display(Name = "Código")]
-        public int IdInquilino { get; set; }
+		[Key]
+		[Display(Name = "Código")]
+		public int IdInquilino { get; set; }
 		[Required]
 		public string Nombre { get; set; }
 		[Required]

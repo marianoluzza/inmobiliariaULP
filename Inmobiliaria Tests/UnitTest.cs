@@ -30,7 +30,7 @@ namespace Inmobiliaria_Tests
 		{
 			//Arrange
 			var mockRepo = new Mock<IRepositorioPropietario>();
-			//los mÈtodos que se hagan mock, deben ser virtuales
+			//los m√©todos que se hagan mock, deben ser virtuales
 			mockRepo.Setup(x => x.ObtenerPorId(1)).Returns(new Propietario { IdPropietario = 1});
 			var mockConfig = new Mock<IConfiguration>();
 			var controlador = new PropietariosController(mockRepo.Object, mockConfig.Object);
@@ -43,12 +43,12 @@ namespace Inmobiliaria_Tests
 
 			//Assert
 			Assert.NotNull(res);
-			mockRepo.Verify(x => x.ObtenerPorId(1), Times.Exactly(1), "No se llamÛ a repo.ObtenerPorId(id)");
+			mockRepo.Verify(x => x.ObtenerPorId(1), Times.Exactly(1), "No se llam√≥ a repo.ObtenerPorId(id)");
 			Assert.NotNull(res.Model);
 			Assert.IsType<Propietario>(res.Model);
 			Propietario p = res.Model as Propietario;
 			Assert.Equal(1, p.IdPropietario);
-			//Assert.Equal("Edit", res.ViewName);//no se puede porque devuelve View() sin par·metro
+			//Assert.Equal("Edit", res.ViewName);//no se puede porque devuelve View() sin par√°metro
 		}
 	}
 }
