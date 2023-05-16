@@ -22,7 +22,12 @@ namespace Inmobiliaria_Tests
 		PropietariosController controller;
 		public PropietariosControllerTest()
 		{
-			controller = new PropietariosController(helper.DataContext, helper.Config);
+			//https://softchris.github.io/pages/dotnet-moq.html
+			var mockEnvironment = new Moq.Mock<IWebHostEnvironment>();
+			mockEnvironment
+				.Setup(m => m.EnvironmentName)
+				.Returns("Development");
+			controller = new PropietariosController(helper.DataContext, helper.Config, mockEnvironment.Object);
 		}
 
 		[Fact]

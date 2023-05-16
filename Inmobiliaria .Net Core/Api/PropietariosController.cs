@@ -76,7 +76,7 @@ namespace Inmobiliaria_.Net_Core.Api
 			}
 		}
 
-		// GET api/<controller>/5
+		// GET api/<controller>/token
 		[HttpGet("token")]
 		public async Task<IActionResult> Token()
 		{
@@ -102,7 +102,7 @@ namespace Inmobiliaria_.Net_Core.Api
 				message.Body = new TextPart("html")
 				{
 					Text = @$"<h1>Hola</h1>
-					<p>¡Bienvenido, {perfil.Nombre}!</p>",//falta enviar la clave generar (sin hashear)
+					<p>¡Bienvenido, {perfil.Nombre}!</p>",//falta enviar la clave generada (sin hashear)
 				};
 				message.Headers.Add("Encabezado", "Valor");//solo si hace falta
 				MailKit.Net.Smtp.SmtpClient client = new SmtpClient();
@@ -122,7 +122,7 @@ namespace Inmobiliaria_.Net_Core.Api
 			}
 		}
 
-		// GET api/<controller>/5
+		// GET api/<controller>/email
 		[HttpPost("email")]
 		[AllowAnonymous]
 		public async Task<IActionResult> GetByEmail([FromForm] string email)

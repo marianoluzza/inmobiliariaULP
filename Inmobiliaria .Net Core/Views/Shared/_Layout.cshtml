@@ -7,7 +7,7 @@
 	<link href="~/css/main.css" rel="stylesheet" />
 	<link rel="stylesheet" href="https://cdn.linearicons.com/free/1.0.0/icon-font.min.css">
 	<link rel="icon" href="~/img/favicon.png" type="image/x-icon" />
-	<script src="https://unpkg.com/mustache@latest"></script>
+	@* <script src="https://unpkg.com/mustache@latest"></script> *@
 	<!--Posibles estilos a aplicar. False porque es opcional. La página que lo necesita, declara la sección.-->
 	@RenderSection("Styles", false)
 	<title>@ViewBag.Title</title>
@@ -31,7 +31,10 @@
 						<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
 							<a class="dropdown-item text-dark" asp-controller="Home" asp-action="Index"><span class="lnr lnr-home"></span> Inicio</a>
 							<a class="dropdown-item text-dark" asp-controller="Home" asp-action="Seguro"><i class="lnr lnr-layers"></i> Claims</a>
-							<a class="dropdown-item text-dark" asp-controller="Home" asp-action="Fecha" asp-route-anio="@DateTime.Today.Year" asp-route-mes="@DateTime.Today.Month" asp-route-dia="@DateTime.Today.Day"><i class="lnr lnr-calendar-full"></i> Fecha</a>
+							<a class="dropdown-item text-dark" asp-controller="Home" asp-action="Fecha" 
+								asp-route-anio="@DateTime.Today.Year" asp-route-mes="@DateTime.Today.Month" asp-route-dia="@DateTime.Today.Day">
+								<i class="lnr lnr-calendar-full"></i> Fecha
+							</a>
 						</div>
 					</div>
 					@if (User.IsInRole("Administrador") || User.IsInRole("SuperAdministrador"))

@@ -10,10 +10,11 @@ namespace Inmobiliaria_.Net_Core.Models
 	[Table("Inmuebles")]
 	public class Inmueble
 	{
-		[Display(Name = "Código")]
+		[Display(Name = "Nº")]
 		public int Id { get; set; }
 		[Required]
-		public string Direccion { get; set; }
+		[Display(Name = "Dirección")]
+		public string Direccion { get; set; } = "";
 		[Required]
 		public int Ambientes { get; set; }
 		[Required]
@@ -23,6 +24,6 @@ namespace Inmobiliaria_.Net_Core.Models
 		[Display(Name = "Dueño")]
 		public int PropietarioId { get; set; }
 		[ForeignKey(nameof(PropietarioId))]
-		public Propietario Duenio { get; set; }
+		public Propietario? Duenio { get; set; }
 	}
 }
