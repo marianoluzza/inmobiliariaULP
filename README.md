@@ -10,13 +10,13 @@ Basado en .Net Core 7. Trabaja con MSSqlLocalDB pero puede cambiarse de motor de
 - [Github Desktop](https://desktop.github.com/). Opcional, se puede integrar Github en VS Code.
 - [Postman](https://www.postman.com/downloads/). Para hacer peticiones a la Web API.
 - [Diagramas](https://app.diagrams.net/). Para modelar diagramas.
-- [Figma](https://www.figma.com/). Para modelar pantallas.Visual Studio (no VS Code).
+- [Figma](https://www.figma.com/). Para modelar pantallas.
 
 ## Extensiones  
 - [C# para VS Code](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp). Extensión de C# para VS Code.
 - [Postman](https://marketplace.visualstudio.com/items?itemName=Postman.postman-for-vscode). Usar Postman dentro de VS Code.
 - [.NET Test Provider / Explorer](https://marketplace.visualstudio.com/items?itemName=jcamp.dotnet-test-provider-explorer). Para poder visualizar pruebas unitarias en VS Code.
-- [Conveyor by Keyoti](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1448185.ConveyorbyKeyoti). Para poder conectarse remotamente al IIS Express que genera.
+- [Conveyor by Keyoti](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1448185.ConveyorbyKeyoti). Para poder conectarse remotamente al IIS Express que genera Visual Studio (no VS Code).
 
 ## Paquetes  
 - [Microsoft.VisualStudio.Web.CodeGeneration.Design](https://www.nuget.org/packages/Microsoft.VisualStudio.Web.CodeGeneration.Design). Necesaria para usar aspnet-codegenerator.
