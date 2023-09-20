@@ -24,6 +24,7 @@ Basado en .Net Core 7. Trabaja con MSSqlLocalDB pero puede cambiarse de motor de
 - [Pomelo.EntityFrameworkCore.MySql](https://www.nuget.org/packages/Pomelo.EntityFrameworkCore.MySql). Extensión de EntityFrameworkCore para MySql.
 - [JwtBearer](https://www.nuget.org/packages/Microsoft.AspNetCore.Authentication.JwtBearer). Uso de JWT para autenticar.
 - [MailKit](nuget.org/packages/MailKit). Envío de correos electrónicos.
+- [LazZiya.ImageResize](https://www.nuget.org/packages/LazZiya.ImageResize). Manipular imágenes.
 
 ## Plantilla para Proyectos
 [Plantilla basada en Markdown](https://hackmd.io/@nttUoarcRQOCiYt3qgy_SQ/plantilla_proyecto)
