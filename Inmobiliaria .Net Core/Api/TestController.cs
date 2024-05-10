@@ -4,8 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using Inmobiliaria_.Net_Core.Models;
+using Inmobiliaria_.Net_Core.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Inmobiliaria_.Net_Core.Controllers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Razor;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -122,7 +128,36 @@ namespace Inmobiliaria_.Net_Core.Api
 		{
 		}
 
-		// DELETE api/<controller>/5
+		[HttpGet("qr/{code}/{modo=0}")]
+		public IActionResult Qr(string code, int modo)
+		{
+			QRCoder.QRCodeGenerator qrGenerator = new QRCoder.QRCodeGenerator();
+			QRCoder.QRCodeData qrCodeData = qrGenerator.CreateQrCode(code, QRCoder.QRCodeGenerator.ECCLevel.Q);
+			if (modo == 0) //png
+			{
+				var qrCode = new QRCoder.PngByteQRCode(qrCodeData);
+				byte[] qrCodeImage = qrCode.GetGraphic(20);
+				return this.File(qrCodeImage, "image/png");
+			}
+			else //svg
+			{
+				var qrCode = new QRCoder.SvgQRCode(qrCodeData);
+				string qrCodeImage = qrCode.GetGraphic(20);
+				return Content(qrCodeImage, "image/svg+xml");
+			}
+		}
+
+		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+		[HttpGet("vista")]
+		public async Task<IActionResult> Vista([FromServices]IRazorViewEngine razorViewEngine, [FromServices]IServiceProvider serviceProvider)
+		{
+			var model = User.Claims;// El modelo para la vista
+			var viewPath = "/Views/Home/Seguro.cshtml"; // Ruta de la vista
+			var vista = await this.RenderVista<IEnumerable<Claim>>(viewPath, model, razorViewEngine, serviceProvider);
+			return Content(vista, "text/html");
+		}
+
+		// GET api/<controller>/personas
 		[HttpGet("personas")]
 		public async Task<IActionResult> Personas()
 		{
