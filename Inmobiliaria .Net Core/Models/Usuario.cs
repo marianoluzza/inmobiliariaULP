@@ -29,7 +29,7 @@ namespace Inmobiliaria_.Net_Core.Models
 		public string Email { get; set; }
 		[Required, DataType(DataType.Password)]
 		public string Clave { get; set; }
-		public string Avatar { get; set; }
+		public string Avatar { get; set; } = "";
 		[NotMapped]//Para EF
 		public IFormFile AvatarFile { get; set; }
 		//[NotMapped]//Para EF

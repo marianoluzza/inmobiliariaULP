@@ -21,13 +21,18 @@ namespace Inmobiliaria_.Net_Core.Models
 		public string Telefono { get; set; }
 		[Required, EmailAddress]
 		public string Email { get; set; }
-		[Required, DataType(DataType.Password)]
+		[Required(ErrorMessage = "La clave es obligatoria"), DataType(DataType.Password)]
 		public string Clave { get; set; }
 
 		public override string ToString()
 		{
 			//return $"{Apellido}, {Nombre}";
-			return $"{Nombre} {Apellido}";
+			//return $"{Nombre} {Apellido}";
+			var res = $"{Nombre} {Apellido}";
+			if(!String.IsNullOrEmpty(Dni)) {
+				res += $" ({Dni})";
+			}
+			return res;
 		}
 	}
 }

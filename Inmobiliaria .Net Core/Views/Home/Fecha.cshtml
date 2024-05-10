@@ -3,6 +3,7 @@
 	ViewData["Title"] = "Fecha";
 	DateTime fecha = (DateTime)ViewBag.Fecha;
 	DateTime fechaNavidad = new DateTime(fecha.Year, 12, 25);
+	DateTime fechaNavidadActual = new DateTime(DateTime.Now.Year, 12, 25);
 	var diferencia = fechaNavidad - fecha;
 	var diasTotales = diferencia.TotalDays;
 }

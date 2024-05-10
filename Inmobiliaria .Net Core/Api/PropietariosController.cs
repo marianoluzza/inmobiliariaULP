@@ -105,6 +105,7 @@ namespace Inmobiliaria_.Net_Core.Api
 					<p>¡Bienvenido, {perfil.Nombre}!</p>",//falta enviar la clave generada (sin hashear)
 				};
 				message.Headers.Add("Encabezado", "Valor");//solo si hace falta
+				message.Headers.Add("Otro", config["Valor"]);//otro ejemplo
 				MailKit.Net.Smtp.SmtpClient client = new SmtpClient();
 				client.ServerCertificateValidationCallback = (object sender,
 					System.Security.Cryptography.X509Certificates.X509Certificate certificate,

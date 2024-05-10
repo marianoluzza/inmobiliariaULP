@@ -59,7 +59,8 @@
 					@Html.DisplayFor(modelItem => item.Longitud)
 				</td>
 				<td>
-					@(item.Duenio.Nombre + " " + item.Duenio.Apellido)
+					<!-- @(item.Duenio.Nombre + " " + item.Duenio.Apellido) -->
+					@item.Duenio.ToString()
 				</td>
 				<td>
 					<a asp-action="Edit" asp-route-id="@item.Id" title="Editar"><span class="lnr lnr-pencil"></span></a>&nbsp;

@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Index";
+	var rnd = new Random();
 }
 
 <h1>Index</h1>
@@ -49,7 +50,16 @@
 				@Html.DisplayFor(modelItem => item.Email)
 			</td>
 			<td>
-				<img width="32" src="@item.Avatar" />
+				@if(!String.IsNullOrEmpty(item.Avatar)) 
+				{
+					var x = item.Avatar + "?" + rnd.Next();
+					<img width="32" src="@x" />
+				}
+				else 
+				{
+					<span>Sin foto</span>
+				}
+
 			</td>
 			<td>
 				@Html.DisplayFor(modelItem => item.RolNombre)

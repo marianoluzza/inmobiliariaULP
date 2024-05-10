@@ -12,9 +12,9 @@ namespace Inmobiliaria_.Net_Core.Models
 	{
 		[Display(Name = "Nº")]
 		public int Id { get; set; }
-		[Required]
+		//[Required]
 		[Display(Name = "Dirección")]
-		public string Direccion { get; set; } = "";
+		public string? Direccion { get; set; }
 		[Required]
 		public int Ambientes { get; set; }
 		[Required]

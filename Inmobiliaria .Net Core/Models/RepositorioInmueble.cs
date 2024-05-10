@@ -27,7 +27,7 @@ namespace Inmobiliaria_.Net_Core.Models
 				using (var command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
-					command.Parameters.AddWithValue("@direccion", entidad.Direccion);
+					command.Parameters.AddWithValue("@direccion", entidad.Direccion == null? DBNull.Value : entidad.Direccion);
 					command.Parameters.AddWithValue("@ambientes", entidad.Ambientes);
 					command.Parameters.AddWithValue("@superficie", entidad.Superficie);
 					command.Parameters.AddWithValue("@latitud", entidad.Latitud);
@@ -90,7 +90,7 @@ namespace Inmobiliaria_.Net_Core.Models
 			using (var connection = new SqlConnection(connectionString))
 			{
 				string sql = @"SELECT Id, Direccion, Ambientes, Superficie, Latitud, Longitud, PropietarioId,
-					p.Nombre, p.Apellido
+					p.Nombre, p.Apellido, p.Dni
 					FROM Inmuebles i INNER JOIN Propietarios p ON i.PropietarioId = p.IdPropietario";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
@@ -102,7 +102,7 @@ namespace Inmobiliaria_.Net_Core.Models
 						Inmueble entidad = new Inmueble
 						{
 							Id = reader.GetInt32(0),
-							Direccion = reader.GetString(1),
+							Direccion = reader["Direccion"] == DBNull.Value? "" : reader.GetString("Direccion"),
 							Ambientes = reader.GetInt32(2),
 							Superficie = reader.GetInt32(3),
 							Latitud = reader.GetDecimal(4),
@@ -113,6 +113,7 @@ namespace Inmobiliaria_.Net_Core.Models
 								IdPropietario = reader.GetInt32(6),
 								Nombre = reader.GetString(7),
 								Apellido = reader.GetString(8),
+								//Dni = reader.GetString(9),
 							}
 						};
 						res.Add(entidad);
@@ -143,7 +144,7 @@ namespace Inmobiliaria_.Net_Core.Models
 						entidad = new Inmueble
 						{
 							Id = reader.GetInt32(nameof(Inmueble.Id)),
-							Direccion = reader.GetString("Direccion"),
+							Direccion = reader["Direccion"] == DBNull.Value? "" : reader.GetString("Direccion"),
 							Ambientes = reader.GetInt32("Ambientes"),
 							Superficie = reader.GetInt32("Superficie"),
 							Latitud = reader.GetDecimal("Latitud"),
@@ -184,7 +185,7 @@ namespace Inmobiliaria_.Net_Core.Models
 						entidad = new Inmueble
 						{
 							Id = reader.GetInt32(nameof(Inmueble.Id)),
-							Direccion = reader.GetString("Direccion"),
+							Direccion = reader["Direccion"] == DBNull.Value? "" : reader.GetString("Direccion"),
 							Ambientes = reader.GetInt32("Ambientes"),
 							Superficie = reader.GetInt32("Superficie"),
 							Latitud = reader.GetDecimal("Latitud"),
