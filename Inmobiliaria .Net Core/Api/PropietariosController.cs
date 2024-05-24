@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Inmobiliaria_.Net_Core.Models;
+using Inmobiliaria_.Net_Core.Services;
 using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -134,6 +135,7 @@ namespace Inmobiliaria_.Net_Core.Api
 				//para hacer: si el propietario existe, mandarle un email con un enlace con el token
 				//ese enlace servirá para resetear la contraseña
 				//Dominio sirve para armar el enlace, en local será la ip y en producción será el dominio www...
+				var url = this.GenerarUrlCompleta("Token", "Propietarios", environment);
 				var dominio = environment.IsDevelopment() ? HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString() : "www.misitio.com";
 				return entidad != null ? Ok(entidad) : NotFound();
 			}
