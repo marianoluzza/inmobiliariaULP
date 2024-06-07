@@ -1,4 +1,4 @@
-﻿
+﻿@model IEnumerable<System.Security.Claims.Claim>?
 @{
 	ViewData["Title"] = "Admin";
 }
@@ -9,7 +9,7 @@
 <p>FullName es @User?.Claims.First(x => x.Type == "FullName").Value</p>
 <p>Lista de claims:</p>
 <ul>
-	@foreach (var c in User.Claims)
+	@if(Model != null) foreach (var c in Model)
 	{
 		<li><b>@(c.Type+": ")</b>@c.Value</li>
 	}

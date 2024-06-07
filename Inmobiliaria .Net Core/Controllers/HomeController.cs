@@ -39,7 +39,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		public ActionResult Seguro()
 		{
 			var identity = (ClaimsIdentity)User.Identity;
-			IEnumerable<Claim> claims = identity.Claims;
+			IEnumerable<Claim>? claims = identity?.Claims;
 			return View(claims);
 		}
 
