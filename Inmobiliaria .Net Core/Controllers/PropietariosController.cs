@@ -32,11 +32,13 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		}
 
 		// GET: Propietario
-		public ActionResult Index()
+		[Route("[controller]/Index/{pagina:int?}")]
+		public ActionResult Index(int pagina=1)
 		{
 			try
 			{
-				var lista = repositorio.ObtenerTodos();
+				//var lista = repositorio.ObtenerTodos();
+				var lista = repositorio.ObtenerLista(Math.Max(pagina, 1), 5);
 				ViewBag.Id = TempData["Id"];
 				// TempData es para pasar datos entre acciones
 				// ViewBag/Data es para pasar datos del controlador a la vista

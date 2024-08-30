@@ -125,7 +125,9 @@ namespace Inmobiliaria_.Net_Core.Models
 				string sql = @$"
 					SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave
 					FROM Propietarios
-					LIMIT {tamPagina} OFFSET {(paginaNro - 1) * tamPagina}
+					ORDER BY IdPropietario
+					OFFSET {(paginaNro - 1) * tamPagina} ROW
+					FETCH NEXT {tamPagina} ROWS ONLY
 				";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{

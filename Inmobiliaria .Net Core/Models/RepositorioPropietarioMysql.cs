@@ -114,6 +114,41 @@ namespace Inmobiliaria_.Net_Core.Models
 			return res;
 		}
 
+		public IList<Propietario> ObtenerLista(int paginaNro = 1, int tamPagina = 10)
+		{
+			IList<Propietario> res = new List<Propietario>();
+			using (var connection = new MySqlConnection(connectionString))
+			{
+				string sql = @$"
+					SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave
+					FROM Propietarios
+					LIMIT {tamPagina} OFFSET {(paginaNro - 1) * tamPagina}
+				";
+				using (var command = new MySqlCommand(sql, connection))
+				{
+					command.CommandType = CommandType.Text;
+					connection.Open();
+					var reader = command.ExecuteReader();
+					while (reader.Read())
+					{
+						Propietario p = new Propietario
+						{
+							IdPropietario = reader.GetInt32(nameof(Propietario.IdPropietario)),//más seguro
+							Nombre = reader.GetString("Nombre"),
+							Apellido = reader.GetString("Apellido"),
+							Dni = reader.GetString("Dni"),
+							Telefono = reader.GetString("Telefono"),
+							Email = reader.GetString("Email"),
+							Clave = reader.GetString("Clave"),
+						};
+						res.Add(p);
+					}
+					connection.Close();
+				}
+			}
+			return res;
+		}
+
 		virtual public Propietario ObtenerPorId(int id)
 		{
 			Propietario? p = null;
