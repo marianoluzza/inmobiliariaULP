@@ -125,6 +125,7 @@
 				//data: {...},
 			}).done(res => {
 				console.log("Búsqueda: ", res);
+				console.table(res.datos);
 			}).fail(res => {
 				console.log("Error: ", res);
 			});
