@@ -58,14 +58,14 @@ namespace Inmobiliaria_.Net_Core.Api
 			return Ok(Contexto.Propietarios.Find(id));
 		}
 
-		// GET api/<controller>/5
+		// GET api/<controller>/code/5
 		[HttpGet("code/{code}")]
 		public IActionResult Code(int code)
 		{
 			return StatusCode(code, "Hola");
 		}
 
-		// GET api/<controller>/5
+		// GET api/<controller>/usuarios/5
 		[HttpGet("usuarios/{id=0}")]
 		public IActionResult GetUsers(int id)
 		{

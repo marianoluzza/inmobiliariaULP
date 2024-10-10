@@ -137,6 +137,7 @@ namespace Inmobiliaria_.Net_Core.Api
 				//Dominio sirve para armar el enlace, en local será la ip y en producción será el dominio www...
 				var url = this.GenerarUrlCompleta("Token", "Propietarios", environment);
 				var dominio = environment.IsDevelopment() ? HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString() : "www.misitio.com";
+				//añadir: .....?access_token=token
 				return entidad != null ? Ok(entidad) : NotFound();
 			}
 			catch (Exception ex)
