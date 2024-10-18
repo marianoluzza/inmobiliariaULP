@@ -75,6 +75,8 @@ Transient objects are always different; a new instance is provided to every cont
 Scoped objects are the same within a request, but different across different requests.
 Singleton objects are the same for every object and every request.
 */
+//Add IHttpContextAccessor
+builder.Services.AddHttpContextAccessor();//Para recuoerar el user entre otros datos
 //builder.Services.AddTransient<IRepositorio<Propietario>, RepositorioPropietario>();
 builder.Services.AddTransient<IRepositorioPropietario, RepositorioPropietario>();
 //builder.Services.AddTransient<IRepositorioPropietario, RepositorioPropietarioMySql>();

@@ -13,7 +13,7 @@
 			"request": "launch",
 			"preLaunchTask": "build",
 			"OS-COMMENT4": "If you have changed target frameworks, make sure to update the program path.",
-			"program": "${workspaceFolder}/bin/Debug/net6.0/Inmobiliaria .Net Core.dll",
+			"program": "${workspaceFolder}/bin/Debug/net8.0/Inmobiliaria .Net Core.dll",
 			"args": [],
 			"cwd": "${workspaceFolder}",
 			"stopAtEntry": false,
