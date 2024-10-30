@@ -56,6 +56,19 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 					context.Token = accessToken;
 				}
 				return Task.CompletedTask;
+			},
+			OnTokenValidated = context =>
+			{
+				// Este evento se activa cuando el token es validado correctamente
+				Console.WriteLine("Token válido para el usuario: " + context?.Principal?.Identity?.Name);
+				// Aquí puedes realizar otras validaciones o acciones si es necesario
+				return Task.CompletedTask;
+			},
+			OnAuthenticationFailed = context =>
+			{
+				// Este evento se activa cuando la autenticación falla
+				Console.WriteLine("Error en la autenticación del token: " + context.Exception.Message);
+				return Task.CompletedTask;
 			}
 		};
 	});
