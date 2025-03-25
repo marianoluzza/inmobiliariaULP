@@ -117,7 +117,15 @@ namespace Inmobiliaria_.Net_Core.Api
 				client.Connect("smtp.gmail.com", 465, MailKit.Security.SecureSocketOptions.Auto);
 				client.Authenticate(config["SMTPUser"], config["SMTPPass"]);//estas credenciales deben estar en el user secrets
 				await client.SendAsync(message);
-				return Ok(perfil);
+				var res = @"
+					<dialog open>
+						<h3>Clave Restablecida</h3>
+						<p>Se envió un correo con la clave generada</p>
+						<div style='text-align:center;'>
+							<button onclick=window.close()>Cerrar</button>
+						</div>
+					</dialog>";
+				return Content(res, "text/html");
 			}
 			catch (Exception ex)
 			{

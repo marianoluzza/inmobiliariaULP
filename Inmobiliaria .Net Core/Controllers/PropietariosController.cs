@@ -32,17 +32,41 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		}
 
 		// GET: Propietario
-		[Route("[controller]/Index/{pagina:int?}")]
-		public ActionResult Index(int pagina=1)
+		[Route("[controller]/Index")]
+		public ActionResult Index()
 		{
 			try
 			{
-				//var lista = repositorio.ObtenerTodos();
-				var lista = repositorio.ObtenerLista(Math.Max(pagina, 1), 5);
+				var lista = repositorio.ObtenerTodos();
 				ViewBag.Id = TempData["Id"];
 				// TempData es para pasar datos entre acciones
 				// ViewBag/Data es para pasar datos del controlador a la vista
 				// Si viene alguno valor por el tempdata, lo paso al viewdata/viewbag
+				if (TempData.ContainsKey("Mensaje"))
+					ViewBag.Mensaje = TempData["Mensaje"];
+				return View(lista);
+			}
+			catch (Exception ex)
+			{// Poner breakpoints para detectar errores
+				throw;
+			}
+		}
+
+		// GET: Propietario
+		[Route("[controller]/Lista")]
+		public ActionResult Lista(int pagina=1)
+		{
+			try
+			{
+				var tamaño = 5;
+				var lista = repositorio.ObtenerLista(Math.Max(pagina, 1), tamaño);
+				ViewBag.Pagina = pagina;
+				var total = repositorio.ObtenerCantidad();
+				ViewBag.TotalPaginas = total % tamaño == 0 ? total / tamaño : total / tamaño + 1;
+				// TempData es para pasar datos entre acciones
+				// ViewBag/Data es para pasar datos del controlador a la vista
+				// Si viene alguno valor por el tempdata, lo paso al viewdata/viewbag
+				ViewBag.Id = TempData["Id"];
 				if (TempData.ContainsKey("Mensaje"))
 					ViewBag.Mensaje = TempData["Mensaje"];
 				return View(lista);
@@ -198,11 +222,11 @@ namespace Inmobiliaria_.Net_Core.Controllers
 				propietario = repositorio.ObtenerPorId(id);
 				// verificar clave antigüa
 				var pass = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-								password: cambio.ClaveVieja ?? "",
-								salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
-								prf: KeyDerivationPrf.HMACSHA1,
-								iterationCount: 1000,
-								numBytesRequested: 256 / 8));
+					password: cambio.ClaveVieja ?? "",
+					salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
+					prf: KeyDerivationPrf.HMACSHA1,
+					iterationCount: 1000,
+					numBytesRequested: 256 / 8));
 				if (propietario.Clave != pass)
 				{
 					TempData["Error"] = "Clave incorrecta";

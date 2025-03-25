@@ -139,7 +139,7 @@ namespace Inmobiliaria_.Net_Core.Models
 						Propietario p = new Propietario
 						{
 							IdPropietario = reader.GetInt32(nameof(Propietario.IdPropietario)),//más seguro
-							Nombre = reader.GetString("Nombre"),
+							Nombre = reader.GetString(nameof(Propietario.Nombre)),
 							Apellido = reader.GetString("Apellido"),
 							Dni = reader.GetString("Dni"),
 							Telefono = reader.GetString("Telefono"),
@@ -147,6 +147,30 @@ namespace Inmobiliaria_.Net_Core.Models
 							Clave = reader.GetString("Clave"),
 						};
 						res.Add(p);
+					}
+					connection.Close();
+				}
+			}
+			return res;
+		}
+
+		public int ObtenerCantidad()
+		{
+			int res = 0;
+			using (SqlConnection connection = new SqlConnection(connectionString))
+			{
+				string sql = @$"
+					SELECT COUNT(IdPropietario)
+					FROM Propietarios
+				";
+				using (SqlCommand command = new SqlCommand(sql, connection))
+				{
+					command.CommandType = CommandType.Text;
+					connection.Open();
+					var reader = command.ExecuteReader();
+					if (reader.Read())
+					{
+						res = reader.GetInt32(0);
 					}
 					connection.Close();
 				}

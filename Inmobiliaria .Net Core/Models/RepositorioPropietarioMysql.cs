@@ -149,6 +149,31 @@ namespace Inmobiliaria_.Net_Core.Models
 			return res;
 		}
 
+
+		public int ObtenerCantidad()
+		{
+			int res = 0;
+			using (var connection = new MySqlConnection(connectionString))
+			{
+				string sql = @$"
+					SELECT COUNT(IdPropietario)
+					FROM Propietarios
+				";
+				using (var command = new MySqlCommand(sql, connection))
+				{
+					command.CommandType = CommandType.Text;
+					connection.Open();
+					var reader = command.ExecuteReader();
+					if (reader.Read())
+					{
+						res = reader.GetInt32(0);
+					}
+					connection.Close();
+				}
+			}
+			return res;
+		}
+
 		virtual public Propietario ObtenerPorId(int id)
 		{
 			Propietario? p = null;

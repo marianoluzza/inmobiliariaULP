@@ -90,12 +90,12 @@ Singleton objects are the same for every object and every request.
 */
 //Add IHttpContextAccessor
 builder.Services.AddHttpContextAccessor();//Para recuoerar el user entre otros datos
-//builder.Services.AddTransient<IRepositorio<Propietario>, RepositorioPropietario>();
-builder.Services.AddTransient<IRepositorioPropietario, RepositorioPropietario>();
-//builder.Services.AddTransient<IRepositorioPropietario, RepositorioPropietarioMySql>();
-//builder.Services.AddTransient<IRepositorio<Inquilino>, RepositorioInquilino>();
-builder.Services.AddTransient<IRepositorioInmueble, RepositorioInmueble>();
-builder.Services.AddTransient<IRepositorioUsuario, RepositorioUsuario>();
+//builder.Services.AddScoped<IRepositorio<Propietario>, RepositorioPropietario>();
+builder.Services.AddScoped<IRepositorioPropietario, RepositorioPropietario>();
+//builder.Services.AddScoped<IRepositorioPropietario, RepositorioPropietarioMySql>();
+//builder.Services.AddScoped<IRepositorio<Inquilino>, RepositorioInquilino>();
+builder.Services.AddScoped<IRepositorioInmueble, RepositorioInmueble>();
+builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
 // SOLO SI USA ENTITY FRAMEWORK:
 builder.Services.AddDbContext<DataContext>(
 	options => options.UseSqlServer(

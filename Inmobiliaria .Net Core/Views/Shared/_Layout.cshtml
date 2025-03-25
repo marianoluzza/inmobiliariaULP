@@ -5,9 +5,13 @@
 	<meta name="viewport" content="width=device-width" />
 	<link href="~/lib/bootstrap/css/bootstrap.css" rel="stylesheet" />
 	<link href="~/css/main.css" rel="stylesheet" />
-	<link rel="stylesheet" href="https://cdn.linearicons.com/free/1.0.0/icon-font.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 	<link rel="icon" href="~/img/favicon.png" type="image/x-icon" />
-	@* <script src="https://unpkg.com/mustache@latest"></script> *@
+	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.css" integrity="sha512-CbQfNVBSMAYmnzP3IC+mZZmYMP2HUnVkV4+PwuhpiMUmITtSpS7Prr3fNncV1RBOnWxzz4pYQ5EAGG4ck46Oig==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.7.16/vue.min.js" integrity="sha512-Wx8niGbPNCD87mSuF0sBRytwW2+2ZFr7HwVDF8krCb3egstCc4oQfig+/cfg2OHd82KcUlOYxlSDAqdHqK5TCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
 	<!--Posibles estilos a aplicar. False porque es opcional. La página que lo necesita, declara la sección.-->
 	@RenderSection("Styles", false)
 	<title>@ViewBag.Title</title>
@@ -20,39 +24,39 @@
 			<div class="container d-flex flex-column flex-md-row justify-content-between">
 				@if (!User.Identity.IsAuthenticated)
 				{
-					<a class="py-2" asp-controller="Home" asp-action="Index"><span class="lnr lnr-home"></span> Inicio</a>
-					<a class="py-2 d-none d-md-inline-block float-right" href='@Url.Link("login", null)'><span class="lnr lnr-enter"></span> Acceder</a>
+					<a class="py-2" asp-controller="Home" asp-action="Index"><i class="fa-solid fa-house"></i> Inicio</a>
+					<a class="py-2 d-none d-md-inline-block float-right" href='@Url.Link("login", null)'><i class="fa-solid fa-right-to-bracket"></i> Acceder</a>
 				}
 				else
 				{
 					<div class="dropdown">
 						<a class="btn btn-primary dropdown-toggle text-light" href="#" role="button" id="homeMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-reference="parent" data-display="static">
-							<span class="lnr lnr-home"></span> Inicio
+							<i class="fa-solid fa-house"></i> Inicio
 						</a>
 						<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-							<a class="dropdown-item text-dark" asp-controller="Home" asp-action="Index"><span class="lnr lnr-home"></span> Inicio</a>
-							<a class="dropdown-item text-dark" asp-controller="Home" asp-action="Seguro"><i class="lnr lnr-layers"></i> Claims</a>
+							<a class="dropdown-item text-dark" asp-controller="Home" asp-action="Index"><i class="fa-solid fa-house"></i> Inicio</a>
+							<a class="dropdown-item text-dark" asp-controller="Home" asp-action="Seguro"><i class="fa-solid fa-id-card"></i> Claims</a>
 							<a class="dropdown-item text-dark" asp-controller="Home" asp-action="Fecha" 
 								asp-route-anio="@DateTime.Today.Year" asp-route-mes="@DateTime.Today.Month" asp-route-dia="@DateTime.Today.Day">
-								<i class="lnr lnr-calendar-full"></i> Fecha
+								<i class="fa-solid fa-calendar-check"></i> Fecha
 							</a>
 						</div>
 					</div>
 					@if (User.IsInRole("Administrador") || User.IsInRole("SuperAdministrador"))
 					{
-						<a class="py-2 d-none d-md-inline-block" asp-controller="Usuarios" asp-action="Index"><span class="lnr lnr-star"></span> Usuarios</a>
+						<a class="py-2 d-none d-md-inline-block" asp-controller="Usuarios" asp-action="Index"><i class="fa-solid fa-user"></i> Usuarios</a>
 					}
-					<a class="py-2 d-none d-md-inline-block" asp-controller="Propietarios" asp-action="Index"><span class="lnr lnr-user"></span> Propietarios</a>
-					<a class="py-2 d-none d-md-inline-block" asp-controller="Inmuebles" asp-action="Index"><span class="lnr lnr-apartment"></span> Inmuebles</a>
-					<a class="py-2 d-none d-md-inline-block" asp-controller="Alquileres" asp-action="Index"><span class="lnr lnr-enter"></span> Alquileres</a>
+					<a class="py-2 d-none d-md-inline-block" asp-controller="Propietarios" asp-action="Index"><i class="fa-solid fa-person"></i> Propietarios</a>
+					<a class="py-2 d-none d-md-inline-block" asp-controller="Inmuebles" asp-action="Index"><i class="fa-solid fa-building"></i> Inmuebles</a>
+					<a class="py-2 d-none d-md-inline-block" asp-controller="Alquileres" asp-action="Index"><i class="fa-solid fa-file-contract"></i> Alquileres</a>
 					<div class="dropdown">
 						<a class="btn btn-primary dropdown-toggle text-light" href="#" role="button" id="userMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-reference="parent" data-display="static">
-							<span class="lnr lnr-user"></span> @User.Identity.Name
+							<i class="fa-solid fa-user"></i> @User.Identity.Name
 						</a>
 
 						<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-							<a class="dropdown-item text-dark" asp-controller="Usuarios" asp-action="Perfil"><i class="lnr lnr-user"></i> Perfil</a>
-							<a class="dropdown-item text-dark" asp-controller="Usuarios" asp-action="Logout"><i class="lnr lnr-exit"></i> Salir</a>
+							<a class="dropdown-item text-dark" asp-controller="Usuarios" asp-action="Perfil"><i class="fa-solid fa-user"></i> Perfil</a>
+							<a class="dropdown-item text-dark" asp-controller="Usuarios" asp-action="Logout"><i class="fa-solid fa-right-from-bracket"></i> Salir</a>
 						</div>
 					</div>
 				}
@@ -61,48 +65,6 @@
 	</header>
 	<main role="main" class="container">
 		<div class="">
-			@if (ViewBag.Id != null)
-			{//alta exitosa
-				<div class="alert alert-success alert-dismissible fade show" role="alert">
-					<strong>¡Éxito!</strong> La entidad fue dada de alta con id: @ViewBag.Id
-					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-						<span aria-hidden="true"><span class="lnr lnr-cross-circle"></span></span>
-					</button>
-				</div>
-			}
-			else if (ViewBag.Mensaje != null)
-			{//cartel general
-				<div class="alert alert-info alert-dismissible fade show" role="alert">
-					<strong>Información:</strong> @ViewBag.Mensaje
-					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-						<span aria-hidden="true"><span class="lnr lnr-cross-circle"></span></span>
-					</button>
-				</div>
-			}
-			else if (ViewBag.Error != null)
-			{//alta exitosa
-				<div class="alert alert-danger alert-dismissible fade show" role="alert">
-					<strong>¡Error!</strong> @ViewBag.Error
-					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-						<span aria-hidden="true"><span class="lnr lnr-cross-circle"></span></span>
-					</button>
-				</div>
-			}
-			else if (!String.IsNullOrWhiteSpace(ViewBag.Error))
-			{//ocurrió un error
-				<environment names="Development">
-					<div class="alert alert-danger alert-dismissible fade show" role="alert">
-						<strong>¡Error!</strong> Ocurrió: @ViewBag.Error
-						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-							<span aria-hidden="true"><span class="lnr lnr-cross-circle"></span></span>
-						</button>
-						<a class="btn btn-primary" data-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false"><span class="lnr lnr-plus-circle"></span></a>
-						<div class="collapse multi-collapse" id="multiCollapseExample1">
-							@ViewBag.StackTrace
-						</div>
-					</div>
-				</environment>
-			}
 			<div class="m-1 p-1">
 				@RenderBody()
 			</div>
@@ -110,12 +72,43 @@
 	</main>
 	<footer class="footer">
 		<div class="container">
-			<span class="text-muted">&copy; @DateTime.Today.Year Company, Inc. &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a> <a class="float-right" href="#">Volver arriba</a></span>
+			<span class="text-muted">&copy; @DateTime.Today.Year Universidad de La Punta &middot; <a href="https://github.com/marianoluzza/inmobiliariaULP"><i class="fa-brands fa-github"></i> Repo</a> &middot; <a href="https://docs.google.com/document/d/1VqhEIR3T5QwZG2N371M-0fIUqPdmDdNy9AQ06D7zxfo">Narrativa</a> <a class="float-right" href="#">Volver arriba</a></span>
 		</div>
 	</footer>
 	<script type="text/javascript">
+		const notyf = new Notyf({
+			duration: 2500,
+			types: [
+				{
+					type: 'info',
+					background: '#004085',
+					icon: {
+						className: 'fa-solid fa-circle-info',
+						tagName: 'i',
+						color: 'white'
+					}
+				}
+			]
+		});
 		function init() {
-			$('.alert').alert();
+			let error = "@(ViewBag.Error??"")";
+			let mensaje = "@(ViewBag.Mensaje??"")";
+			let id = +"@(ViewBag.Id??0)";
+			notyf.info = function(mensaje) {
+				notyf.open({
+					type: 'info',
+					message: mensaje,
+				});
+			}
+			if(error) {
+				notyf.error(error);
+			}
+			if(mensaje) {
+				notyf.info(mensaje);
+			}
+			if(id) {
+				notyf.success(`La entidad fue dada de alta con id: ${id}`);
+			}
 		}
 
 		function buscarPropietarios(q) {
@@ -154,7 +147,7 @@
 			}
 		}
 	</script>
-	@RenderSection("Scripts", false)
 	@await Html.PartialAsync("_ScriptsPartial")
+	@RenderSection("Scripts", false)
 </body>
 	</html>

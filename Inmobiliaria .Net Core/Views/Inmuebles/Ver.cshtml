@@ -1,0 +1,124 @@
+﻿@using Inmobiliaria_.Net_Core.Models
+@model Inmobiliaria_.Net_Core.Models.Inmueble
+
+@{
+	ViewData["Title"] = "Inmueble";
+	var Id = (int)(ViewData["Id"] ?? 0);
+}
+@if(Id>0){
+<h1>Editar Inmueble</h1>
+}else {
+<h1>Nuevo Inmueble</h1>
+}
+<hr />
+<div class="row">
+	<div class="col-md-4">
+		<form asp-action="Edit">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<div class="form-group">
+				<label asp-for="Id" class="control-label"></label>
+				<input asp-for="Id" class="form-control" />
+				<span asp-validation-for="Id" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Direccion" class="control-label"></label>
+				<input asp-for="Direccion" class="form-control" />
+				<span asp-validation-for="Direccion" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Ambientes" class="control-label"></label>
+				<input asp-for="Ambientes" class="form-control" />
+				<span asp-validation-for="Ambientes" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Superficie" class="control-label"></label>
+				<input asp-for="Superficie" class="form-control" />
+				<span asp-validation-for="Superficie" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Latitud" class="control-label"></label>
+				<input asp-for="Latitud" class="form-control" />
+				<span asp-validation-for="Latitud" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Longitud" class="control-label"></label>
+				<input asp-for="Longitud" class="form-control" />
+				<span asp-validation-for="Longitud" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label class="control-label">Propietario</label>
+				<!--
+				<input type="text" id="Propietario" class="form-control" placeholder="Buscar..." list="propietarios">
+				<datalist id="propietarios"></datalist>
+				<input type="hidden" id="PropietarioId" name="PropietarioId">
+				<span asp-validation-for="PropietarioId" class="text-danger"></span>
+				-->
+				<select id="Propietario" class="form-control"></select>
+			</div>
+			<div class="form-group">
+				<input type="submit" value="Guardar" class="btn btn-primary" />
+			</div>
+		</form>
+	</div>
+</div>
+
+<div>
+	<a asp-action="Index">Volver a la Lista</a>
+</div>
+
+
+@section Scripts {
+	<script type="text/javascript">
+		$(document).ready(function() {
+			/*
+			$('#Propietario').on('input', function() {
+				let q = $(this).val();
+				if (q.length < 2) return;//Evitar muchas peticiones
+				$.get(`/Propietarios/Buscar/${q}`,null,null,'json').done(res => {
+					//Hacer opciones para el datalist
+					let opciones = res.datos.map(p => `<option value="${p.nombre} ${p.apellido}" data-id="${p.idPropietario}"></option>`).join('');
+					$('#propietarios').html(opciones);
+				}).fail(res => {
+					console.log("Error: ", res);
+				}).always(res => {
+					
+				});
+			});
+
+			$('#Propietario').on('change', function() {
+				let q = $(this).val();
+				let id = $('#propietarios option[value="' + q + '"]').data('id');
+				$('#PropietarioId').val(id);
+			});
+			*/
+			$('#Propietario').select2({
+				language: "es",
+				theme: 'bootstrap',  // Aplica el tema de Bootstrap
+				placeholder: "Buscar propietario...",
+				minimumInputLength: 3,// Realiza la búsqueda después de 3 caracteres
+				maximumInputLength: 10,// Limita la entrada a 10 caracteres
+				ajax: {
+					delay: 250,
+					dataType: "json",
+					cache: true,// Habilita el cache para evitar peticiones repetidas
+					//url: '/Propietarios/Buscar',
+					url: function (params) {
+						let q = params.term ? encodeURIComponent(params.term) : "";
+						return `/Propietarios/Buscar/${q}`;
+					},/*
+					data: function (params) {
+						var query = {
+							q: params.term,
+						}
+						return query;
+					},*/
+					processResults: function (res) {
+						return {
+							results: res.datos.map(p => ({id: p.idPropietario, text: `${p.nombre} ${p.apellido}`}))
+						};
+					}
+				}
+			});
+		});
+	</script>
+}

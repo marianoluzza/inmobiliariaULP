@@ -65,8 +65,8 @@
 				@Html.DisplayFor(modelItem => item.RolNombre)
 			</td>
 			<td>
-				<a asp-action="Edit" asp-route-id="@item.Id" title="Editar"><span class="lnr lnr-pencil"></span></a>&nbsp;
-				<a asp-action="Eliminar" asp-route-id="@item.Id" title="Eliminar"><span class="lnr lnr-cross"></span></a>
+				<a asp-action="Edit" asp-route-id="@item.Id" title="Editar"><i class="fa-solid fa-pen"></i></a>&nbsp;
+				<a asp-action="Eliminar" asp-route-id="@item.Id" title="Eliminar"><i class="fa-solid fa-trash-can text-danger"></i></a>
 			</td>
 		</tr>
 }

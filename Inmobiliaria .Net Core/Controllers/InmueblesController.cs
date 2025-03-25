@@ -45,6 +45,14 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		}
 
 		// GET: Inmueble/Details/5
+		public ActionResult Ver(int id)
+		{
+			var entidad = id == 0 ? new Inmueble() : repositorio.ObtenerPorId(id);
+			ViewBag.Id = id;
+			return View(entidad);
+		}
+
+		// GET: Inmueble/Details/5
 		public ActionResult Details(int id)
 		{
 			var entidad = repositorio.ObtenerPorId(id);
