@@ -3,7 +3,11 @@
 
 @{
 	ViewData["Title"] = "Inmueble";
-	var Id = (int)(ViewData["Id"] ?? 0);
+	var Id = Model?.Id ?? 0;
+	/*var Id = 0;
+	if(Model != null){
+		Id = Model.Id;
+	}*/
 }
 @if(Id>0){
 <h1>Editar Inmueble</h1>
@@ -13,7 +17,7 @@
 <hr />
 <div class="row">
 	<div class="col-md-4">
-		<form asp-action="Edit">
+		<form asp-action="Guardar">
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 			<div class="form-group">
 				<label asp-for="Id" class="control-label"></label>
@@ -53,7 +57,11 @@
 				<input type="hidden" id="PropietarioId" name="PropietarioId">
 				<span asp-validation-for="PropietarioId" class="text-danger"></span>
 				-->
-				<select id="Propietario" class="form-control"></select>
+				<select id="Propietario" class="form-control" name="PropietarioId">
+					@if(Id>0){
+						<option value="@Model?.PropietarioId" selected>@Model?.Duenio?.Nombre @Model?.Duenio?.Apellido</option>
+					}
+				</select>
 			</div>
 			<div class="form-group">
 				<input type="submit" value="Guardar" class="btn btn-primary" />
@@ -119,6 +127,12 @@
 					}
 				}
 			});
+			var idOriginal = +"@Model?.PropietarioId";
+			var textoOriginal = "@Model?.Duenio?.Nombre" + ' ' + "@Model?.Duenio?.Apellido";
+			if (idOriginal && textoOriginal) {
+				var option = new Option(textoOriginal, idOriginal, true, true);
+				$("#Propietario").append(option).trigger('change');
+			}
 		});
 	</script>
 }

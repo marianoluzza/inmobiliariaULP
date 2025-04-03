@@ -48,8 +48,34 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		public ActionResult Ver(int id)
 		{
 			var entidad = id == 0 ? new Inmueble() : repositorio.ObtenerPorId(id);
-			ViewBag.Id = id;
 			return View(entidad);
+		}
+
+		// POST: Inmueble/Create
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public ActionResult Guardar(Inmueble entidad)
+		{
+			try
+			{
+				if (entidad.Id == 0)
+				{
+					repositorio.Alta(entidad);
+					TempData["Id"] = entidad.Id;
+				}
+				else
+				{
+					repositorio.Modificacion(entidad);
+					TempData["Mensaje"] = "Inmueble modificado correctamente";
+				}
+				return RedirectToAction(nameof(Index));
+			}
+			catch (Exception ex)
+			{
+				ViewBag.Error = ex.Message;
+				ViewBag.StackTrate = ex.StackTrace;
+				return View(entidad);
+			}
 		}
 
 		// GET: Inmueble/Details/5
