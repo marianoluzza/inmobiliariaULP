@@ -1,41 +1,39 @@
 ﻿@model IEnumerable<Inmobiliaria_.Net_Core.Models.Inmueble>
 
 @{
-    ViewData["Title"] = "Index";
+	ViewData["Title"] = "Index";
+	var rnd = new Random();
 }
 
-<h1>Index</h1>
+<h1>Listado de Inmuebles</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+	<a asp-action="Create">Nuevo</a>
 </p>
 <table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Id)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Direccion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Ambientes)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Superficie)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Latitud)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Longitud)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PropietarioId)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
+	<thead>
+		<tr>
+			<th>
+				@Html.DisplayNameFor(model => model.Id)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Direccion)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Ambientes)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Superficie)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.PropietarioId)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Portada)
+			</th>
+			<th></th>
+		</tr>
+	</thead>
 	<tbody>
 		@foreach (var item in Model)
 		{
@@ -53,20 +51,38 @@
 					@Html.DisplayFor(modelItem => item.Superficie)
 				</td>
 				<td>
-					@Html.DisplayFor(modelItem => item.Latitud)
-				</td>
-				<td>
-					@Html.DisplayFor(modelItem => item.Longitud)
-				</td>
-				<td>
 					<!-- @(item.Duenio.Nombre + " " + item.Duenio.Apellido) -->
 					@item.Duenio.ToString()
 				</td>
 				<td>
-					<a asp-action="Edit" asp-route-id="@item.Id" title="Editar"><i class="fa-solid fa-pen"></i></a>&nbsp;
-					<a asp-action="Eliminar" asp-route-id="@item.Id" title="Eliminar"><i class="fa-solid fa-trash-can text-danger"></i></a>
+					@if (!String.IsNullOrEmpty(item.Portada))
+					{
+						var x = item.Portada + "?" + rnd.Next();
+						<img width="32" src="@x" />
+					}
+					else
+					{
+						<span>Sin foto</span>
+					}
+
+				</td>
+				<td>
+					<div class="btn-group" role="group">
+						<a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id" title="Editar">
+							<i class="fa-solid fa-pen"></i>
+						</a>
+						<a class="btn btn-danger" asp-action="Eliminar" asp-route-id="@item.Id" title="Eliminar">
+							<i class="fa-solid fa-trash-can"></i>
+						</a>
+						<a class="btn btn-secondary" asp-action="Ver" asp-route-id="@item.Id" title="Ver">
+							<i class="fa-solid fa-eye"></i>
+						</a>
+						<a class="btn btn-secondary" asp-action="Imagenes" asp-route-id="@item.Id" title="Ver imágenes">
+							<i class="fa-solid fa-images"></i>
+						</a>
+					</div>
 				</td>
 			</tr>
-			}
-		</tbody>
+		}
+	</tbody>
 </table>

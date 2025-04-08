@@ -95,6 +95,7 @@ builder.Services.AddScoped<IRepositorioPropietario, RepositorioPropietario>();
 //builder.Services.AddScoped<IRepositorioPropietario, RepositorioPropietarioMySql>();
 //builder.Services.AddScoped<IRepositorio<Inquilino>, RepositorioInquilino>();
 builder.Services.AddScoped<IRepositorioInmueble, RepositorioInmueble>();
+builder.Services.AddScoped<IRepositorioImagen, RepositorioImagen>();
 builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
 // SOLO SI USA ENTITY FRAMEWORK:
 builder.Services.AddDbContext<DataContext>(

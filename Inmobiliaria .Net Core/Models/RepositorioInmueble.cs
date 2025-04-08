@@ -63,9 +63,10 @@ namespace Inmobiliaria_.Net_Core.Models
 			int res = -1;
 			using (var connection = new SqlConnection(connectionString))
 			{
-				string sql = "UPDATE Inmuebles SET " +
-	"Direccion=@direccion, Ambientes=@ambientes, Superficie=@superficie, Latitud=@latitud, Longitud=@longitud, PropietarioId=@propietarioId " +
-	"WHERE Id = @id";
+				string sql = @"
+					UPDATE Inmuebles SET
+					Direccion=@direccion, Ambientes=@ambientes, Superficie=@superficie, Latitud=@latitud, Longitud=@longitud, PropietarioId=@propietarioId
+					WHERE Id = @id";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.Parameters.AddWithValue("@direccion", entidad.Direccion);
@@ -83,13 +84,34 @@ namespace Inmobiliaria_.Net_Core.Models
 			}
 			return res;
 		}
+		public int ModificarPortada(int id, string url)
+		{
+			int res = -1;
+			using (var connection = new SqlConnection(connectionString))
+			{
+				string sql = @"
+					UPDATE Inmuebles SET
+					Portada=@portada
+					WHERE Id = @id";
+				using (SqlCommand command = new SqlCommand(sql, connection))
+				{
+					command.Parameters.AddWithValue("@portada", String.IsNullOrEmpty(url) ? DBNull.Value : url);
+					command.Parameters.AddWithValue("@id", id);
+					command.CommandType = CommandType.Text;
+					connection.Open();
+					res = command.ExecuteNonQuery();
+					connection.Close();
+				}
+			}
+			return res;
+		}
 
 		public IList<Inmueble> ObtenerTodos()
 		{
 			IList<Inmueble> res = new List<Inmueble>();
 			using (var connection = new SqlConnection(connectionString))
 			{
-				string sql = @"SELECT Id, Direccion, Ambientes, Superficie, Latitud, Longitud, PropietarioId,
+				string sql = @"SELECT Id, Direccion, Ambientes, Superficie, Latitud, Longitud, PropietarioId, Portada,
 					p.Nombre, p.Apellido, p.Dni
 					FROM Inmuebles i INNER JOIN Propietarios p ON i.PropietarioId = p.IdPropietario";
 				using (SqlCommand command = new SqlCommand(sql, connection))
@@ -101,19 +123,20 @@ namespace Inmobiliaria_.Net_Core.Models
 					{
 						Inmueble entidad = new Inmueble
 						{
-							Id = reader.GetInt32(0),
-							Direccion = reader["Direccion"] == DBNull.Value? "" : reader.GetString("Direccion"),
-							Ambientes = reader.GetInt32(2),
-							Superficie = reader.GetInt32(3),
-							Latitud = reader.GetDecimal(4),
-							Longitud = reader.GetDecimal(5),
-							PropietarioId = reader.GetInt32(6),
+							Id = reader.GetInt32(nameof(Inmueble.Id)),
+							Direccion = reader[nameof(Inmueble.Direccion)] == DBNull.Value? "" : reader.GetString(nameof(Inmueble.Direccion)),
+							Portada = reader[nameof(Inmueble.Portada)] == DBNull.Value? null : reader.GetString(nameof(Inmueble.Portada)),
+							Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
+							Superficie = reader.GetInt32(nameof(Inmueble.Superficie)),
+							Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
+							Longitud = reader.GetDecimal(nameof(Inmueble.Longitud)),
+							PropietarioId = reader.GetInt32(nameof(Inmueble.PropietarioId)),
 							Duenio = new Propietario
 							{
-								IdPropietario = reader.GetInt32(6),
-								Nombre = reader.GetString(7),
-								Apellido = reader.GetString(8),
-								//Dni = reader.GetString(9),
+								IdPropietario = reader.GetInt32(nameof(Inmueble.PropietarioId)),
+								Nombre = reader.GetString(nameof(Propietario.Nombre)),
+								Apellido = reader.GetString(nameof(Propietario.Apellido)),
+								//Dni = reader.GetString(nameof(Propietario.Dni)),
 							}
 						};
 						res.Add(entidad);
@@ -130,7 +153,7 @@ namespace Inmobiliaria_.Net_Core.Models
 			using (var connection = new SqlConnection(connectionString))
 			{
 				string sql = @$"
-					SELECT {nameof(Inmueble.Id)}, Direccion, Ambientes, Superficie, Latitud, Longitud, PropietarioId, p.Nombre, p.Apellido
+					SELECT {nameof(Inmueble.Id)}, Direccion, Ambientes, Superficie, Latitud, Longitud, PropietarioId, Portada, p.Nombre, p.Apellido
 					FROM Inmuebles i JOIN Propietarios p ON i.PropietarioId = p.IdPropietario
 					WHERE {nameof(Inmueble.Id)}=@id";
 				using (SqlCommand command = new SqlCommand(sql, connection))
@@ -144,17 +167,19 @@ namespace Inmobiliaria_.Net_Core.Models
 						entidad = new Inmueble
 						{
 							Id = reader.GetInt32(nameof(Inmueble.Id)),
-							Direccion = reader["Direccion"] == DBNull.Value? "" : reader.GetString("Direccion"),
-							Ambientes = reader.GetInt32("Ambientes"),
-							Superficie = reader.GetInt32("Superficie"),
-							Latitud = reader.GetDecimal("Latitud"),
-							Longitud = reader.GetDecimal("Longitud"),
-							PropietarioId = reader.GetInt32("PropietarioId"),
+							Direccion = reader[nameof(Inmueble.Direccion)] == DBNull.Value? "" : reader.GetString(nameof(Inmueble.Direccion)),
+							Portada = reader[nameof(Inmueble.Portada)] == DBNull.Value? null : reader.GetString(nameof(Inmueble.Portada)),
+							Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
+							Superficie = reader.GetInt32(nameof(Inmueble.Superficie)),
+							Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
+							Longitud = reader.GetDecimal(nameof(Inmueble.Longitud)),
+							PropietarioId = reader.GetInt32(nameof(Inmueble.PropietarioId)),
 							Duenio = new Propietario
 							{
-								IdPropietario = reader.GetInt32("PropietarioId"),
-								Nombre = reader.GetString("Nombre"),
-								Apellido = reader.GetString("Apellido"),
+								IdPropietario = reader.GetInt32(nameof(Inmueble.PropietarioId)),
+								Nombre = reader.GetString(nameof(Propietario.Nombre)),
+								Apellido = reader.GetString(nameof(Propietario.Apellido)),
+								//Dni = reader.GetString(nameof(Propietario.Dni)),
 							}
 						};
 					}

@@ -32,12 +32,11 @@ namespace Inmobiliaria_.Net_Core.Api
 		private readonly IConfiguration config;
 		private readonly IWebHostEnvironment environment;
 
-		public PropietariosController(DataContext contexto, IConfiguration config, IWebHostEnvironment env, IHttpContextAccessor httpContextAccessor)
+		public PropietariosController(DataContext contexto, IConfiguration config, IWebHostEnvironment env)
 		{
 			this.contexto = contexto;
 			this.config = config;
 			environment = env;
-			var name = httpContextAccessor.HttpContext.User.Identity.Name;
 		}
 		// GET: api/<controller>
 		[HttpGet]
