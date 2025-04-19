@@ -1,0 +1,313 @@
+﻿@model Inmobiliaria_.Net_Core.Models.Propietario
+
+@{
+	ViewData["Title"] = "Propietario";
+	var propietarioId = Model.IdPropietario;
+}
+<div class="row" id="appVue" v-cloak>
+	<div class="col-md-4">
+		<h3>
+			Detalles del Propietario
+			<div class="btn-group pull-right">
+				<button class="btn btn-primary" title="Editar" v-on:click="activarEdicion" v-if="!editando_propietario"><i class="fas fa-edit"></i></button>
+			</div>
+		</h3>
+		<hr />
+		<form asp-action="Guardar" v-on:submit.prevent="guardarPropietario" asp-antiforgery="true" id="formPropietario">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<div class="form-group">
+				<label asp-for="Nombre" class="control-label"></label>
+				<input asp-for="Nombre" class="form-control" :readonly="!editando_propietario" v-model="propietario.nombre" />
+				<span asp-validation-for="Nombre" class="text-danger" v-if="errores_propietario.Nombre">{{ errores_propietario.Nombre }}</span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Apellido" class="control-label"></label>
+				<input asp-for="Apellido" class="form-control" :readonly="!editando_propietario" v-model="propietario.apellido" />
+				<span asp-validation-for="Apellido" class="text-danger" v-if="errores_propietario.Apellido">{{ errores_propietario.Apellido }}</span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Dni" class="control-label"></label>
+				<input asp-for="Dni" class="form-control" :readonly="!editando_propietario" v-model="propietario.dni" />
+				<span asp-validation-for="Dni" class="text-danger" v-if="errores_propietario.Dni">{{ errores_propietario.Dni }}</span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Telefono" class="control-label"></label>
+				<input asp-for="Telefono" class="form-control" :readonly="!editando_propietario" v-model="propietario.telefono" />
+				<span asp-validation-for="Telefono" class="text-danger" v-if="errores_propietario.Telefono">{{ errores_propietario.Telefono }}</span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Email" class="control-label"></label>
+				<input asp-for="Email" class="form-control" :readonly="!editando_propietario" v-model="propietario.email" />
+				<span asp-validation-for="Email" class="text-danger" v-if="errores_propietario.Email">{{ errores_propietario.Email }}</span>
+			</div>
+			<div class="form-group" v-if="editando_propietario">
+				<button type="button" v-on:click="cancelarEdicion" class="btn btn-secondary">Cancelar</button>
+				<button type="submit" class="btn btn-primary" :disabled="guardando_propietario">
+					<span v-if="guardando_propietario"><i class="fa fa-spinner fa-spin"></i> </span>
+					<span v-else><i class="fa fa-save"></i> </span>
+					Guardar
+				</button>
+			</div>
+		</form>
+	</div>
+	<div class="col-md-8" v-if="modo_actual == modos.listado">
+		<h3>
+			Listado de Inmuebles 
+			<div class="btn-group pull-right">
+				<button class="btn btn-primary" title="Crear" v-on:click="nuevoInmueble"><i class="fa-solid fa-plus"></i></button>
+			</div>
+		</h3>
+    <table class="table">
+			<thead>
+				<tr>
+					<th>Dirección</th>
+					<th>Ambientes</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+					<tr v-for="(inmueble, index) in inmuebles" :key="inmueble.id">
+						<td>{{ inmueble.direccion }}</td>
+						<td>{{ inmueble.ambientes }}</td>
+						<td>
+							<div class="d-flex align-items-center">
+								<button v-on:click="editarInmueble(inmueble)" class="btn btn-primary"><i class="fas fa-edit"></i></button>
+								@if(User.IsInRole("Administrador")||User.IsInRole("SuperAdministrador")) {
+									<span>&nbsp;</span>
+									<div class="custom-control custom-switch">
+										<input type="checkbox" class="custom-control-input" :id="'habilitado_'+inmueble.id" v-model="inmueble.habilitado" 
+											@@change="cambiarEstadoInmueble(index)" :disabled="guardando_inmueble" />
+										<label class="custom-control-label" :for="'habilitado_'+inmueble.id">{{ inmueble.habilitado ? "Activo" : "Inactivo" }}</label>
+									</div>
+								}
+							</div>
+						</td>
+					</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<!-- Formulario para agregar/editar inmueble -->
+	<div class="col-md-4" v-if="modo_actual == modos.edicion">
+		<h3>{{ inmuebleActual.id ? 'Editar Inmueble' : 'Nuevo Inmueble' }}</h3>
+		<hr />
+		<form v-on:submit.prevent="guardarInmueble" asp-antiforgery="true" id="formInmueble">
+			<div class="form-group">
+				<label for="direccion">Dirección</label>
+				<input id="direccion" v-model="inmuebleActual.direccion" class="form-control" />
+				<span class="text-danger" v-if="errores_inmueble.Direccion">{{ errores_inmueble.Direccion }}</span>
+			</div>
+			<div class="form-group">
+				<label for="ambientes">Ambientes</label>
+				<select id="ambientes" v-model="inmuebleActual.ambientes" class="form-control">
+					<option v-for="i in 10" :key="i" :value="i">{{ i }}</option>
+				</select>
+				<span class="text-danger" v-if="errores_inmueble.Ambientes">{{ errores_inmueble.Ambientes }}</span>
+			</div>
+			<div class="form-group">
+				<label for="superficie">Superficie</label>
+				<input id="superficie" v-model="inmuebleActual.superficie" class="form-control" />
+				<span class="text-danger" v-if="errores_inmueble.Superficie">{{ errores_inmueble.Superficie }}</span>
+			</div>
+			<div class="form-group">
+				<label for="uso">Uso</label>
+				<select id="uso" v-model="inmuebleActual.uso" class="form-control">
+					<option v-bind:value="null">Seleccione</option>
+					<option value="Comercial">Comercial</option>
+					<option value="Residencial">Residencial</option>
+				</select>
+				<span class="text-danger" v-if="errores_inmueble.Uso">{{ errores_inmueble.Uso }}</span>
+			</div>
+			<button type="button" v-on:click="cancelarInmueble" class="btn btn-secondary">Cancelar</button>
+			<button type="submit" class="btn btn-primary" :disabled="guardando_inmueble">
+				<span v-if="guardando_inmueble"><i class="fa fa-spinner fa-spin"></i> </span>
+				<span v-else><i class="fa fa-save"></i> </span>
+				Guardar
+			</button>
+		</form>
+	</div>
+</div>
+
+<div>
+	<a asp-action="Index">Volver</a>
+</div>
+
+@section Scripts {
+<script>
+const emailRegex = /^[a-zA-Z0-9._%+-]+@@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const inmuebleDefault = { id: 0, propietarioId: @propietarioId, direccion: '', uso: null, ambientes: 1, superficie: 0 };
+const erroresPropietarioDefault = {
+	Nombre: null,
+	Apellido: null,
+	Dni: null,
+	Telefono: null,
+	Email: null,
+};
+const erroresInmuebleDefault = {
+	Direccion: null,
+	Uso: null,
+	Ambientes: null,
+	Superficie: null,
+};
+$(document).ready(() => {
+	appVue = new Vue({
+		el: '#appVue',
+		data: {
+			modo_actual: 1,
+			modos: {
+				listado: 1,
+				edicion: 2,
+			},
+			propietarioId: @propietarioId,
+			propietario: {},
+			propietario_original: {},
+			errores_propietario: { ...erroresPropietarioDefault },
+			guardando_propietario: false,
+			editando_propietario: false,
+			inmuebles: [],
+			inmuebleActual: { ...inmuebleDefault },
+			errores_inmueble: { ...erroresInmuebleDefault },
+			guardando_inmueble: false,
+		},
+		computed: {
+		},
+		methods: {
+			async cargarPropietario() {
+				const response = await fetch(`/propietarios/obtener/${this.propietarioId}`);
+				this.propietario = await response.json();
+				this.propietario_original = { ...this.propietario };
+			},
+			activarEdicion() {
+				this.editando_propietario = true;
+			},
+			cancelarEdicion() {
+				this.editando_propietario = false;
+				this.propietario = { ...this.propietario_original };
+				this.errores_propietario = { ...erroresPropietarioDefault };
+			},
+			async guardarPropietario() {
+				this.errores_propietario = { ...erroresPropietarioDefault };
+				if (!this.propietario.nombre) {
+					this.errores_propietario.Nombre = 'El nombre es requerido.';
+				}
+				if (!this.propietario.apellido) {
+					this.errores_propietario.Apellido = 'El apellido es requerido.';
+				}
+				if (!this.propietario.dni) {
+					this.errores_propietario.Dni = 'El DNI es requerido.';
+				} else if (this.propietario.dni.length < 7) {
+					this.errores_propietario.Dni = 'El DNI debe tener al menos 7 dígitos.';
+				}
+				if (!this.propietario.telefono) {
+					this.errores_propietario.Telefono = 'El teléfono es requerido.';
+				}
+				if (!this.propietario.email) {
+					this.errores_propietario.Email = 'El correo es requerido.';
+				} else if (!this.propietario.email.match(emailRegex)) {
+					this.errores_propietario.Email = 'El correo no es válido.';
+				}
+				if(Object.keys(this.errores_propietario).some(key => this.errores_propietario[key] !== null)) {
+					notyf.error("Verifique los datos ingresados");
+					return; // Si hay errores, no continuar
+				}
+				this.guardando_propietario = true;
+				$.ajax({
+					url: `/Propietarios/Guardar/${this.propietario.idPropietario}`,
+					method: 'POST',
+					headers: {
+						'RequestVerificationToken': $('#formPropietario input[name="__RequestVerificationToken"]').val()
+					},
+					data: this.propietario,
+				}).done((data) => {
+					this.propietario = data;
+					this.editando_propietario = false;
+					notyf.success(`Propietario guardado con éxito`);
+				}).fail((jqXHR, textStatus, errorThrown) => {
+					notyf.error("Error al guardar el propietario");
+					if (jqXHR.status === 400) {
+						console.log(jqXHR.responseJSON);
+						this.errores = jqXHR.responseJSON;
+					} 
+				}).always(() => {
+					this.guardando_propietario = false;
+				});
+			},
+			async cargarInmuebles() {
+				const response = await fetch(`/inmuebles/porPropietario/${this.propietarioId}`);
+				this.inmuebles = await response.json();
+			},
+			nuevoInmueble() {
+				this.inmuebleActual = { ...inmuebleDefault };
+				this.modo_actual = this.modos.edicion;
+			},
+			editarInmueble(inmueble) {
+				this.inmuebleActual = { ...inmueble }; // Copia para evitar mutación directa
+				this.modo_actual = this.modos.edicion;
+			},
+			async guardarInmueble() {
+				this.errores_inmueble = { ...erroresInmuebleDefault };
+				if (!this.inmuebleActual.direccion) {
+					//this.errores_inmueble.Direccion = 'La dirección es requerida.';
+				}
+				if (!this.inmuebleActual.uso) {
+					this.errores_inmueble.Uso = 'El uso es requerido.';
+				}
+				if (!this.inmuebleActual.ambientes) {
+					this.errores_inmueble.Ambientes = 'Los ambientes son requeridos.';
+				}
+				if (!this.inmuebleActual.superficie) {
+					this.errores_inmueble.Superficie = 'La superficie es requerida.';
+				}
+				if(Object.keys(this.errores_inmueble).some(key => this.errores_inmueble[key] !== null)) {
+					notyf.error("Verifique los datos ingresados");
+					return; // Si hay errores, no continuar
+				}
+				this.guardando_inmueble = true;
+				$.ajax({
+					url: `/Inmuebles/GuardarAjax/${this.inmuebleActual.id}`,
+					method: 'POST',
+					headers: {
+						'RequestVerificationToken': $('#formInmueble input[name="__RequestVerificationToken"]').val()
+					},
+					data: this.inmuebleActual,
+				}).done((data) => {
+					this.inmuebles = data;
+					this.modo_actual = this.modos.listado;
+					notyf.success(`Inmueble guardado con éxito`);
+				}).fail((jqXHR, textStatus, errorThrown) => {
+					notyf.error("Error al guardar el inmueble");
+					if (jqXHR.status === 400) {
+						console.log(jqXHR.responseJSON);
+						Object.keys(jqXHR.responseJSON).forEach(key => {
+							this.errores_inmueble[key] = jqXHR.responseJSON[key].join(', ');
+						});
+					} 
+				}).always(() => {
+					this.guardando_inmueble = false;
+				});
+			},
+			cancelarInmueble() {
+				this.modo_actual = this.modos.listado;
+				this.inmuebleActual = { ...inmuebleDefault };
+			},
+			cambiarEstadoInmueble(index) {
+				const id = this.inmuebles[index].id;
+				this.guardando_inmueble = true;
+				$.post(`/Inmuebles/cambiarEstado/${id}`).done((data) => {
+					Object.assign(this.inmuebles[index], data);
+					notyf.success(`Estado del inmueble actualizado`);
+				}).fail((jqXHR, textStatus, errorThrown) => {
+					notyf.error("Error al cambiar el estado del inmueble");
+				}).always(() => {
+					this.guardando_inmueble = false;
+				});
+			}
+		},
+		mounted() {
+			this.cargarPropietario();
+			this.cargarInmuebles();
+		}
+	});
+})
+</script>
+}

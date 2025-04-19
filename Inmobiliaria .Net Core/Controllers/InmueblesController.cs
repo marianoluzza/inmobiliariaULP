@@ -22,7 +22,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			this.repoPropietario = repoPropietrio;
 		}
 
-		// GET: Inmueble
+		// GET: Inmuebles
 		public ActionResult Index()
 		{
 			var lista = repositorio.ObtenerTodos();
@@ -33,26 +33,22 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			return View(lista);
 		}
 
+		// GET: Inmuebles/BuscarPorPropietario/5
+		[HttpGet]
 		public ActionResult PorPropietario(int id)
 		{
-			var lista = repositorio.ObtenerTodos();//repositorio.ObtenerPorPropietario(id);
-			if (TempData.ContainsKey("Id"))
-				ViewBag.Id = TempData["Id"];
-			if (TempData.ContainsKey("Mensaje"))
-				ViewBag.Mensaje = TempData["Mensaje"];
-			ViewBag.Id = id;
-			//ViewBag.Propietario = repoPropietario.
-			return View("Index", lista);
+			var lista = repositorio.BuscarPorPropietario(id);
+			return Ok(lista);
 		}
 
-		// GET: Inmueble/Details/5
+		// GET: Inmuebles/Details/5
 		public ActionResult Ver(int id)
 		{
 			var entidad = id == 0 ? new Inmueble() : repositorio.ObtenerPorId(id);
 			return View(entidad);
 		}
 
-		// POST: Inmueble/Create
+		// POST: Inmuebles/Create
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public ActionResult Guardar(Inmueble entidad)
@@ -79,7 +75,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 		}
 
-		// GET: Inmueble/Imagenes/5
+		// GET: Inmuebles/Imagenes/5
 		public ActionResult Imagenes(int id, [FromServices] IRepositorioImagen repoImagen)
 		{
 			var entidad = repositorio.ObtenerPorId(id);
@@ -87,7 +83,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			return View(entidad);
 		}
 
-		// POST: Inmueble/Portada
+		// POST: Inmuebles/Portada
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public ActionResult Portada(Imagen entidad, [FromServices] IWebHostEnvironment environment)
@@ -138,7 +134,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 		}
 
-		// GET: Inmueble/Create
+		// GET: Inmuebles/Create
 		public ActionResult Create()
 		{
 			try
@@ -154,7 +150,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 		}
 
-		// POST: Inmueble/Create
+		// POST: Inmuebles/Create
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public ActionResult Create(Inmueble entidad)
@@ -181,7 +177,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 		}
 
-		// GET: Inmueble/Edit/5
+		// GET: Inmuebles/Edit/5
 		public ActionResult Edit(int id)
 		{
 			var entidad = repositorio.ObtenerPorId(id);
@@ -193,7 +189,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			return View(entidad);
 		}
 
-		// POST: Inmueble/Edit/5
+		// POST: Inmuebles/Edit/5
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public ActionResult Edit(int id, Inmueble entidad)
@@ -214,7 +210,33 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 		}
 
-		// GET: Inmueble/Eliminar/5
+		// POST: Inmuebles/GuardarAjax
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public ActionResult GuardarAjax(int id, Inmueble entidad)
+		{
+			try
+			{
+				if (!ModelState.IsValid)
+					return BadRequest(ModelState);
+				if (id == 0)
+				{
+					id = repositorio.Alta(entidad);
+				}
+				else
+				{
+					repositorio.Modificacion(entidad);
+				}
+				var res = repositorio.BuscarPorPropietario(entidad.PropietarioId);
+				return Ok(res);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
+
+		// GET: Inmuebles/Eliminar/5
 		public ActionResult Eliminar(int id)
 		{
 			var entidad = repositorio.ObtenerPorId(id);
@@ -225,7 +247,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			return View(entidad);
 		}
 
-		// POST: Inmueble/Eliminar/5
+		// POST: Inmuebles/Eliminar/5
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public ActionResult Eliminar(int id, Inmueble entidad)
@@ -241,6 +263,23 @@ namespace Inmobiliaria_.Net_Core.Controllers
 				ViewBag.Error = ex.Message;
 				ViewBag.StackTrate = ex.StackTrace;
 				return View(entidad);
+			}
+		}
+
+		// POST: Inmuebles/CambiarEstado/5
+		[HttpPost]
+		public ActionResult CambiarEstado(int id)
+		{
+			try
+			{
+				var entidad = repositorio.ObtenerPorId(id);
+				entidad.Habilitado = !entidad.Habilitado;
+				repositorio.Modificacion(entidad);
+				return Ok(entidad);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
 			}
 		}
 	}

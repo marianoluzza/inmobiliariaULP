@@ -31,7 +31,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			this.config = config;
 		}
 
-		// GET: Propietario
+		// GET: Propietarios
 		[Route("[controller]/Index")]
 		public ActionResult Index()
 		{
@@ -52,7 +52,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 		}
 
-		// GET: Propietario
+		// GET: Propietarios
 		[Route("[controller]/Lista")]
 		public ActionResult Lista(int pagina=1)
 		{
@@ -77,13 +77,13 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 		}
 
-		// GET: Propietario/Details/5
+		// GET: Propietarios/Details/5
 		public ActionResult Details(int id)
 		{
 			try
 			{
 				var entidad = repositorio.ObtenerPorId(id);
-				return View();//¿qué falta?
+				return View(entidad);
 			}
 			catch (Exception ex)
 			{//poner breakpoints para detectar errores
@@ -91,7 +91,21 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 		}
 
-		// GET: Propietario/Busqueda
+		// GET: Propietarios/Obtener/5
+		public IActionResult Obtener(int id)
+		{
+			try
+			{
+				var res = repositorio.ObtenerPorId(id);
+				return Ok(res);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
+
+		// GET: Propietarios/Busqueda
 		public IActionResult Busqueda()
 		{
 			try
@@ -104,7 +118,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 		}
 
-		// GET: Propietario/Buscar/5
+		// GET: Propietarios/Buscar/5
 		[Route("[controller]/Buscar/{q}", Name = "Buscar")]
 		public IActionResult Buscar(string q)
 		{
@@ -119,7 +133,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 		}
 
-		// GET: Propietario/Create
+		// GET: Propietarios/Create
 		public ActionResult Create()
 		{
 			try
@@ -132,7 +146,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 		}
 
-		// POST: Propietario/Create
+		// POST: Propietarios/Create
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public ActionResult Create(Propietario propietario)
@@ -161,7 +175,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 		}
 
-		// GET: Propietario/Edit/5
+		// GET: Propietarios/Edit/5
 		public ActionResult Edit(int id)
 		{
 			try
@@ -175,7 +189,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 		}
 
-		// POST: Propietario/Edit/5
+		// POST: Propietarios/Edit/5
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		//public ActionResult Edit(int id, IFormCollection collection)
@@ -210,7 +224,39 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 		}
 
-		// POST: Propietario/Edit/5
+		// POST: Propietarios/Guardar/5
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public ActionResult Guardar(int id, Propietario entidad)
+		{
+			try
+			{
+				if(!ModelState.IsValid)
+					return BadRequest(ModelState);
+				if(id == 0) 
+				{
+					id = repositorio.Alta(entidad);
+				}
+				else
+				{
+					var p = repositorio.ObtenerPorId(id);
+					p.Nombre = entidad.Nombre;
+					p.Apellido = entidad.Apellido;
+					p.Dni = entidad.Dni;
+					p.Email = entidad.Email;
+					p.Telefono = entidad.Telefono;
+					repositorio.Modificacion(p);
+				}
+				var res = repositorio.ObtenerPorId(id);
+				return Ok(res);
+			}
+			catch (Exception ex)
+			{//poner breakpoints para detectar errores
+				return BadRequest(ex.Message);
+			}
+		}
+
+		// POST: Propietarios/Edit/5
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public ActionResult CambiarPass(int id, CambioClaveView cambio)
@@ -265,7 +311,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 		}
 
-		// GET: Propietario/Delete/5
+		// GET: Propietarios/Delete/5
 		public ActionResult Eliminar(int id)
 		{
 			try
@@ -279,7 +325,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 		}
 
-		// POST: Propietario/Delete/5
+		// POST: Propietarios/Delete/5
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public ActionResult Eliminar(int id, Propietario entidad)

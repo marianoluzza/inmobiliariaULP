@@ -78,7 +78,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			DateTime posibleFecha;
 			if (DateTime.TryParse(valor, out posibleFecha))
 			{
-				ViewBag.Valor = "Escribiste una fecha: " + posibleFecha.ToShortDateString();
+				ViewBag.Valor = "Escribiste una fecha: " + posibleFecha.ToString("dd/MM/yyyy");
 			}
 			else
 			{

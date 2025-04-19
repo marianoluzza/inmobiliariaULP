@@ -12,9 +12,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Inmobiliaria_.Net_Core.Controllers;
 using Microsoft.AspNetCore.SignalR;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://localhost:5000","https://localhost:5001", "http://*:5000", "https://*:5001");
+CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;// . como separador de decimales
+CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;// . como separador de decimales
 var configuration = builder.Configuration;
 // Add services to the container.
 builder.Services.AddControllersWithViews();
