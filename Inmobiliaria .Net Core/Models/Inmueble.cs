@@ -33,6 +33,7 @@ namespace Inmobiliaria_.Net_Core.Models
 		public IFormFile? PortadaFile { get; set; }
 		[ForeignKey(nameof(Imagen.InmuebleId))]
 		public IList<Imagen> Imagenes { get; set; } = new List<Imagen>();
+		[NotMapped]
 		public bool Habilitado { get; set; } = true;
 	}
 	
