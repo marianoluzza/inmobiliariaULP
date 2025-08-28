@@ -111,7 +111,7 @@ namespace Inmobiliaria_.Net_Core.Models
 			IList<Inmueble> res = new List<Inmueble>();
 			using (var connection = new SqlConnection(connectionString))
 			{
-				string sql = @"SELECT Id, Direccion, Ambientes, Superficie, Latitud, Longitud, PropietarioId, Portada,
+				string sql = $@"SELECT Id, Direccion, {nameof(Inmueble.Ambientes)}, Superficie, Latitud, Longitud, PropietarioId, Portada,
 					p.Nombre, p.Apellido, p.Dni
 					FROM Inmuebles i INNER JOIN Propietarios p ON i.PropietarioId = p.IdPropietario";
 				using (SqlCommand command = new SqlCommand(sql, connection))
