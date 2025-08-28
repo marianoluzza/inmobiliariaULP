@@ -9,6 +9,7 @@ namespace Inmobiliaria_.Net_Core.Models
 	{
 		public RepositorioPropietarioMySql(IConfiguration configuration) : base(configuration)
 		{
+			//https://www.nuget.org/packages/MySql.Data/
 			//https://www.nuget.org/packages/Pomelo.EntityFrameworkCore.MySql/
 		}
 
