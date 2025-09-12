@@ -153,7 +153,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		[Authorize(Policy = "Administrador")]
 		public ActionResult Delete(int id)
 		{
-			return View();
+			// TODO: Add delete logic here
+			throw new NotImplementedException();
 		}
 
 		// POST: Usuarios/Delete/5
@@ -164,10 +165,10 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		{
 			try
 			{
-				// TODO: Add delete logic here
 				var ruta = Path.Combine(environment.WebRootPath, "Uploads", $"avatar_{id}" + Path.GetExtension(usuario.Avatar));
 				if (System.IO.File.Exists(ruta))
 					System.IO.File.Delete(ruta);
+				repositorio.Baja(id);
 				return RedirectToAction(nameof(Index));
 			}
 			catch

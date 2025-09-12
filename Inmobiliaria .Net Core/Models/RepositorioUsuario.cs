@@ -30,7 +30,7 @@ namespace Inmobiliaria_.Net_Core.Models
 					command.Parameters.AddWithValue("@nombre", e.Nombre);
 					command.Parameters.AddWithValue("@apellido", e.Apellido);
 					if (String.IsNullOrEmpty(e.Avatar))
-						command.Parameters.AddWithValue("@avatar", DBNull.Value);
+						command.Parameters.AddWithValue("@avatar", /*DBNull.Value*/"");
 					else
 						command.Parameters.AddWithValue("@avatar", e.Avatar);
 					command.Parameters.AddWithValue("@email", e.Email);
