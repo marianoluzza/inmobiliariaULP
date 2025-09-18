@@ -97,6 +97,7 @@ builder.Services.AddHttpContextAccessor();//Para recuoerar el user entre otros d
 builder.Services.AddScoped<IRepositorioPropietario, RepositorioPropietario>();
 //builder.Services.AddScoped<IRepositorioPropietario, RepositorioPropietarioMySql>();
 //builder.Services.AddScoped<IRepositorio<Inquilino>, RepositorioInquilino>();
+//builder.Services.AddScoped<IRepositorioInquilino, RepositorioInquilino>();
 builder.Services.AddScoped<IRepositorioInmueble, RepositorioInmueble>();
 builder.Services.AddScoped<IRepositorioImagen, RepositorioImagen>();
 builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
