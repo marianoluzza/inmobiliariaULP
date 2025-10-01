@@ -30,7 +30,7 @@ namespace Inmobiliaria_.Net_Core.Api
 		{
 			try
 			{
-				var usuario = User.Identity.Name;
+				var usuario = User?.Identity?.Name ?? "";
 				return Ok(contexto.Inmuebles.Include(e => e.Duenio).Where(e => e.Duenio.Email == usuario));
 			}
 			catch (Exception ex)

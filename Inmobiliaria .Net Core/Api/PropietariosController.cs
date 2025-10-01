@@ -49,12 +49,13 @@ namespace Inmobiliaria_.Net_Core.Api
 					.Where(x => x.Duenio.Nombre == "")//.ToList() => lista de inmuebles
 					.Select(x => x.Duenio)
 					.ToList();//lista de propietarios*/
-				var usuario = User.Identity.Name;
+				string usuario = User?.Identity?.Name ?? "";
 				/*contexto.Contratos.Include(x => x.Inquilino).Include(x => x.Inmueble).ThenInclude(x => x.Duenio)
 					.Where(c => c.Inmueble.Duenio.Email....);*/
 				/*var res = contexto.Propietarios.Select(x => new { x.Nombre, x.Apellido, x.Email })
 					.SingleOrDefault(x => x.Email == usuario);*/
-				return await contexto.Propietarios.SingleOrDefaultAsync(x => x.Email == usuario);
+				var res = await contexto.Propietarios.SingleOrDefaultAsync(x => x.Email == usuario);
+				return Ok(res);
 			}
 			catch (Exception ex)
 			{
@@ -64,7 +65,7 @@ namespace Inmobiliaria_.Net_Core.Api
 
 		// GET api/<controller>/5
 		[HttpGet("{id}")]
-		public async Task<IActionResult> Get(int id)
+		public async Task<ActionResult<Propietario>> Get(int id)
 		{
 			try
 			{
@@ -85,9 +86,9 @@ namespace Inmobiliaria_.Net_Core.Api
 			{ //este método si tiene autenticación, al entrar, generar clave aleatorio y enviarla por correo
 				var perfil = new
 				{
-					Email = User.Identity.Name,
-					Nombre = User.Claims.First(x => x.Type == "FullName").Value,
-					Rol = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role).Value
+					Email = User?.Identity?.Name,
+					Nombre = User?.Claims.FirstOrDefault(x => x.Type == "FullName")?.Value,
+					Rol = User?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value
 				};
 				Random rand = new Random(Environment.TickCount);
 				string randomChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789";
@@ -109,8 +110,8 @@ namespace Inmobiliaria_.Net_Core.Api
 				message.Headers.Add("Otro", config["Valor"]);//otro ejemplo
 				MailKit.Net.Smtp.SmtpClient client = new SmtpClient();
 				client.ServerCertificateValidationCallback = (object sender,
-					System.Security.Cryptography.X509Certificates.X509Certificate certificate,
-					System.Security.Cryptography.X509Certificates.X509Chain chain,
+					System.Security.Cryptography.X509Certificates.X509Certificate? certificate,
+					System.Security.Cryptography.X509Certificates.X509Chain? chain,
 					System.Net.Security.SslPolicyErrors sslPolicyErrors) =>
 				{ return true; };
 				client.Connect("smtp.gmail.com", 465, MailKit.Security.SecureSocketOptions.Auto);
@@ -177,7 +178,7 @@ namespace Inmobiliaria_.Net_Core.Api
 			{
 				string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
 					password: loginView.Clave,
-					salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
+					salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"] ?? ""),
 					prf: KeyDerivationPrf.HMACSHA1,
 					iterationCount: 1000,
 					numBytesRequested: 256 / 8));
@@ -188,8 +189,10 @@ namespace Inmobiliaria_.Net_Core.Api
 				}
 				else
 				{
-					var key = new SymmetricSecurityKey(
-						System.Text.Encoding.ASCII.GetBytes(config["TokenAuthentication:SecretKey"]));
+					var secreto = config["TokenAuthentication:SecretKey"];
+					if (string.IsNullOrEmpty(secreto))
+						throw new Exception("Falta configurar TokenAuthentication:Secret");
+					var key = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(secreto));
 					var credenciales = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 					var claims = new List<Claim>
 					{
@@ -243,7 +246,9 @@ namespace Inmobiliaria_.Net_Core.Api
 				if (ModelState.IsValid)
 				{
 					entidad.IdPropietario = id;
-					Propietario original = await contexto.Propietarios.FindAsync(id);
+					var original = await contexto.Propietarios.FindAsync(id);
+					if (original == null)
+						return NotFound();
 					if (String.IsNullOrEmpty(entidad.Clave))
 					{
 						entidad.Clave = original.Clave;
@@ -252,7 +257,7 @@ namespace Inmobiliaria_.Net_Core.Api
 					{
 						entidad.Clave = Convert.ToBase64String(KeyDerivation.Pbkdf2(
 							password: entidad.Clave,
-							salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
+							salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"] ?? ""),
 							prf: KeyDerivationPrf.HMACSHA1,
 							iterationCount: 1000,
 							numBytesRequested: 256 / 8));

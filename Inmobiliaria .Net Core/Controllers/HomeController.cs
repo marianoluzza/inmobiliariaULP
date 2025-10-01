@@ -31,7 +31,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		public IActionResult Index()
 		{
 			ViewBag.Titulo = "Página de Inicio";
-			List<string> clientes = propietarios.ObtenerTodos().Select(x => x.Nombre + " " + x.Apellido).ToList();
+			List<string> clientes = propietarios.ObtenerLista().Select(x => x.Nombre + " " + x.Apellido).ToList();
 			return View(clientes);
 		}
 
@@ -57,7 +57,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		[Authorize]
 		public async Task<ActionResult> CambiarClaim()
 		{
-			var identity = (ClaimsIdentity)User.Identity;
+			var identity = User?.Identity as ClaimsIdentity;
+			if(identity == null) return Redirect(nameof(Seguro));
 			identity.RemoveClaim(identity.FindFirst("FullName"));
 			identity.AddClaim(new Claim("FullName", "Cosme Fulanito"));
 			await HttpContext.SignInAsync(
@@ -93,7 +94,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			switch (codigo)
 			{
 				case 404:
-					ViewBag.Ruta = res.OriginalPath;
+					ViewBag.Ruta = res?.OriginalPath;
 					break;
 				default:
 					break;

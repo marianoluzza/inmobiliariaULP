@@ -29,7 +29,7 @@ namespace Inmobiliaria_.Net_Core.Api
 		}
 		// GET: api/<controller>
 		[HttpGet]
-		public async Task<IActionResult> Get()
+		public IActionResult Get()
 		{
 			try
 			{
@@ -111,7 +111,7 @@ namespace Inmobiliaria_.Net_Core.Api
 
 		// POST api/<controller>/usuario/5
 		[HttpPost("login")]
-		public async Task<IActionResult> Post([FromForm] LoginView login)
+		public IActionResult Post([FromForm] LoginView login)
 		{
 			return Ok(login);
 		}
@@ -170,7 +170,8 @@ namespace Inmobiliaria_.Net_Core.Api
 		[HttpGet("pasatiempos")]
 		public async Task<IActionResult> Pasatiempos()
 		{
-			return Ok(Contexto.PersonaPasatiempos.Include(x => x.Pasatiempo).Where(x => x.PersonaId == 10).Select(x => x.Pasatiempo));
+			var res = await Contexto.PersonaPasatiempos.Include(x => x.Pasatiempo).Where(x => x.PersonaId == 10).Select(x => x.Pasatiempo).ToListAsync();
+			return Ok(res);
 		}
 
 		// DELETE api/<controller>/5

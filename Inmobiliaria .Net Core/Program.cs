@@ -31,6 +31,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 	})
 	.AddJwtBearer(options =>//la api web valida con token
 	{
+		var secreto = configuration["TokenAuthentication:SecretKey"];
+		if (string.IsNullOrEmpty(secreto))
+			throw new Exception("Falta configurar TokenAuthentication:Secret");
 		options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
 		{
 			ValidateIssuer = true,
@@ -39,8 +42,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 			ValidateIssuerSigningKey = true,
 			ValidIssuer = configuration["TokenAuthentication:Issuer"],
 			ValidAudience = configuration["TokenAuthentication:Audience"],
-			IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(
-				configuration["TokenAuthentication:SecretKey"])),
+			IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(secreto)),
 		};
 		// opción extra para usar el token en el hub y otras peticiones sin encabezado (enlaces, src de img, etc.)
 		options.Events = new JwtBearerEvents
@@ -114,6 +116,10 @@ builder.Services.AddDbContext<DataContext>(
 //		ServerVersion.AutoDetect(configuration["ConnectionStrings:DefaultConnection"])
 //	)
 //);
+// Limpia proveedores por defecto
+//builder.Logging.ClearProviders();
+// Registra el custom provider
+builder.Logging.AddFileLogger();
 //SQLite: https://www.nuget.org/packages/Microsoft.Data.Sqlite + https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Sqlite/
 var app = builder.Build();
 // Estos métodos permiten manejar errores 404:

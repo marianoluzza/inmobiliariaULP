@@ -51,11 +51,11 @@
 					@Html.DisplayFor(modelItem => item.Superficie)
 				</td>
 				<td>
-					<!-- @(item.Duenio.Nombre + " " + item.Duenio.Apellido) -->
-					@item.Duenio.ToString()
+					<!-- @(item?.Duenio?.Nombre + " " + item?.Duenio?.Apellido) -->
+					@item?.Duenio?.ToString()
 				</td>
 				<td>
-					@if (!String.IsNullOrEmpty(item.Portada))
+					@if (!String.IsNullOrEmpty(item?.Portada))
 					{
 						var x = item.Portada + "?" + rnd.Next();
 						<img width="32" src="@x" />

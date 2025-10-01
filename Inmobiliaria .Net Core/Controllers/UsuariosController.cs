@@ -21,21 +21,23 @@ namespace Inmobiliaria_.Net_Core.Controllers
 {
 	public class UsuariosController : Controller
 	{
+		private readonly ILogger<UsuariosController> logger;
 		private readonly IConfiguration configuration;
 		private readonly IWebHostEnvironment environment;
 		private readonly IRepositorioUsuario repositorio;
 
-		public UsuariosController(IConfiguration configuration, IWebHostEnvironment environment, IRepositorioUsuario repositorio)
+		public UsuariosController(IConfiguration configuration, IWebHostEnvironment environment, IRepositorioUsuario repositorio, ILogger<UsuariosController> logger)
 		{
 			this.configuration = configuration;
 			this.environment = environment;
 			this.repositorio = repositorio;
+			this.logger = logger;
 		}
 		// GET: Usuarios
 		[Authorize(Policy = "Administrador")]
-		public ActionResult Index()
+		public ActionResult Index(int pagina = 1)
 		{
-			var usuarios = repositorio.ObtenerTodos();
+			var usuarios = repositorio.ObtenerLista(pagina);
 			return View(usuarios);
 		}
 
@@ -67,12 +69,11 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			{
 				string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
 								password: u.Clave,
-								salt: System.Text.Encoding.ASCII.GetBytes(configuration["Salt"]),
+								salt: System.Text.Encoding.ASCII.GetBytes(configuration["Salt"] ?? ""),
 								prf: KeyDerivationPrf.HMACSHA1,
 								iterationCount: 1000,
 								numBytesRequested: 256 / 8));
 				u.Clave = hashed;
-				u.Rol = User.IsInRole("Administrador") ? u.Rol : (int)enRoles.Empleado;
 				var nbreRnd = Guid.NewGuid();//posible nombre aleatorio
 				int res = repositorio.Alta(u);
 				if (u.AvatarFile != null && u.Id > 0)
@@ -98,6 +99,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 			catch (Exception ex)
 			{
+				logger.LogError(ex, "Error al crear el usuario");
+				ViewBag.Error = ex.Message;
 				ViewBag.Roles = Usuario.ObtenerRoles();
 				return View();
 			}
@@ -108,9 +111,10 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		public ActionResult Perfil()
 		{
 			ViewData["Title"] = "Mi perfil";
-			var u = repositorio.ObtenerPorEmail(User.Identity.Name);
+			var email = User?.Identity?.Name;
+			var u = String.IsNullOrEmpty(email) ? null : repositorio.ObtenerPorEmail(email);
 			ViewBag.Roles = Usuario.ObtenerRoles();
-			return View("Edit", u);
+			return View(nameof(Edit), u);
 		}
 
 		// GET: Usuarios/Edit/5
@@ -135,8 +139,9 @@ namespace Inmobiliaria_.Net_Core.Controllers
 				if (!User.IsInRole("Administrador"))//no soy admin
 				{
 					vista = nameof(Perfil);//solo puedo ver mi perfil
-					var usuarioActual = repositorio.ObtenerPorEmail(User.Identity.Name);
-					if (usuarioActual.Id != id)//si no es admin, solo puede modificarse él mismo
+					var email = User?.Identity?.Name;
+					var usuarioActual = String.IsNullOrEmpty(email) ? null : repositorio.ObtenerPorEmail(email);
+					if (usuarioActual?.Id != id)//si no es admin, solo puede modificarse él mismo
 						return RedirectToAction(nameof(Index), "Home");
 				}
 				// TODO: Add update logic here
@@ -145,6 +150,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 			catch (Exception ex)
 			{//colocar breakpoints en la siguiente línea por si algo falla
+				logger.LogError(ex, "Error al editar el usuario");
 				throw;
 			}
 		}
@@ -171,16 +177,20 @@ namespace Inmobiliaria_.Net_Core.Controllers
 				repositorio.Baja(id);
 				return RedirectToAction(nameof(Index));
 			}
-			catch
+			catch(Exception ex)
 			{
-				return View();
+				logger.LogError(ex, "Error al eliminar el usuario");
+				return RedirectToAction(nameof(Index));
 			}
 		}
 
 		[Authorize]
 		public IActionResult Avatar()
 		{
-			var u = repositorio.ObtenerPorEmail(User.Identity.Name);
+			var email = User?.Identity?.Name;
+			var u = String.IsNullOrEmpty(email) ? null : repositorio.ObtenerPorEmail(email);
+			if (u == null || string.IsNullOrEmpty(u.Avatar))
+				return NotFound();
 			string fileName = "avatar_" + u.Id + Path.GetExtension(u.Avatar);
 			string wwwPath = environment.WebRootPath;
 			string path = Path.Combine(wwwPath, "Uploads");
@@ -195,7 +205,10 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		[Authorize]
 		public string AvatarBase64()
 		{
-			var u = repositorio.ObtenerPorEmail(User.Identity.Name);
+			var email = User?.Identity?.Name;
+			var u = String.IsNullOrEmpty(email) ? null : repositorio.ObtenerPorEmail(email);
+			if (u == null || string.IsNullOrEmpty(u.Avatar))
+				return "";
 			string fileName = "avatar_" + u.Id + Path.GetExtension(u.Avatar);
 			string wwwPath = environment.WebRootPath;
 			string path = Path.Combine(wwwPath, "Uploads");
@@ -227,7 +240,10 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		{
 			try
 			{
-				var u = repositorio.ObtenerPorEmail(User.Identity.Name);
+				var email = User?.Identity?.Name;
+				var u = String.IsNullOrEmpty(email) ? null : repositorio.ObtenerPorEmail(email);
+				if (u == null || string.IsNullOrEmpty(u.Avatar))
+					return NotFound();
 				var stream = System.IO.File.Open(
 						Path.Combine(environment.WebRootPath, u.Avatar.Substring(1)),
 						FileMode.Open,
@@ -237,7 +253,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 			catch (Exception ex)
 			{
-				throw ex;
+				logger.LogError(ex, "Error al obtener la foto");
+				throw;
 			}
 		}
 
@@ -246,7 +263,9 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		{
 			try
 			{
-				var u = repositorio.ObtenerPorEmail(User.Identity.Name);
+				var u = repositorio.ObtenerPorEmail(User?.Identity?.Name ?? "");
+				if (u == null)
+					return NotFound();
 				string buffer = "Nombre;Apellido;Email" + Environment.NewLine +
 						$"{u.Nombre};{u.Apellido};{u.Email}";
 				var stream = new MemoryStream(System.Text.Encoding.Unicode.GetBytes(buffer));
@@ -256,7 +275,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 			catch (Exception ex)
 			{
-				throw ex;
+				logger.LogError(ex, "Error al obtener los datos");
+				throw;
 			}
 		}
 
@@ -283,12 +303,12 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		{
 			try
 			{
-				var returnUrl = String.IsNullOrEmpty(TempData["returnUrl"] as string) ? "/Home" : TempData["returnUrl"].ToString();
+				var returnUrl = String.IsNullOrEmpty(TempData["returnUrl"] as string) ? "/Home" : (TempData["returnUrl"] ?? "").ToString();
 				if (ModelState.IsValid)
 				{
 					string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
 						password: login.Clave,
-						salt: System.Text.Encoding.ASCII.GetBytes(configuration["Salt"]),
+						salt: System.Text.Encoding.ASCII.GetBytes(configuration["Salt"] ?? ""),
 						prf: KeyDerivationPrf.HMACSHA1,
 						iterationCount: 1000,
 						numBytesRequested: 256 / 8));
@@ -315,7 +335,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 							CookieAuthenticationDefaults.AuthenticationScheme,
 							new ClaimsPrincipal(claimsIdentity));
 					TempData.Remove("returnUrl");
-					return Redirect(returnUrl);
+					return Redirect(returnUrl ?? "/");
 				}
 				TempData["returnUrl"] = returnUrl;
 				return View();

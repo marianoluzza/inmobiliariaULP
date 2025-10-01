@@ -1,5 +1,7 @@
 ﻿@model Inmobiliaria_.Net_Core.Models.Usuario
-
+@{
+	var Roles = (IDictionary<int, string>)ViewBag.Roles;
+}
 <h1>@ViewBag.Title</h1>
 
 <h4>Usuario</h4>
@@ -38,9 +40,9 @@
 				<div class="form-group">
 					<label class="control-label">Rol</label>
 					<select class="form-control" name="Rol">
-						@foreach (var kvp in (IDictionary<int, string>)ViewBag.Roles)
+						@foreach (var kvp in Roles)
 						{
-							@:<option @(kvp.Key == Model.Rol ? "selected" : "") value="@kvp.Key">@kvp.Value</option>
+							<option selected="@(kvp.Key == Model.Rol)" value="@kvp.Key">@kvp.Value</option>
 						}
 					</select>
 					<span asp-validation-for="Rol" class="text-danger"></span>
@@ -48,13 +50,13 @@
 			}
 			<div class="form-group">
 				<label asp-for="Avatar" class="control-label"></label><br />
-				@if (Model.Avatar != "")
+				@if(!String.IsNullOrEmpty(Model.Avatar)) 
 				{
-					<img src="@Model.Avatar" />
+					<img width="64" src="@Model.Avatar" />
 				}
 				else
 				{
-					<p>Sin avatar</p>
+					<img width="64" src="https://ui-avatars.com/api/?rounded=true&name=@Model.Nombre+@Model.Apellido" />
 				}
 			</div>
 			<div class="form-group">

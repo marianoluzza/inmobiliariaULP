@@ -82,48 +82,15 @@ namespace Inmobiliaria_.Net_Core.Models
 			return res;
 		}
 
-		public IList<Propietario> ObtenerTodos()
+		public IList<Propietario> ObtenerLista(int pagina = 1, int tamPagina = 10)
 		{
 			IList<Propietario> res = new List<Propietario>();
 			using (var connection = new MySqlConnection(connectionString))
 			{
-				string sql = @"SELECT 
+				string sql = $@"SELECT 
 					IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave
-					FROM Propietarios";
-				using (var command = new MySqlCommand(sql, connection))
-				{
-					command.CommandType = CommandType.Text;
-					connection.Open();
-					var reader = command.ExecuteReader();
-					while (reader.Read())
-					{
-						Propietario p = new Propietario
-						{
-							IdPropietario = reader.GetInt32(nameof(Propietario.IdPropietario)),
-							Nombre = reader.GetString("Nombre"),
-							Apellido = reader.GetString("Apellido"),
-							Dni = reader.GetString("Dni"),
-							Telefono = reader.GetString("Telefono"),
-							Email = reader.GetString("Email"),
-							Clave = reader.GetString("Clave"),
-						};
-						res.Add(p);
-					}
-					connection.Close();
-				}
-			}
-			return res;
-		}
-
-		public IList<Propietario> ObtenerLista(int paginaNro = 1, int tamPagina = 10)
-		{
-			IList<Propietario> res = new List<Propietario>();
-			using (var connection = new MySqlConnection(connectionString))
-			{
-				string sql = @$"
-					SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave
 					FROM Propietarios
-					LIMIT {tamPagina} OFFSET {(paginaNro - 1) * tamPagina}
+					LIMIT {tamPagina} OFFSET {(pagina - 1) * tamPagina}
 				";
 				using (var command = new MySqlCommand(sql, connection))
 				{
@@ -134,13 +101,13 @@ namespace Inmobiliaria_.Net_Core.Models
 					{
 						Propietario p = new Propietario
 						{
-							IdPropietario = reader.GetInt32(nameof(Propietario.IdPropietario)),//más seguro
-							Nombre = reader.GetString("Nombre"),
-							Apellido = reader.GetString("Apellido"),
-							Dni = reader.GetString("Dni"),
-							Telefono = reader.GetString("Telefono"),
-							Email = reader.GetString("Email"),
-							Clave = reader.GetString("Clave"),
+							IdPropietario = reader.GetInt32(nameof(Propietario.IdPropietario)),
+							Nombre = reader.GetString(nameof(Propietario.Nombre)),
+							Apellido = reader.GetString(nameof(Propietario.Apellido)),
+							Dni = reader.GetString(nameof(Propietario.Dni)),
+							Telefono = reader.GetString(nameof(Propietario.Telefono)),
+							Email = reader.GetString(nameof(Propietario.Email)),
+							Clave = reader.GetString(nameof(Propietario.Clave)),
 						};
 						res.Add(p);
 					}
@@ -149,7 +116,6 @@ namespace Inmobiliaria_.Net_Core.Models
 			}
 			return res;
 		}
-
 
 		public int ObtenerCantidad()
 		{

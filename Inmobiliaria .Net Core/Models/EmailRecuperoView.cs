@@ -8,8 +8,8 @@ namespace Inmobiliaria_.Net_Core.Models
 {
 	public class EmailRecuperoView
 	{
-		public string Enlace { get; set; }
-		public string Nombre { get; set; }
-		public string Token { get; set; }
+		public string Enlace { get; set; } = string.Empty;
+		public string Nombre { get; set; } = string.Empty;
+		public string Token { get; set; } = string.Empty;
 	}
 }

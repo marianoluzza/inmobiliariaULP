@@ -106,14 +106,18 @@ namespace Inmobiliaria_.Net_Core.Models
 			return res;
 		}
 
-		public IList<Inmueble> ObtenerTodos()
+		public IList<Inmueble> ObtenerLista(int paginaNro = 1, int tamPagina = 10)
 		{
 			IList<Inmueble> res = new List<Inmueble>();
 			using (var connection = new SqlConnection(connectionString))
 			{
 				string sql = $@"SELECT Id, Direccion, {nameof(Inmueble.Ambientes)}, Superficie, Latitud, Longitud, PropietarioId, Portada,
 					p.Nombre, p.Apellido, p.Dni
-					FROM Inmuebles i INNER JOIN Propietarios p ON i.PropietarioId = p.IdPropietario";
+					FROM Inmuebles i INNER JOIN Propietarios p ON i.PropietarioId = p.IdPropietario
+					ORDER BY Id
+					OFFSET {(paginaNro - 1) * tamPagina} ROW
+					FETCH NEXT {tamPagina} ROWS ONLY
+				";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
@@ -147,9 +151,29 @@ namespace Inmobiliaria_.Net_Core.Models
 			return res;
 		}
 
-		public Inmueble ObtenerPorId(int id)
+		public int ObtenerCantidad()
 		{
-			Inmueble entidad = null;
+			int res = 0;
+			using (SqlConnection connection = new SqlConnection(connectionString))
+			{
+				string sql = @$"
+					SELECT COUNT(Id)
+					FROM Inmuebles
+				";
+				using (SqlCommand command = new SqlCommand(sql, connection))
+				{
+					command.CommandType = CommandType.Text;
+					connection.Open();
+					res = Convert.ToInt32(command.ExecuteScalar());
+					connection.Close();
+				}
+			}
+			return res;
+		}
+
+		public Inmueble? ObtenerPorId(int id)
+		{
+			Inmueble? entidad = null;
 			using (var connection = new SqlConnection(connectionString))
 			{
 				string sql = @$"
@@ -192,7 +216,6 @@ namespace Inmobiliaria_.Net_Core.Models
 		public IList<Inmueble> BuscarPorPropietario(int idPropietario)
 		{
 			List<Inmueble> res = new List<Inmueble>();
-			Inmueble entidad = null;
 			using (var connection = new SqlConnection(connectionString))
 			{
 				string sql = @$"
@@ -207,7 +230,7 @@ namespace Inmobiliaria_.Net_Core.Models
 					var reader = command.ExecuteReader();
 					while (reader.Read())
 					{
-						entidad = new Inmueble
+						var entidad = new Inmueble
 						{
 							Id = reader.GetInt32(nameof(Inmueble.Id)),
 							Direccion = reader["Direccion"] == DBNull.Value? "" : reader.GetString("Direccion"),

@@ -30,7 +30,7 @@ namespace Inmobiliaria_.Net_Core.Models
 					command.Parameters.AddWithValue("@nombre", e.Nombre);
 					command.Parameters.AddWithValue("@apellido", e.Apellido);
 					if (String.IsNullOrEmpty(e.Avatar))
-						command.Parameters.AddWithValue("@avatar", /*DBNull.Value*/"");
+						command.Parameters.AddWithValue("@avatar", DBNull.Value);
 					else
 						command.Parameters.AddWithValue("@avatar", e.Avatar);
 					command.Parameters.AddWithValue("@email", e.Email);
@@ -74,7 +74,7 @@ namespace Inmobiliaria_.Net_Core.Models
 					command.CommandType = CommandType.Text;
 					command.Parameters.AddWithValue("@nombre", e.Nombre);
 					command.Parameters.AddWithValue("@apellido", e.Apellido);
-					command.Parameters.AddWithValue("@avatar", e.Avatar);
+					command.Parameters.AddWithValue("@avatar", String.IsNullOrEmpty(e.Avatar) ? DBNull.Value : e.Avatar);
 					command.Parameters.AddWithValue("@email", e.Email);
 					command.Parameters.AddWithValue("@clave", e.Clave);
 					command.Parameters.AddWithValue("@rol", e.Rol);
@@ -87,14 +87,17 @@ namespace Inmobiliaria_.Net_Core.Models
 			return res;
 		}
 
-		public IList<Usuario> ObtenerTodos()
+		public IList<Usuario> ObtenerLista(int paginaNro = 1, int tamPagina = 10)
 		{
 			IList<Usuario> res = new List<Usuario>();
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
-				string sql = @"
+				string sql = @$"
 					SELECT Id, Nombre, Apellido, Avatar, Email, Clave, Rol
-					FROM Usuarios";
+					FROM Usuarios
+					ORDER BY Id
+					OFFSET {(paginaNro - 1) * tamPagina} ROW
+					FETCH NEXT {tamPagina} ROWS ONLY";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
@@ -107,7 +110,7 @@ namespace Inmobiliaria_.Net_Core.Models
 							Id = reader.GetInt32("Id"),
 							Nombre = reader.GetString("Nombre"),
 							Apellido = reader.GetString("Apellido"),
-							Avatar = reader.GetString("Avatar"),
+							Avatar = reader["Avatar"] is DBNull ? null : reader.GetString("Avatar"),
 							Email = reader.GetString("Email"),
 							Clave = reader.GetString("Clave"),
 							Rol = reader.GetInt32("Rol"),
@@ -120,7 +123,27 @@ namespace Inmobiliaria_.Net_Core.Models
 			return res;
 		}
 
-		public Usuario ObtenerPorId(int id)
+		public int ObtenerCantidad()
+		{
+			int res = 0;
+			using (SqlConnection connection = new SqlConnection(connectionString))
+			{
+				string sql = @$"
+					SELECT COUNT({nameof(Usuario.Id)})
+					FROM Usuarios
+				";
+				using (SqlCommand command = new SqlCommand(sql, connection))
+				{
+					command.CommandType = CommandType.Text;
+					connection.Open();
+					res = Convert.ToInt32(command.ExecuteScalar());
+					connection.Close();
+				}
+			}
+			return res;
+		}
+
+		public Usuario? ObtenerPorId(int id)
 		{
 			Usuario? e = null;
 			using (SqlConnection connection = new SqlConnection(connectionString))
@@ -142,7 +165,7 @@ namespace Inmobiliaria_.Net_Core.Models
 							Id = reader.GetInt32("Id"),
 							Nombre = reader.GetString("Nombre"),
 							Apellido = reader.GetString("Apellido"),
-							Avatar = reader.GetString("Avatar"),
+							Avatar = reader["Avatar"] is DBNull ? null : reader.GetString("Avatar"),
 							Email = reader.GetString("Email"),
 							Clave = reader.GetString("Clave"),
 							Rol = reader.GetInt32("Rol"),
@@ -154,7 +177,7 @@ namespace Inmobiliaria_.Net_Core.Models
 			return e;
 		}
 
-		public Usuario ObtenerPorEmail(string email)
+		public Usuario? ObtenerPorEmail(string email)
 		{
 			Usuario? e = null;
 			using (SqlConnection connection = new SqlConnection(connectionString))
@@ -175,7 +198,7 @@ namespace Inmobiliaria_.Net_Core.Models
 							Id = reader.GetInt32("Id"),
 							Nombre = reader.GetString("Nombre"),
 							Apellido = reader.GetString("Apellido"),
-							Avatar = reader.GetString("Avatar"),
+							Avatar = reader["Avatar"] is DBNull ? null : reader.GetString("Avatar"),
 							Email = reader.GetString("Email"),
 							Clave = reader.GetString("Clave"),
 							Rol = reader.GetInt32("Rol"),

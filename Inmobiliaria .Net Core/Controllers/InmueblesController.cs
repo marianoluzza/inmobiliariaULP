@@ -23,9 +23,9 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		}
 
 		// GET: Inmuebles
-		public ActionResult Index()
+		public ActionResult Index(int paginaNro = 1, int tamPagina = 10)
 		{
-			var lista = repositorio.ObtenerTodos();
+			var lista = repositorio.ObtenerLista(paginaNro, tamPagina);
 			if (TempData.ContainsKey("Id"))
 				ViewBag.Id = TempData["Id"];
 			if (TempData.ContainsKey("Mensaje"))
@@ -79,6 +79,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		public ActionResult Imagenes(int id, [FromServices] IRepositorioImagen repoImagen)
 		{
 			var entidad = repositorio.ObtenerPorId(id);
+			if (entidad == null)
+				return NotFound();
 			entidad.Imagenes = repoImagen.BuscarPorInmueble(id);
 			return View(entidad);
 		}
@@ -139,9 +141,9 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		{
 			try
 			{
-				ViewBag.Propietarios = repoPropietario.ObtenerTodos();
-				//ViewData["Propietarios"] = repoPropietario.ObtenerTodos();
-				//ViewData[nameof(Propietario)] = repoPropietario.ObtenerTodos();
+				ViewBag.Propietarios = repoPropietario.ObtenerLista(1, 50);
+				//ViewData["Propietarios"] = repoPropietario.ObtenerLista(1, 50);
+				//ViewData[nameof(Propietario)] = repoPropietario.ObtenerLista(1, 50);
 				return View();
 			}
 			catch (Exception ex)
@@ -165,12 +167,13 @@ namespace Inmobiliaria_.Net_Core.Controllers
 				}
 				else
 				{
-					ViewBag.Propietarios = repoPropietario.ObtenerTodos();
+					ViewBag.Propietarios = repoPropietario.ObtenerLista(1, 50);
 					return View(entidad);
 				}
 			}
 			catch (Exception ex)
 			{
+				ViewBag.Propietarios = repoPropietario.ObtenerLista(1, 50);
 				ViewBag.Error = ex.Message;
 				ViewBag.StackTrate = ex.StackTrace;
 				return View(entidad);
@@ -181,7 +184,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		public ActionResult Edit(int id)
 		{
 			var entidad = repositorio.ObtenerPorId(id);
-			ViewBag.Propietarios = repoPropietario.ObtenerTodos();
+			ViewBag.Propietarios = repoPropietario.ObtenerLista(1, 50);
 			if (TempData.ContainsKey("Mensaje"))
 				ViewBag.Mensaje = TempData["Mensaje"];
 			if (TempData.ContainsKey("Error"))
@@ -203,7 +206,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 			catch (Exception ex)
 			{
-				ViewBag.Propietarios = repoPropietario.ObtenerTodos();
+				ViewBag.Propietarios = repoPropietario.ObtenerLista(1, 50);
 				ViewBag.Error = ex.Message;
 				ViewBag.StackTrate = ex.StackTrace;
 				return View(entidad);
@@ -273,6 +276,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			try
 			{
 				var entidad = repositorio.ObtenerPorId(id);
+				if (entidad == null)
+					return NotFound();
 				entidad.Habilitado = !entidad.Habilitado;
 				repositorio.Modificacion(entidad);
 				return Ok(entidad);

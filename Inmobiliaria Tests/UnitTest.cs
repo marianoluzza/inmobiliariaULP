@@ -1,9 +1,11 @@
+using Castle.Core.Logging;
 using Inmobiliaria_.Net_Core.Controllers;
 using Inmobiliaria_.Net_Core.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -30,10 +32,11 @@ namespace Inmobiliaria_Tests
 		{
 			//Arrange
 			var mockRepo = new Mock<IRepositorioPropietario>();
+			var mockLogger = new Mock<ILogger<PropietariosController>>();
 			//los métodos que se hagan mock, deben ser virtuales
 			mockRepo.Setup(x => x.ObtenerPorId(1)).Returns(new Propietario { IdPropietario = 1});
 			var mockConfig = new Mock<IConfiguration>();
-			var controlador = new PropietariosController(mockRepo.Object, mockConfig.Object);
+			var controlador = new PropietariosController(mockRepo.Object, mockConfig.Object, mockLogger.Object);
 			var httpContext = new DefaultHttpContext();
 			var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
 			controlador.TempData = tempData;

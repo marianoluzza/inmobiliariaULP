@@ -75,9 +75,9 @@ namespace Inmobiliaria_.Net_Core.Models
 			return res;
 		}
 
-		public Imagen ObtenerPorId(int id)
+		public Imagen? ObtenerPorId(int id)
 		{
-			Imagen res = null;
+			Imagen? res = null;
 			using (SqlConnection conn = new SqlConnection(connectionString))
 			{
 				string sql = @$"
@@ -105,7 +105,7 @@ namespace Inmobiliaria_.Net_Core.Models
 			return res;
 		}
 
-		public IList<Imagen> ObtenerTodos()
+		public IList<Imagen> ObtenerLista(int paginaNro = 1, int tamPagina = 10)
 		{
 			List<Imagen> res = new List<Imagen>();
 			using (SqlConnection conn = new SqlConnection(connectionString))
@@ -115,7 +115,11 @@ namespace Inmobiliaria_.Net_Core.Models
 						{nameof(Imagen.Id)}, 
 						{nameof(Imagen.InmuebleId)}, 
 						{nameof(Imagen.Url)} 
-					FROM Imagenes";
+					FROM Imagenes
+					ORDER BY Id
+					OFFSET {(paginaNro - 1) * tamPagina} ROW
+					FETCH NEXT {tamPagina} ROWS ONLY
+				";
 				using (SqlCommand comm = new SqlCommand(sql, conn))
 				{
 					conn.Open();
@@ -130,6 +134,26 @@ namespace Inmobiliaria_.Net_Core.Models
 						});
 					}
 					conn.Close();
+				}
+			}
+			return res;
+		}
+
+		public int ObtenerCantidad()
+		{
+			int res = 0;
+			using (SqlConnection connection = new SqlConnection(connectionString))
+			{
+				string sql = @$"
+					SELECT COUNT(Id)
+					FROM Imagenes
+				";
+				using (SqlCommand command = new SqlCommand(sql, connection))
+				{
+					command.CommandType = CommandType.Text;
+					connection.Open();
+					res = Convert.ToInt32(command.ExecuteScalar());
+					connection.Close();
 				}
 			}
 			return res;

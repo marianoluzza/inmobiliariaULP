@@ -19,8 +19,9 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		// Con inyección de dependencias (pedir en el ctor como parámetro)
 		private readonly IRepositorioPropietario repositorio;
 		private readonly IConfiguration config;
+		private readonly ILogger<PropietariosController> logger;
 
-		public PropietariosController(IRepositorioPropietario repo, IConfiguration config)
+		public PropietariosController(IRepositorioPropietario repo, IConfiguration config, ILogger<PropietariosController> logger)
 		{
 			// Sin inyección de dependencias y sin usar el config (quitar el parámetro repo del ctor)
 			//this.repositorio = new RepositorioPropietario();
@@ -29,32 +30,12 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			// Con inyección de dependencias
 			this.repositorio = repo;
 			this.config = config;
+			this.logger = logger;
 		}
 
 		// GET: Propietarios
 		[Route("[controller]/Index")]
-		public ActionResult Index()
-		{
-			try
-			{
-				var lista = repositorio.ObtenerTodos();
-				ViewBag.Id = TempData["Id"];
-				// TempData es para pasar datos entre acciones
-				// ViewBag/Data es para pasar datos del controlador a la vista
-				// Si viene alguno valor por el tempdata, lo paso al viewdata/viewbag
-				if (TempData.ContainsKey("Mensaje"))
-					ViewBag.Mensaje = TempData["Mensaje"];
-				return View(lista);
-			}
-			catch (Exception ex)
-			{// Poner breakpoints para detectar errores
-				throw;
-			}
-		}
-
-		// GET: Propietarios
-		[Route("[controller]/Lista")]
-		public ActionResult Lista(int pagina=1)
+		public ActionResult Index(int pagina=1)
 		{
 			try
 			{
@@ -63,16 +44,17 @@ namespace Inmobiliaria_.Net_Core.Controllers
 				ViewBag.Pagina = pagina;
 				var total = repositorio.ObtenerCantidad();
 				ViewBag.TotalPaginas = total % tamaño == 0 ? total / tamaño : total / tamaño + 1;
+				ViewBag.Id = TempData["Id"];
 				// TempData es para pasar datos entre acciones
 				// ViewBag/Data es para pasar datos del controlador a la vista
 				// Si viene alguno valor por el tempdata, lo paso al viewdata/viewbag
-				ViewBag.Id = TempData["Id"];
 				if (TempData.ContainsKey("Mensaje"))
 					ViewBag.Mensaje = TempData["Mensaje"];
 				return View(lista);
 			}
 			catch (Exception ex)
 			{// Poner breakpoints para detectar errores
+				logger.LogError(ex, "Error en Index");
 				throw;
 			}
 		}
@@ -87,6 +69,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 			catch (Exception ex)
 			{//poner breakpoints para detectar errores
+				logger.LogError(ex, "Error en Details");
 				throw;
 			}
 		}
@@ -114,6 +97,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 			catch (Exception ex)
 			{//poner breakpoints para detectar errores
+				logger.LogError(ex, "Error en Busqueda");
 				throw;
 			}
 		}
@@ -142,6 +126,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 			catch (Exception ex)
 			{//poner breakpoints para detectar errores
+				logger.LogError(ex, "Error en Create");
 				throw;
 			}
 		}
@@ -171,6 +156,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 			catch (Exception ex)
 			{//poner breakpoints para detectar errores
+				logger.LogError(ex, "Error en Create");
 				throw;
 			}
 		}
@@ -185,6 +171,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 			catch (Exception ex)
 			{//poner breakpoints para detectar errores
+				logger.LogError(ex, "Error en Edit");
 				throw;
 			}
 		}
@@ -196,10 +183,11 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		public ActionResult Edit(int id, Propietario entidad)
 		{
 			// Si en lugar de IFormCollection ponemos Propietario, el enlace de datos lo hace el sistema
-			Propietario p = null;
 			try
 			{
-				p = repositorio.ObtenerPorId(id);
+				var p = repositorio.ObtenerPorId(id);
+				if (p == null)
+					return NotFound();
 				// En caso de ser necesario usar: 
 				//
 				//Convert.ToInt32(collection["CAMPO"]);
@@ -220,6 +208,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 			catch (Exception ex)
 			{//poner breakpoints para detectar errores
+				logger.LogError(ex, "Error en Edit");
 				throw;
 			}
 		}
@@ -261,7 +250,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		[ValidateAntiForgeryToken]
 		public ActionResult CambiarPass(int id, CambioClaveView cambio)
 		{
-			Propietario propietario = null;
+			Propietario? propietario = null;
 			try
 			{
 				// recuperar propietario original
@@ -269,11 +258,11 @@ namespace Inmobiliaria_.Net_Core.Controllers
 				// verificar clave antigüa
 				var pass = Convert.ToBase64String(KeyDerivation.Pbkdf2(
 					password: cambio.ClaveVieja ?? "",
-					salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
+					salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"] ?? ""),
 					prf: KeyDerivationPrf.HMACSHA1,
 					iterationCount: 1000,
 					numBytesRequested: 256 / 8));
-				if (propietario.Clave != pass)
+				if (propietario?.Clave != pass)
 				{
 					TempData["Error"] = "Clave incorrecta";
 					// se rederige porque no hay vista de cambio de pass, está compartida con Edit
@@ -283,7 +272,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 				{
 					propietario.Clave = Convert.ToBase64String(KeyDerivation.Pbkdf2(
 							password: cambio.ClaveNueva,
-							salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
+							salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"] ?? ""),
 							prf: KeyDerivationPrf.HMACSHA1,
 							iterationCount: 1000,
 							numBytesRequested: 256 / 8));
@@ -305,6 +294,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 			catch (Exception ex)
 			{
+				logger.LogError(ex, "Error en CambiarPass");
 				TempData["Error"] = ex.Message;
 				TempData["StackTrace"] = ex.StackTrace;
 				return RedirectToAction("Edit", new { id = id });
@@ -321,6 +311,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 			catch (Exception ex)
 			{//poner breakpoints para detectar errores
+				logger.LogError(ex, "Error en Eliminar");
 				throw;
 			}
 		}
@@ -338,6 +329,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 			catch (Exception ex)
 			{//poner breakpoints para detectar errores
+				logger.LogError(ex, "Error en Eliminar");
 				throw;
 			}
 		}

@@ -37,6 +37,10 @@ Basado en .Net Core 7. Trabaja con MSSqlLocalDB pero puede cambiarse de motor de
 - dotnet dev-certs https --trust [doc](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-dev-certs)
 - dotnet user-secrets init [doc](https://learn.microsoft.com/es-mx/aspnet/core/security/app-secrets)
 - dotnet add *location of your test csproj file* reference *location of the csproj file for project to be tested* [doc](https://code.visualstudio.com/docs/csharp/testing)
+- sqllocaldb info [doc](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/start-stop-pause-resume-restart-sql-server-services)
+- sqllocaldb versions [doc](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/start-stop-pause-resume-restart-sql-server-services)
+- sqllocaldb stop MSSQLLocalDB
+- sqllocaldb start MSSQLLocalDB
 
 ## Plantilla para Proyectos
 [Plantilla basada en Markdown](https://hackmd.io/@nttUoarcRQOCiYt3qgy_SQ/plantilla_proyecto)

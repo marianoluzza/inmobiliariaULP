@@ -31,27 +31,32 @@ namespace Inmobiliaria_Tests
 		}
 
 		[Fact]
-		public void MiPerfil()
+		public async void MiPerfil()
 		{
 			string email = "mluzza@ulp.edu.ar";
 			controller.ControllerContext = new ControllerContext()
 			{
 				HttpContext = new DefaultHttpContext() { User = helper.MockLogin(email, "Propietario") }
 			};
-			var res = controller.Get().Result.Value;
-			Assert.Equal(email, res.Email);
-			Assert.Equal("Mariano", res.Nombre);
+			var res = await controller.Get();
+			var httpRes = res.Result as OkObjectResult;
+			Assert.NotNull(httpRes);
+			var propietario = httpRes.Value as Propietario;
+			Assert.NotNull(propietario);
+			Assert.Equal(email, propietario.Email);
+			Assert.Equal("Mariano", propietario.Nombre);
 		}
 
 		[Fact]
-		public void PerfilAnonimoInexistente()
+		public async void PerfilAnonimoInexistente()
 		{
 			controller.ControllerContext = new ControllerContext()
 			{
 				HttpContext = new DefaultHttpContext() { User = new ClaimsPrincipal(new ClaimsIdentity()) }
 			};
-			var res = controller.Get().Result.Value;
-			Assert.Null(res);
+			var res = await controller.Get();
+			var propietario = res.Value;
+			Assert.Null(propietario);
 		}
 
 		[Fact]

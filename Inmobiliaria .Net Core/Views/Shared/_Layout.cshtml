@@ -14,16 +14,21 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.7.16/vue.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
 	<!--Posibles estilos a aplicar. False porque es opcional. La página que lo necesita, declara la sección.-->
-	@RenderSection("Styles", false)
+	@RenderSection("Styles", false);
 	<title>@ViewBag.Title</title>
 	<!--<title>@ViewData["Title"]</title> SON SIMILARES-->
 </head>
 <body onload="init()">
+	@{
+		bool IsAuthenticated = User?.Identity?.IsAuthenticated ?? false;
+		var NombreUsuario = User?.Identity?.Name ?? "";
+		var IsAdmin = (User?.IsInRole("Administrador") ?? false) || (User?.IsInRole("SuperAdministrador") ?? false);
+	}
 	<header>
 		<nav class="site-header fixed-top py-1">
 			<!-- sticky-top -->
 			<div class="container d-flex flex-column flex-md-row justify-content-between">
-				@if (!User.Identity.IsAuthenticated)
+				@if (!IsAuthenticated)
 				{
 					<a class="py-2" asp-controller="Home" asp-action="Index"><i class="fa-solid fa-house"></i> Inicio</a>
 					<a class="py-2 d-none d-md-inline-block float-right" href='@Url.Link("login", null)'><i class="fa-solid fa-right-to-bracket"></i> Acceder</a>
@@ -43,7 +48,7 @@
 							</a>
 						</div>
 					</div>
-					@if (User.IsInRole("Administrador") || User.IsInRole("SuperAdministrador"))
+					@if (IsAdmin)
 					{
 						<a class="py-2 d-none d-md-inline-block" asp-controller="Usuarios" asp-action="Index"><i class="fa-solid fa-user"></i> Usuarios</a>
 					}
@@ -52,7 +57,7 @@
 					<a class="py-2 d-none d-md-inline-block" asp-controller="Alquileres" asp-action="Index"><i class="fa-solid fa-file-contract"></i> Alquileres</a>
 					<div class="dropdown">
 						<a class="btn btn-primary dropdown-toggle text-light" href="#" role="button" id="userMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-reference="parent" data-display="static">
-							<i class="fa-solid fa-user"></i> @User.Identity.Name
+							<i class="fa-solid fa-user"></i> @User?.Identity?.Name
 						</a>
 
 						<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">

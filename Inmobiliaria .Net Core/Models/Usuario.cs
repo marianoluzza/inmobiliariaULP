@@ -22,14 +22,14 @@ namespace Inmobiliaria_.Net_Core.Models
 		[Display(Name = "Código")]
 		public int Id { get; set; }
 		[Required]
-		public string Nombre { get; set; }
+		public string Nombre { get; set; } = "";
 		[Required]
-		public string Apellido { get; set; }
+		public string Apellido { get; set; } = "";
 		[Required, EmailAddress]
-		public string Email { get; set; }
+		public string Email { get; set; } = "";
 		[Required, DataType(DataType.Password)]
-		public string Clave { get; set; }
-		public string Avatar { get; set; } = "";
+		public string Clave { get; set; } = "";
+		public string? Avatar { get; set; }
 		[NotMapped]//Para EF
 		public IFormFile? AvatarFile { get; set; }
 		//[NotMapped]//Para EF
@@ -46,7 +46,7 @@ namespace Inmobiliaria_.Net_Core.Models
 			Type tipoEnumRol = typeof(enRoles);
 			foreach (var valor in Enum.GetValues(tipoEnumRol))
 			{
-				roles.Add((int)valor, Enum.GetName(tipoEnumRol, valor));
+				roles.Add((int)valor, Enum.GetName(tipoEnumRol, valor) ?? "");
 			}
 			return roles;
 		}

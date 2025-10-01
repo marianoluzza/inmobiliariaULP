@@ -84,39 +84,6 @@ namespace Inmobiliaria_.Net_Core.Models
 			return res;
 		}
 
-		public IList<Propietario> ObtenerTodos()
-		{
-			IList<Propietario> res = new List<Propietario>();
-			using (SqlConnection connection = new SqlConnection(connectionString))
-			{
-				string sql = @"SELECT 
-					IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave
-					FROM Propietarios";
-				using (SqlCommand command = new SqlCommand(sql, connection))
-				{
-					command.CommandType = CommandType.Text;
-					connection.Open();
-					var reader = command.ExecuteReader();
-					while (reader.Read())
-					{
-						Propietario p = new Propietario
-						{
-							IdPropietario = reader.GetInt32(nameof(Propietario.IdPropietario)),
-							Nombre = reader.GetString("Nombre"),
-							Apellido = reader.GetString("Apellido"),
-							Dni = reader.GetString("Dni"),
-							Telefono = reader.GetString("Telefono"),
-							Email = reader.GetString("Email"),
-							Clave = reader.GetString("Clave"),
-						};
-						res.Add(p);
-					}
-					connection.Close();
-				}
-			}
-			return res;
-		}
-
 		public IList<Propietario> ObtenerLista(int paginaNro = 1, int tamPagina = 10)
 		{
 			IList<Propietario> res = new List<Propietario>();
@@ -140,11 +107,11 @@ namespace Inmobiliaria_.Net_Core.Models
 						{
 							IdPropietario = reader.GetInt32(nameof(Propietario.IdPropietario)),//más seguro
 							Nombre = reader.GetString(nameof(Propietario.Nombre)),
-							Apellido = reader.GetString("Apellido"),
-							Dni = reader.GetString("Dni"),
-							Telefono = reader.GetString("Telefono"),
-							Email = reader.GetString("Email"),
-							Clave = reader.GetString("Clave"),
+							Apellido = reader.GetString(nameof(Propietario.Apellido)),
+							Dni = reader.GetString(nameof(Propietario.Dni)),
+							Telefono = reader.GetString(nameof(Propietario.Telefono)),
+							Email = reader.GetString(nameof(Propietario.Email)),
+							Clave = reader.GetString(nameof(Propietario.Clave)),
 						};
 						res.Add(p);
 					}
@@ -178,9 +145,9 @@ namespace Inmobiliaria_.Net_Core.Models
 			return res;
 		}
 
-		virtual public Propietario ObtenerPorId(int id)
+		public Propietario? ObtenerPorId(int id)
 		{
-			Propietario p = null;
+			Propietario? p = null;
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
 				string sql = @"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave 
@@ -211,9 +178,9 @@ namespace Inmobiliaria_.Net_Core.Models
 			return p;
 		}
 
-		public Propietario ObtenerPorEmail(string email)
+		public Propietario? ObtenerPorEmail(string email)
 		{
-			Propietario p = null;
+			Propietario? p = null;
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
 				string sql = @"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Clave 
@@ -247,7 +214,6 @@ namespace Inmobiliaria_.Net_Core.Models
 		public IList<Propietario> BuscarPorNombre(string nombre)
 		{
 			List<Propietario> res = new List<Propietario>();
-			Propietario p = null;
 			nombre = "%" + nombre + "%";
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
@@ -262,7 +228,7 @@ namespace Inmobiliaria_.Net_Core.Models
 					var reader = command.ExecuteReader();
 					while (reader.Read())
 					{
-						p = new Propietario
+						var p = new Propietario
 						{
 							IdPropietario = reader.GetInt32(nameof(Propietario.IdPropietario)),
 							Nombre = reader.GetString("Nombre"),

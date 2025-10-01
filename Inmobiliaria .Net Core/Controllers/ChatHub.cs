@@ -14,7 +14,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			await Clients.All.SendAsync("UsuarioConectado", Context.ConnectionId);
 		}
 
-		public override async Task OnDisconnectedAsync(Exception exception)
+		public override async Task OnDisconnectedAsync(Exception? exception)
 		{
 			await Clients.All.SendAsync("UsuarioDesconectado", Context.ConnectionId);
 		}

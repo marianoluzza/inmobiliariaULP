@@ -41,14 +41,13 @@ namespace Inmobiliaria_.Net_Core.Controllers
 					await Clients.Caller.UsuarioConectado(c);
 				}
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
-
 				throw;
 			}
 		}
 
-		public override async Task OnDisconnectedAsync(Exception exception)
+		public override async Task OnDisconnectedAsync(Exception? exception)
 		{
 			await base.OnDisconnectedAsync(exception);
 			var c = await context.Conectados.FindAsync(Context.UserIdentifier);
@@ -63,13 +62,15 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		public async Task SendMessage(Mensaje mje)
 		{
 			var c = await context.Conectados.FindAsync(Context.UserIdentifier);
-			mje.Emisor = c.Nombre;
-			if (String.IsNullOrEmpty(mje.Destinatario))
-				await Clients.All.ReceiveMessage(mje);
-			else
-			{
-				await Clients.User(mje.Destinatario).ReceiveMessage(mje);
-				await Clients.Caller.ReceiveMessage(mje);
+			if (c!=null){
+				mje.Emisor = c.Nombre;
+				if (String.IsNullOrEmpty(mje.Destinatario))
+					await Clients.All.ReceiveMessage(mje);
+				else
+				{
+					await Clients.User(mje.Destinatario).ReceiveMessage(mje);
+					await Clients.Caller.ReceiveMessage(mje);
+				}
 			}
 		}
 	}
