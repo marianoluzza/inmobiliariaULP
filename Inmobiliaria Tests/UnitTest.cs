@@ -37,7 +37,7 @@ namespace Inmobiliaria_Tests
 			var mockRepo = new Mock<IRepositorioPropietario>();
 			//los métodos que se hagan mock, deben ser virtuales
 			mockRepo.Setup(x => x.ObtenerPorId(1)).Returns(new Propietario { IdPropietario = 1 });
-			var mockConfig = new Mock<IConfiguration>();
+			//var mockConfig = new Mock<IConfiguration>();
 			var controlador = BuildController(mockRepo, out tempData);
 
 			//Act

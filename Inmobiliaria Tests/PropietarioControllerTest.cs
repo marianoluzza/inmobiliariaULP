@@ -101,7 +101,7 @@ namespace Inmobiliaria_Tests
 		[Fact]
 		public void Get_MiPerfil_RequiereAutenticacion()
 		{
-			var tipo = typeof(PropietariosController).GetType();
+			var tipo = typeof(PropietariosController);
 			var attrsClase = tipo.GetCustomAttributes(
 				typeof(Microsoft.AspNetCore.Authorization.AuthorizeAttribute), true);
 			var auth = attrsClase.Cast<Microsoft.AspNetCore.Authorization.AuthorizeAttribute>().FirstOrDefault();
