@@ -22,56 +22,92 @@ namespace Inmobiliaria_Tests
 	public class PropietariosControllerTest
 	{
 		Helper helper = new Helper();
-		PropietariosController controller;
+		Moq.Mock<IWebHostEnvironment> mockEnvironment = new Moq.Mock<IWebHostEnvironment>();
 		public PropietariosControllerTest()
 		{
 			//https://softchris.github.io/pages/dotnet-moq.html
-			var mockEnvironment = new Moq.Mock<IWebHostEnvironment>();
 			mockEnvironment
 				.Setup(m => m.EnvironmentName)
 				.Returns("Development");
-			controller = new PropietariosController(helper.DataContext, helper.Config, mockEnvironment.Object);
 		}
 
 		[Fact]
 		public async Task Get_MiPerfil_PropietarioAutenticado_DevuelvePropietario()
 		{
 			string email = "mluzza@ulp.edu.ar";
-			controller.ControllerContext = new ControllerContext()
+
+			// Usar SQLite in-memory para aislar el test y sembrar los datos necesarios
+			using var connection = Helper.CreateInMemoryDatabase();
+			var options = Helper.CreateOptions(connection);
+
+			// Crear esquema y seed
+			using (var seedCtx = new DataContext(options))
 			{
-				HttpContext = new DefaultHttpContext() { User = helper.MockLogin(email, "Propietario") }
-			};
-			var res = await controller.Get();
-			var httpRes = res.Result as OkObjectResult;
-			Assert.NotNull(httpRes);
-			var propietario = httpRes.Value as Propietario;
-			Assert.NotNull(propietario);
-			Assert.Equal(email, propietario.Email);
-			Assert.Equal("Mariano", propietario.Nombre);
+				seedCtx.Database.EnsureCreated();
+				seedCtx.Propietarios.Add(new Propietario { Email = email, Nombre = "Mariano", Apellido = "Luzza" });
+				seedCtx.SaveChanges();
+			}
+
+			// Crear un controller que use el contexto sqlite
+			using (var context = new DataContext(options))
+			{
+				var localController = new PropietariosController(context, helper.Config, mockEnvironment.Object);
+				localController.ControllerContext = new ControllerContext()
+				{
+					HttpContext = new DefaultHttpContext() { User = helper.MockLogin(email, "Propietario") }
+				};
+
+				var res = await localController.Get();
+				var httpRes = res.Result as OkObjectResult;
+				Assert.NotNull(httpRes);
+				var propietario = httpRes.Value as Propietario;
+				Assert.NotNull(propietario);
+				Assert.Equal(email, propietario.Email);
+				Assert.Equal("Mariano", propietario.Nombre);
+				Assert.Equal("Luzza", propietario.Apellido);
+			}
 		}
 
 		[Fact]
 		public async Task Get_MiPerfil_PropietarioNoAutenticado_DevuelveNull()
 		{
-			controller.ControllerContext = new ControllerContext()
+			string email = "mluzza@ulp.edu.ar";
+			// Usar SQLite in-memory para aislar el test y sembrar los datos necesarios
+			using var connection = Helper.CreateInMemoryDatabase();
+			var options = Helper.CreateOptions(connection);
+
+			// Crear esquema y seed
+			using (var seedCtx = new DataContext(options))
 			{
-				HttpContext = new DefaultHttpContext() { User = new ClaimsPrincipal(new ClaimsIdentity()) }
-			};
-			var res = await controller.Get();
-			var propietario = res.Value;
-			Assert.Null(propietario);
+				seedCtx.Database.EnsureCreated();
+				seedCtx.Propietarios.Add(new Propietario { Email = email, Nombre = "Mariano", Apellido = "Luzza" });
+				seedCtx.SaveChanges();
+			}
+
+			// Crear un controller que use el contexto sqlite
+			using (var context = new DataContext(options))
+			{
+				var localController = new PropietariosController(context, helper.Config, mockEnvironment.Object);
+				localController.ControllerContext = new ControllerContext()
+				{
+					HttpContext = new DefaultHttpContext() { User = new ClaimsPrincipal(new ClaimsIdentity()) }
+				};
+				var res = await localController.Get();
+				var propietario = res.Value;
+				Assert.Null(propietario);
+			}
 		}
 
 		[Fact]
 		public void Get_MiPerfil_RequiereAutenticacion()
 		{
-			var tipo = controller.GetType();
+			var tipo = typeof(PropietariosController).GetType();
 			var attrsClase = tipo.GetCustomAttributes(
 				typeof(Microsoft.AspNetCore.Authorization.AuthorizeAttribute), true);
 			var auth = attrsClase.Cast<Microsoft.AspNetCore.Authorization.AuthorizeAttribute>().FirstOrDefault();
 			if (auth == null)
 			{
-				var metodo = tipo.GetMethod(nameof(controller.Get), System.Type.EmptyTypes);
+				var metodo = tipo.GetMethod(nameof(PropietariosController.Get), System.Type.EmptyTypes);
 				if (metodo != null)
 				{
 					var attrsMetodo = metodo.GetCustomAttributes(
@@ -85,10 +121,10 @@ namespace Inmobiliaria_Tests
 		}
 
 		[Fact]
-		public async Task PerfilProhibidoSinAutenticar()
+		public async Task Get_MiPerfil_ProhibidoSinAutenticar()
 		{
 			// Arrange
-			var appServer = BuildWebApplication(helper);
+			var appServer = helper.BuildWebApplication();
 			await appServer.StartAsync();
 			var client = appServer.GetTestClient();
 			var url = "api/propietarios";
@@ -102,36 +138,5 @@ namespace Inmobiliaria_Tests
 			Assert.Contains("Bearer", response.Headers.WwwAuthenticate.First().ToString(), StringComparison.InvariantCultureIgnoreCase);
 		}
 
-		static private WebApplication BuildWebApplication(Helper helper)
-		{
-			var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(System.Array.Empty<string>());
-			builder.Configuration.AddConfiguration(helper.Config);
-			builder.Services.AddControllers();
-			builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)
-			.AddJwtBearer(options =>
-			{
-				var secreto = builder.Configuration["TokenAuthentication:SecretKey"];
-				if (string.IsNullOrEmpty(secreto))
-					throw new System.Exception("Falta configurar TokenAuthentication:Secret");
-				options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-				{
-					ValidateIssuer = true,
-					ValidateAudience = true,
-					ValidateLifetime = true,
-					ValidateIssuerSigningKey = true,
-					ValidIssuer = builder.Configuration["TokenAuthentication:Issuer"],
-					ValidAudience = builder.Configuration["TokenAuthentication:Audience"],
-					IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(secreto)),
-				};
-			});
-			builder.Services.AddAuthorization();
-			builder.WebHost.UseTestServer();
-			var appServer = builder.Build();
-			appServer.UseRouting();
-			appServer.UseAuthentication();
-			appServer.UseAuthorization();
-			appServer.MapControllers();
-			return appServer;
-		}
 	}
 }

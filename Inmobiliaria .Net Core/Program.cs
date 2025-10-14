@@ -94,7 +94,7 @@ Scoped objects are the same within a request, but different across different req
 Singleton objects are the same for every object and every request.
 */
 //Add IHttpContextAccessor
-builder.Services.AddHttpContextAccessor();//Para recuoerar el user entre otros datos
+builder.Services.AddHttpContextAccessor();//Para recuperar el user entre otros datos
 //builder.Services.AddScoped<IRepositorio<Propietario>, RepositorioPropietario>();
 builder.Services.AddScoped<IRepositorioPropietario, RepositorioPropietario>();
 //builder.Services.AddScoped<IRepositorioPropietario, RepositorioPropietarioMySql>();
