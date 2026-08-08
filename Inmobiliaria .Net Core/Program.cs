@@ -43,6 +43,11 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 			ValidIssuer = configuration["TokenAuthentication:Issuer"],
 			ValidAudience = configuration["TokenAuthentication:Audience"],
 			IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(secreto)),
+			// De los claims, sólo dos tienen acceso rápido: el de nombre (User.Identity.Name)
+			// y el de rol (User.IsInRole). Acá se elige cuál claim cumple cada papel.
+			// Con esto User.Identity.Name devuelve el IdPropietario, no el email.
+			NameClaimType = System.Security.Claims.ClaimTypes.NameIdentifier,
+			RoleClaimType = System.Security.Claims.ClaimTypes.Role,
 		};
 		// opción extra para usar el token en el hub y otras peticiones sin encabezado (enlaces, src de img, etc.)
 		options.Events = new JwtBearerEvents
@@ -65,7 +70,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 			OnTokenValidated = context =>
 			{
 				// Este evento se activa cuando el token es validado correctamente
-				Console.WriteLine("Token válido para el usuario: " + context?.Principal?.Identity?.Name);
+				// Identity.Name es el IdPropietario (ver NameClaimType más arriba)
+				Console.WriteLine("Token válido para el propietario id: " + context?.Principal?.Identity?.Name);
 				// Aquí puedes realizar otras validaciones o acciones si es necesario
 				return Task.CompletedTask;
 			},
@@ -81,7 +87,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization(options =>
 {
 	//options.AddPolicy("Empleado", policy => policy.RequireClaim(ClaimTypes.Role, "Administrador", "Empleado"));
-	options.AddPolicy("Administrador", policy => policy.RequireRole("Administrador", "SuperAdministrador"));
+	options.AddPolicy("Administrador", policy => policy.RequireRole("Administrador"));
 });
 builder.Services.AddMvc();
 builder.Services.AddSignalR();//añade signalR

@@ -42,14 +42,21 @@ namespace Inmobiliaria_Tests
 		internal IConfiguration Config { get; set; }
 		internal DataContext DataContext { get; set; }
 
-		internal ClaimsPrincipal MockLogin(string email, string rol)
+		/// <summary>
+		/// Simula un usuario autenticado. El id va en NameIdentifier porque es el
+		/// claim que la API usa para consultar (ver NameClaimType en Program.cs).
+		/// </summary>
+		internal ClaimsPrincipal MockLogin(string email, string rol, int id = 0)
 		{
 			var claims = new List<Claim>
 			{
+				new Claim(ClaimTypes.NameIdentifier, id.ToString()),
 				new Claim(ClaimTypes.Name, email),
 				new Claim(ClaimTypes.Role, rol),
 			};
-			var identity = new ClaimsIdentity(claims, "TestAuthType");
+			// El cuarto parámetro alinea Identity.Name con el claim del id,
+			// igual que hace TokenValidationParameters.NameClaimType en la app.
+			var identity = new ClaimsIdentity(claims, "TestAuthType", ClaimTypes.NameIdentifier, ClaimTypes.Role);
 			var claimsPrincipal = new ClaimsPrincipal(identity);
 			return claimsPrincipal;
 		}

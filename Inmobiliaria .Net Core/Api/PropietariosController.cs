@@ -49,12 +49,13 @@ namespace Inmobiliaria_.Net_Core.Api
 					.Where(x => x.Duenio.Nombre == "")//.ToList() => lista de inmuebles
 					.Select(x => x.Duenio)
 					.ToList();//lista de propietarios*/
-				string usuario = User?.Identity?.Name ?? "";
-				/*contexto.Contratos.Include(x => x.Inquilino).Include(x => x.Inmueble).ThenInclude(x => x.Duenio)
+				int propietarioId = this.UsuarioId();
+				/*contexto.Reservas.Include(x => x.Inquilino).Include(x => x.Inmueble).ThenInclude(x => x.Duenio)
 					.Where(c => c.Inmueble.Duenio.Email....);*/
 				/*var res = contexto.Propietarios.Select(x => new { x.Nombre, x.Apellido, x.Email })
-					.SingleOrDefault(x => x.Email == usuario);*/
-				var res = await contexto.Propietarios.SingleOrDefaultAsync(x => x.Email == usuario);
+					.SingleOrDefault(x => x.IdPropietario == propietarioId);*/
+				// Se busca por clave primaria: el email es mutable y no tiene índice único.
+				var res = await contexto.Propietarios.SingleOrDefaultAsync(x => x.IdPropietario == propietarioId);
 				return Ok(res);
 			}
 			catch (Exception ex)
@@ -84,10 +85,14 @@ namespace Inmobiliaria_.Net_Core.Api
 		{
 			try
 			{ //este método si tiene autenticación, al entrar, generar clave aleatorio y enviarla por correo
+				// Identity.Name ahora es el IdPropietario, no el email: se busca por clave primaria.
+				var propietario = await contexto.Propietarios.SingleOrDefaultAsync(x => x.IdPropietario == this.UsuarioId());
+				if (propietario == null)
+					return NotFound();
 				var perfil = new
 				{
-					Email = User?.Identity?.Name,
-					Nombre = User?.Claims.FirstOrDefault(x => x.Type == "FullName")?.Value,
+					propietario.Email,//el nombre del miembro se infiere de la propiedad
+					Nombre = propietario.Nombre + " " + propietario.Apellido,
 					Rol = User?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value
 				};
 				Random rand = new Random(Environment.TickCount);
@@ -196,6 +201,10 @@ namespace Inmobiliaria_.Net_Core.Api
 					var credenciales = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 					var claims = new List<Claim>
 					{
+						// Identificador estable: es el que se usa para consultar.
+						// NameClaimType está configurado a NameIdentifier (ver Program.cs),
+						// así que este claim es el que devuelve User.Identity.Name.
+						new Claim(ClaimTypes.NameIdentifier, p.IdPropietario.ToString()),
 						new Claim(ClaimTypes.Name, p.Email),
 						new Claim("FullName", p.Nombre + " " + p.Apellido),
 						new Claim(ClaimTypes.Role, "Propietario"),

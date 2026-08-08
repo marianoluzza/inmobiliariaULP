@@ -18,9 +18,11 @@ namespace Inmobiliaria_.Net_Core.Models
 		[Required(ErrorMessage = "La dirección es requerida")]
 		public string? Direccion { get; set; }
 		[Required]
-		public int Ambientes { get; set; }
+		public int Cupo { get; set; }
 		[Required]
-		public int Superficie { get; set; }
+		public decimal PrecioPorDia { get; set; }
+		[Required]
+		public decimal PorcentajeReserva  { get; set; }
 		public decimal Latitud { get; set; }
 		public decimal Longitud { get; set; }
 		[Display(Name = "Dueño")]

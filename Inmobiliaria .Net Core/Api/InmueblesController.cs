@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using Inmobiliaria_.Net_Core.Models;
+using Inmobiliaria_.Net_Core.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,8 +31,8 @@ namespace Inmobiliaria_.Net_Core.Api
 		{
 			try
 			{
-				var usuario = User?.Identity?.Name ?? "";
-				return Ok(contexto.Inmuebles.Include(e => e.Duenio).Where(e => e.Duenio.Email == usuario));
+				var propietarioId = this.UsuarioId();
+				return Ok(contexto.Inmuebles.Where(e => e.PropietarioId == propietarioId));
 			}
 			catch (Exception ex)
 			{
@@ -45,8 +46,8 @@ namespace Inmobiliaria_.Net_Core.Api
 		{
 			try
 			{
-				var usuario = User.Identity.Name;
-				return Ok(contexto.Inmuebles.Include(e => e.Duenio).Where(e => e.Duenio.Email == usuario).Single(e => e.Id == id));
+				var propietarioId = this.UsuarioId();
+				return Ok(contexto.Inmuebles.Where(e => e.PropietarioId == propietarioId).Single(e => e.Id == id));
 			}
 			catch (Exception ex)
 			{
@@ -62,7 +63,8 @@ namespace Inmobiliaria_.Net_Core.Api
 			{
 				if (ModelState.IsValid)
 				{
-					entidad.PropietarioId = contexto.Propietarios.Single(e => e.Email == User.Identity.Name).IdPropietario;
+					// El id sale del token: ya no hace falta ir a la BD a resolverlo por email.
+					entidad.PropietarioId = this.UsuarioId();
 					contexto.Inmuebles.Add(entidad);
 					contexto.SaveChanges();
 					return CreatedAtAction(nameof(Get), new { id = entidad.Id }, entidad);
@@ -81,9 +83,13 @@ namespace Inmobiliaria_.Net_Core.Api
 		{
 			try
 			{
-				if (ModelState.IsValid && contexto.Inmuebles.AsNoTracking().Include(e => e.Duenio).FirstOrDefault(e => e.Id == id && e.Duenio.Email == User.Identity.Name) != null)
+				var propietarioId = this.UsuarioId();
+				if (ModelState.IsValid && contexto.Inmuebles.AsNoTracking().FirstOrDefault(e => e.Id == id && e.PropietarioId == propietarioId) != null)
 				{
 					entidad.Id = id;
+					// El dueño lo fija el servidor: si viniera del body, se podría
+					// transferir el inmueble a otro propietario desde el cliente.
+					entidad.PropietarioId = propietarioId;
 					contexto.Inmuebles.Update(entidad);
 					contexto.SaveChanges();
 					return Ok(entidad);
@@ -102,7 +108,8 @@ namespace Inmobiliaria_.Net_Core.Api
 		{
 			try
 			{
-				var entidad = contexto.Inmuebles.Include(e => e.Duenio).FirstOrDefault(e => e.Id == id && e.Duenio.Email == User.Identity.Name);
+				var propietarioId = this.UsuarioId();
+				var entidad = contexto.Inmuebles.FirstOrDefault(e => e.Id == id && e.PropietarioId == propietarioId);
 				if (entidad != null)
 				{
 					contexto.Inmuebles.Remove(entidad);
@@ -123,10 +130,11 @@ namespace Inmobiliaria_.Net_Core.Api
 		{
 			try
 			{
-				var entidad = contexto.Inmuebles.Include(e => e.Duenio).FirstOrDefault(e => e.Id == id && e.Duenio.Email == User.Identity.Name);
+				var propietarioId = this.UsuarioId();
+				var entidad = contexto.Inmuebles.FirstOrDefault(e => e.Id == id && e.PropietarioId == propietarioId);
 				if (entidad != null)
 				{
-					entidad.Superficie = -1;//cambiar por estado = 0
+					//entidad.Habilitado = false;//TODO: implementar la baja lógica
 					contexto.Inmuebles.Update(entidad);
 					contexto.SaveChanges();
 					return Ok();

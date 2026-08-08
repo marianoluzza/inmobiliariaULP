@@ -20,7 +20,8 @@ namespace Inmobiliaria_.Net_Core.Models
 
 		public Conectado(Propietario p)
 		{
-			Usuario = p.Email;
+			// Usuario es el UserIdentifier del chat: el IdPropietario, no el email.
+			Usuario = p.IdPropietario.ToString();
 			Nombre = p.Nombre + " " + p.Apellido;
 		}
 	}

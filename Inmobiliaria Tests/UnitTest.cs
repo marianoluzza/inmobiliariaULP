@@ -18,15 +18,15 @@ namespace Inmobiliaria_Tests
 	public class UnitTest
 	{
 		[Fact]
-		public void Test1()
+		public void ObtenerRoles_DevuelveLosDosRoles()
 		{
-			//Arrange
-			var x = 1;
-			var y = 1;
-			//Act
-			var res = x + y;
+			//Arrange & Act
+			var roles = Usuario.ObtenerRoles();
 			//Assert
-			Assert.Equal(2, res);
+			Assert.Equal(2, roles.Count);
+			Assert.Equal("Administrador", roles[1]);
+			Assert.Equal("Empleado", roles[2]);
+			Assert.DoesNotContain("SuperAdministrador", roles.Values);
 		}
 
 		[Fact]

@@ -35,6 +35,7 @@ namespace Inmobiliaria_Tests
 		public async Task Get_MiPerfil_PropietarioAutenticado_DevuelvePropietario()
 		{
 			string email = "mluzza@ulp.edu.ar";
+			int idPropietario = 7;
 
 			// Usar SQLite in-memory para aislar el test y sembrar los datos necesarios
 			using var connection = Helper.CreateInMemoryDatabase();
@@ -44,7 +45,7 @@ namespace Inmobiliaria_Tests
 			using (var seedCtx = new DataContext(options))
 			{
 				seedCtx.Database.EnsureCreated();
-				seedCtx.Propietarios.Add(new Propietario { Email = email, Nombre = "Mariano", Apellido = "Luzza" });
+				seedCtx.Propietarios.Add(new Propietario { IdPropietario = idPropietario, Email = email, Nombre = "Mariano", Apellido = "Luzza" });
 				seedCtx.SaveChanges();
 			}
 
@@ -54,7 +55,7 @@ namespace Inmobiliaria_Tests
 				var localController = new PropietariosController(context, helper.Config, mockEnvironment.Object);
 				localController.ControllerContext = new ControllerContext()
 				{
-					HttpContext = new DefaultHttpContext() { User = helper.MockLogin(email, "Propietario") }
+					HttpContext = new DefaultHttpContext() { User = helper.MockLogin(email, "Propietario", idPropietario) }
 				};
 
 				var res = await localController.Get();

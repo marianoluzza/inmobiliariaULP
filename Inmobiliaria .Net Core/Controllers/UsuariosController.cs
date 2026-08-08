@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Inmobiliaria_.Net_Core.Models;
+using Inmobiliaria_.Net_Core.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -111,8 +112,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		public ActionResult Perfil()
 		{
 			ViewData["Title"] = "Mi perfil";
-			var email = User?.Identity?.Name;
-			var u = String.IsNullOrEmpty(email) ? null : repositorio.ObtenerPorEmail(email);
+			// Identity.Name ahora es el Id: se busca por clave primaria, no por email.
+			var u = repositorio.ObtenerPorId(this.UsuarioId());
 			ViewBag.Roles = Usuario.ObtenerRoles();
 			return View(nameof(Edit), u);
 		}
@@ -139,9 +140,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
 				if (!User.IsInRole("Administrador"))//no soy admin
 				{
 					vista = nameof(Perfil);//solo puedo ver mi perfil
-					var email = User?.Identity?.Name;
-					var usuarioActual = String.IsNullOrEmpty(email) ? null : repositorio.ObtenerPorEmail(email);
-					if (usuarioActual?.Id != id)//si no es admin, solo puede modificarse él mismo
+					// El Id ya viene en la cookie: se compara directo, sin ir a la BD.
+					if (this.UsuarioId() != id)//si no es admin, solo puede modificarse él mismo
 						return RedirectToAction(nameof(Index), "Home");
 				}
 				// TODO: Add update logic here
@@ -187,8 +187,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		[Authorize]
 		public IActionResult Avatar()
 		{
-			var email = User?.Identity?.Name;
-			var u = String.IsNullOrEmpty(email) ? null : repositorio.ObtenerPorEmail(email);
+			var u = repositorio.ObtenerPorId(this.UsuarioId());
 			if (u == null || string.IsNullOrEmpty(u.Avatar))
 				return NotFound();
 			string fileName = "avatar_" + u.Id + Path.GetExtension(u.Avatar);
@@ -205,8 +204,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		[Authorize]
 		public string AvatarBase64()
 		{
-			var email = User?.Identity?.Name;
-			var u = String.IsNullOrEmpty(email) ? null : repositorio.ObtenerPorEmail(email);
+			var u = repositorio.ObtenerPorId(this.UsuarioId());
 			if (u == null || string.IsNullOrEmpty(u.Avatar))
 				return "";
 			string fileName = "avatar_" + u.Id + Path.GetExtension(u.Avatar);
@@ -240,8 +238,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		{
 			try
 			{
-				var email = User?.Identity?.Name;
-				var u = String.IsNullOrEmpty(email) ? null : repositorio.ObtenerPorEmail(email);
+				var u = repositorio.ObtenerPorId(this.UsuarioId());
 				if (u == null || string.IsNullOrEmpty(u.Avatar))
 					return NotFound();
 				var stream = System.IO.File.Open(
@@ -263,7 +260,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		{
 			try
 			{
-				var u = repositorio.ObtenerPorEmail(User?.Identity?.Name ?? "");
+				var u = repositorio.ObtenerPorId(this.UsuarioId());
 				if (u == null)
 					return NotFound();
 				string buffer = "Nombre;Apellido;Email" + Environment.NewLine +
@@ -323,13 +320,20 @@ namespace Inmobiliaria_.Net_Core.Controllers
 
 					var claims = new List<Claim>
 					{
+						// Identificador estable: es el que se usa para consultar (clave primaria).
+						new Claim(ClaimTypes.NameIdentifier, e.Id.ToString()),
 						new Claim(ClaimTypes.Name, e.Email),
 						new Claim("FullName", e.Nombre + " " + e.Apellido),
 						new Claim(ClaimTypes.Role, e.RolNombre),
 					};
 
+					// Los dos últimos parámetros eligen qué claim es el "nombre" (User.Identity.Name)
+					// y cuál el "rol" (User.IsInRole). Es el equivalente, para la cookie, de
+					// TokenValidationParameters.NameClaimType/RoleClaimType del JWT (ver Program.cs).
+					// Con esto User.Identity.Name devuelve el Id, no el email.
 					var claimsIdentity = new ClaimsIdentity(
-							claims, CookieAuthenticationDefaults.AuthenticationScheme);
+							claims, CookieAuthenticationDefaults.AuthenticationScheme,
+							ClaimTypes.NameIdentifier, ClaimTypes.Role);
 
 					await HttpContext.SignInAsync(
 							CookieAuthenticationDefaults.AuthenticationScheme,

@@ -20,16 +20,17 @@ namespace Inmobiliaria_.Net_Core.Models
 			int res = -1;
 			using (var connection = new SqlConnection(connectionString))
 			{
-				string sql = @"INSERT INTO Inmuebles 
-					(Direccion, Ambientes, Superficie, Latitud, Longitud, PropietarioId)
-					VALUES (@direccion, @ambientes, @superficie, @latitud, @longitud, @propietarioId);
+				string sql = @"INSERT INTO Inmuebles
+					(Direccion, Cupo, PrecioPorDia, PorcentajeReserva, Latitud, Longitud, PropietarioId)
+					VALUES (@direccion, @cupo, @precioPorDia, @porcentajeReserva, @latitud, @longitud, @propietarioId);
 					SELECT SCOPE_IDENTITY();";//devuelve el id insertado (LAST_INSERT_ID para mysql)
 				using (var command = new SqlCommand(sql, connection))
 				{
 					command.CommandType = CommandType.Text;
 					command.Parameters.AddWithValue("@direccion", entidad.Direccion == null? DBNull.Value : entidad.Direccion);
-					command.Parameters.AddWithValue("@ambientes", entidad.Ambientes);
-					command.Parameters.AddWithValue("@superficie", entidad.Superficie);
+					command.Parameters.AddWithValue("@cupo", entidad.Cupo);
+					command.Parameters.AddWithValue("@precioPorDia", entidad.PrecioPorDia);
+					command.Parameters.AddWithValue("@porcentajeReserva", entidad.PorcentajeReserva);
 					command.Parameters.AddWithValue("@latitud", entidad.Latitud);
 					command.Parameters.AddWithValue("@longitud", entidad.Longitud);
 					command.Parameters.AddWithValue("@propietarioId", entidad.PropietarioId);
@@ -65,13 +66,15 @@ namespace Inmobiliaria_.Net_Core.Models
 			{
 				string sql = @"
 					UPDATE Inmuebles SET
-					Direccion=@direccion, Ambientes=@ambientes, Superficie=@superficie, Latitud=@latitud, Longitud=@longitud, PropietarioId=@propietarioId
+						Direccion=@direccion, Cupo=@cupo, PrecioPorDia=@precioPorDia, PorcentajeReserva=@porcentajeReserva, 
+						Latitud=@latitud, Longitud=@longitud, PropietarioId=@propietarioId
 					WHERE Id = @id";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.Parameters.AddWithValue("@direccion", entidad.Direccion);
-					command.Parameters.AddWithValue("@ambientes", entidad.Ambientes);
-					command.Parameters.AddWithValue("@superficie", entidad.Superficie);
+					command.Parameters.AddWithValue("@cupo", entidad.Cupo);
+					command.Parameters.AddWithValue("@precioPorDia", entidad.PrecioPorDia);
+					command.Parameters.AddWithValue("@porcentajeReserva", entidad.PorcentajeReserva);
 					command.Parameters.AddWithValue("@latitud", entidad.Latitud);
 					command.Parameters.AddWithValue("@longitud", entidad.Longitud);
 					command.Parameters.AddWithValue("@propietarioId", entidad.PropietarioId);
@@ -111,10 +114,12 @@ namespace Inmobiliaria_.Net_Core.Models
 			IList<Inmueble> res = new List<Inmueble>();
 			using (var connection = new SqlConnection(connectionString))
 			{
-				string sql = $@"SELECT Id, Direccion, {nameof(Inmueble.Ambientes)}, Superficie, Latitud, Longitud, PropietarioId, Portada,
-					p.Nombre, p.Apellido, p.Dni
-					FROM Inmuebles i INNER JOIN Propietarios p ON i.PropietarioId = p.IdPropietario
-					ORDER BY Id
+				string sql = $@"SELECT i.{nameof(Inmueble.Id)}, i.{nameof(Inmueble.Direccion)}, i.{nameof(Inmueble.Cupo)},
+					i.{nameof(Inmueble.PrecioPorDia)}, i.{nameof(Inmueble.PorcentajeReserva)},
+					i.{nameof(Inmueble.Latitud)}, i.{nameof(Inmueble.Longitud)}, i.{nameof(Inmueble.PropietarioId)}, i.{nameof(Inmueble.Portada)},
+					p.{nameof(Propietario.Nombre)}, p.{nameof(Propietario.Apellido)}, p.{nameof(Propietario.Dni)}
+					FROM Inmuebles i INNER JOIN Propietarios p ON i.{nameof(Inmueble.PropietarioId)} = p.{nameof(Propietario.IdPropietario)}
+					ORDER BY i.{nameof(Inmueble.Id)}
 					OFFSET {(paginaNro - 1) * tamPagina} ROW
 					FETCH NEXT {tamPagina} ROWS ONLY
 				";
@@ -130,8 +135,9 @@ namespace Inmobiliaria_.Net_Core.Models
 							Id = reader.GetInt32(nameof(Inmueble.Id)),
 							Direccion = reader[nameof(Inmueble.Direccion)] == DBNull.Value? "" : reader.GetString(nameof(Inmueble.Direccion)),
 							Portada = reader[nameof(Inmueble.Portada)] == DBNull.Value? null : reader.GetString(nameof(Inmueble.Portada)),
-							Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
-							Superficie = reader.GetInt32(nameof(Inmueble.Superficie)),
+							Cupo = reader.GetInt32(nameof(Inmueble.Cupo)),
+							PrecioPorDia = reader.GetDecimal(nameof(Inmueble.PrecioPorDia)),
+							PorcentajeReserva = reader.GetDecimal(nameof(Inmueble.PorcentajeReserva)),
 							Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
 							Longitud = reader.GetDecimal(nameof(Inmueble.Longitud)),
 							PropietarioId = reader.GetInt32(nameof(Inmueble.PropietarioId)),
@@ -177,9 +183,12 @@ namespace Inmobiliaria_.Net_Core.Models
 			using (var connection = new SqlConnection(connectionString))
 			{
 				string sql = @$"
-					SELECT {nameof(Inmueble.Id)}, Direccion, Ambientes, Superficie, Latitud, Longitud, PropietarioId, Portada, p.Nombre, p.Apellido
-					FROM Inmuebles i JOIN Propietarios p ON i.PropietarioId = p.IdPropietario
-					WHERE {nameof(Inmueble.Id)}=@id";
+					SELECT i.{nameof(Inmueble.Id)}, i.{nameof(Inmueble.Direccion)}, i.{nameof(Inmueble.Cupo)},
+					i.{nameof(Inmueble.PrecioPorDia)}, i.{nameof(Inmueble.PorcentajeReserva)},
+					i.{nameof(Inmueble.Latitud)}, i.{nameof(Inmueble.Longitud)}, i.{nameof(Inmueble.PropietarioId)}, i.{nameof(Inmueble.Portada)},
+					p.{nameof(Propietario.Nombre)}, p.{nameof(Propietario.Apellido)}
+					FROM Inmuebles i JOIN Propietarios p ON i.{nameof(Inmueble.PropietarioId)} = p.{nameof(Propietario.IdPropietario)}
+					WHERE i.{nameof(Inmueble.Id)}=@id";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.Parameters.Add("@id", SqlDbType.Int).Value = id;
@@ -193,8 +202,9 @@ namespace Inmobiliaria_.Net_Core.Models
 							Id = reader.GetInt32(nameof(Inmueble.Id)),
 							Direccion = reader[nameof(Inmueble.Direccion)] == DBNull.Value? "" : reader.GetString(nameof(Inmueble.Direccion)),
 							Portada = reader[nameof(Inmueble.Portada)] == DBNull.Value? null : reader.GetString(nameof(Inmueble.Portada)),
-							Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
-							Superficie = reader.GetInt32(nameof(Inmueble.Superficie)),
+							Cupo = reader.GetInt32(nameof(Inmueble.Cupo)),
+							PrecioPorDia = reader.GetDecimal(nameof(Inmueble.PrecioPorDia)),
+							PorcentajeReserva = reader.GetDecimal(nameof(Inmueble.PorcentajeReserva)),
 							Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
 							Longitud = reader.GetDecimal(nameof(Inmueble.Longitud)),
 							PropietarioId = reader.GetInt32(nameof(Inmueble.PropietarioId)),
@@ -219,9 +229,12 @@ namespace Inmobiliaria_.Net_Core.Models
 			using (var connection = new SqlConnection(connectionString))
 			{
 				string sql = @$"
-					SELECT {nameof(Inmueble.Id)}, Direccion, Ambientes, Superficie, Latitud, Longitud, PropietarioId, p.Nombre, p.Apellido
-					FROM Inmuebles i JOIN Propietarios p ON i.PropietarioId = p.IdPropietario
-					WHERE PropietarioId=@idPropietario";
+					SELECT i.{nameof(Inmueble.Id)}, i.{nameof(Inmueble.Direccion)}, i.{nameof(Inmueble.Cupo)},
+					i.{nameof(Inmueble.PrecioPorDia)}, i.{nameof(Inmueble.PorcentajeReserva)},
+					i.{nameof(Inmueble.Latitud)}, i.{nameof(Inmueble.Longitud)}, i.{nameof(Inmueble.PropietarioId)},
+					p.{nameof(Propietario.Nombre)}, p.{nameof(Propietario.Apellido)}
+					FROM Inmuebles i JOIN Propietarios p ON i.{nameof(Inmueble.PropietarioId)} = p.{nameof(Propietario.IdPropietario)}
+					WHERE i.{nameof(Inmueble.PropietarioId)}=@idPropietario";
 				using (SqlCommand command = new SqlCommand(sql, connection))
 				{
 					command.Parameters.Add("@idPropietario", SqlDbType.Int).Value = idPropietario;
@@ -233,17 +246,18 @@ namespace Inmobiliaria_.Net_Core.Models
 						var entidad = new Inmueble
 						{
 							Id = reader.GetInt32(nameof(Inmueble.Id)),
-							Direccion = reader["Direccion"] == DBNull.Value? "" : reader.GetString("Direccion"),
-							Ambientes = reader.GetInt32("Ambientes"),
-							Superficie = reader.GetInt32("Superficie"),
-							Latitud = reader.GetDecimal("Latitud"),
-							Longitud = reader.GetDecimal("Longitud"),
-							PropietarioId = reader.GetInt32("PropietarioId"),
+							Direccion = reader[nameof(Inmueble.Direccion)] == DBNull.Value? "" : reader.GetString(nameof(Inmueble.Direccion)),
+							Cupo = reader.GetInt32(nameof(Inmueble.Cupo)),
+							PrecioPorDia = reader.GetDecimal(nameof(Inmueble.PrecioPorDia)),
+							PorcentajeReserva = reader.GetDecimal(nameof(Inmueble.PorcentajeReserva)),
+							Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
+							Longitud = reader.GetDecimal(nameof(Inmueble.Longitud)),
+							PropietarioId = reader.GetInt32(nameof(Inmueble.PropietarioId)),
 							Duenio = new Propietario
 							{
-								IdPropietario = reader.GetInt32("PropietarioId"),
-								Nombre = reader.GetString("Nombre"),
-								Apellido = reader.GetString("Apellido"),
+								IdPropietario = reader.GetInt32(nameof(Inmueble.PropietarioId)),
+								Nombre = reader.GetString(nameof(Propietario.Nombre)),
+								Apellido = reader.GetString(nameof(Propietario.Apellido)),
 							}
 						};
 						res.Add(entidad);

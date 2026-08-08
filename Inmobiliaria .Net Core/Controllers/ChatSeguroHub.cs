@@ -25,7 +25,12 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			try
 			{
 				await base.OnConnectedAsync();
-				var p = await context.Propietarios.FirstAsync(x => x.Email == Context.UserIdentifier);
+				// Context.UserIdentifier es el IdPropietario (ver UserIdProvider).
+				if (!int.TryParse(Context.UserIdentifier, out var propietarioId))
+					return;
+				var p = await context.Propietarios.FirstOrDefaultAsync(x => x.IdPropietario == propietarioId);
+				if (p == null)
+					return;//token válido pero el propietario ya no existe: no se registra la conexión
 				var otros = await context.Conectados.Where(x => x.Usuario != Context.UserIdentifier).ToListAsync();
 				var conectado = new Conectado(p);
 				var yaConectado = await context.Conectados.FindAsync(Context.UserIdentifier);
@@ -63,6 +68,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		{
 			var c = await context.Conectados.FindAsync(Context.UserIdentifier);
 			if (c!=null){
+				mje.EmisorId = c.Usuario;
 				mje.Emisor = c.Nombre;
 				if (String.IsNullOrEmpty(mje.Destinatario))
 					await Clients.All.ReceiveMessage(mje);
@@ -84,17 +90,12 @@ namespace Inmobiliaria_.Net_Core.Controllers
 
 	public class UserIdProvider : IUserIdProvider
 	{
-		public string GetUserId(HubConnectionContext connection)
+		public string? GetUserId(HubConnectionContext connection)
 		{
-			//por default es System.Security.Claims.ClaimTypes.NameIdentifier así que lo cambiamos a Name			
-			return connection.User?.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
-			// if(connection.User != null) //equivalente a la línea anterior
-			// {
-			// 	var res = connection.User.FindFirst(System.Security.Claims.ClaimTypes.Name);
-			// 	if(res != null)
-			// 		return res.Value;
-			// }
-			// return null;
+			// El UserIdentifier de SignalR es el IdPropietario (claim NameIdentifier).
+			// Es, además, el claim que SignalR usa por default, pero se deja explícito
+			// para que quede claro de dónde sale y sea consistente con la API y el MVC.
+			return connection.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 		}
 	}
 }

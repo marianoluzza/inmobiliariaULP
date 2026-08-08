@@ -7,6 +7,7 @@ namespace Inmobiliaria_.Net_Core.Models
 {
 	public class Mensaje
 	{
+		public string EmisorId { get; set; }
 		public string Emisor { get; set; }
 		public string Destinatario { get; set; }
 		public string Cuerpo { get; set; }

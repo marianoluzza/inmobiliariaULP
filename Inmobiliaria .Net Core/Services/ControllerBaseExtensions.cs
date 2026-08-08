@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -11,6 +12,19 @@ namespace Inmobiliaria_.Net_Core.Services
 {
 	public static class ControllerBaseExtensions
 	{
+		/// <summary>
+		/// Id del usuario autenticado, tomado del claim NameIdentifier.
+		/// Como el JWT se configura con NameClaimType = NameIdentifier,
+		/// User.Identity.Name devuelve este mismo valor; se usa FindFirstValue
+		/// para no depender de esa configuración y poder validar el parseo.
+		/// Devuelve 0 si no hay claim o no es numérico.
+		/// </summary>
+		public static int UsuarioId(this ControllerBase controllerBase)
+		{
+			var valor = controllerBase.User.FindFirstValue(ClaimTypes.NameIdentifier);
+			return int.TryParse(valor, out var id) ? id : 0;
+		}
+
 		/// <summary>
 		/// Renderiza una vista parcial a string
 		/// </summary>

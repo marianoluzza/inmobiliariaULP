@@ -21,8 +21,9 @@
 <body onload="init()">
 	@{
 		bool IsAuthenticated = User?.Identity?.IsAuthenticated ?? false;
-		var NombreUsuario = User?.Identity?.Name ?? "";
-		var IsAdmin = (User?.IsInRole("Administrador") ?? false) || (User?.IsInRole("SuperAdministrador") ?? false);
+		@* Identity.Name ahora es el Id; para mostrar se usa el claim FullName *@
+		var NombreUsuario = User?.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value ?? "";
+		var IsAdmin = User?.IsInRole("Administrador") ?? false;
 	}
 	<header>
 		<nav class="site-header fixed-top py-1">
@@ -54,10 +55,10 @@
 					}
 					<a class="py-2 d-none d-md-inline-block" asp-controller="Propietarios" asp-action="Index"><i class="fa-solid fa-person"></i> Propietarios</a>
 					<a class="py-2 d-none d-md-inline-block" asp-controller="Inmuebles" asp-action="Index"><i class="fa-solid fa-building"></i> Inmuebles</a>
-					<a class="py-2 d-none d-md-inline-block" asp-controller="Alquileres" asp-action="Index"><i class="fa-solid fa-file-contract"></i> Alquileres</a>
+					<a class="py-2 d-none d-md-inline-block" asp-controller="Reservas" asp-action="Index"><i class="fa-solid fa-file-contract"></i> Reservas</a>
 					<div class="dropdown">
 						<a class="btn btn-primary dropdown-toggle text-light" href="#" role="button" id="userMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-reference="parent" data-display="static">
-							<i class="fa-solid fa-user"></i> @User?.Identity?.Name
+							<i class="fa-solid fa-user"></i> @NombreUsuario
 						</a>
 
 						<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
