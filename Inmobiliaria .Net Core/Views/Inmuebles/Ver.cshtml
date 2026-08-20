@@ -82,12 +82,12 @@
 
 @section Scripts {
 	<script type="text/javascript">
-		const lat = @Model?.Latitud.ToString("0.######", System.Globalization.CultureInfo.InvariantCulture) ?? "0";
-		const lng = @Model?.Longitud.ToString("0.######", System.Globalization.CultureInfo.InvariantCulture) ?? "0";
-		const direccion = '@(Model?.Direccion ?? "")';
+		const lat = @(Model?.Latitud.ToString("0.######", System.Globalization.CultureInfo.InvariantCulture) ?? "0");
+		const lng = @(Model?.Longitud.ToString("0.######", System.Globalization.CultureInfo.InvariantCulture) ?? "0");
+		const direccion = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model?.Direccion ?? ""));
 
 		$(document).ready(function() {
-			if (lat !== "0" && lng !== "0") {//Tenemos coordenadas?
+			if (lat !== 0 && lng !== 0) {//Tenemos coordenadas?
 				// Cargar el mapa con Leaflet
 				const map = L.map('mapa').setView([lat, lng], 16);
 				L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -102,7 +102,7 @@
 			}
 			$('#Propietario').select2({
 				language: "es",
-				theme: 'bootstrap',  // Aplica el tema de Bootstrap
+				theme: 'bootstrap4',  // Aplica el tema de Bootstrap
 				placeholder: "Buscar propietario...",
 				minimumInputLength: 3,// Realiza la búsqueda después de 3 caracteres
 				maximumInputLength: 10,// Limita la entrada a 10 caracteres
@@ -128,12 +128,6 @@
 					}
 				}
 			});
-			var idOriginal = +"@Model?.PropietarioId";
-			var textoOriginal = "@Model?.Duenio?.Nombre" + ' ' + "@Model?.Duenio?.Apellido";
-			if (idOriginal && textoOriginal) {
-				var option = new Option(textoOriginal, idOriginal, true, true);
-				$("#Propietario").append(option).trigger('change');
-			}
 		});
 	</script>
 }
