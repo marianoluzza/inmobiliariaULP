@@ -150,24 +150,25 @@ const erroresInmuebleDefault = {
 	Superficie: null,
 };
 $(document).ready(() => {
-	appVue = new Vue({
-		el: '#appVue',
-		data: {
-			modo_actual: 1,
-			modos: {
-				listado: 1,
-				edicion: 2,
-			},
-			propietarioId: @propietarioId,
-			propietario: {},
-			propietario_original: {},
-			errores_propietario: { ...erroresPropietarioDefault },
-			guardando_propietario: false,
-			editando_propietario: false,
-			inmuebles: [],
-			inmuebleActual: { ...inmuebleDefault },
-			errores_inmueble: { ...erroresInmuebleDefault },
-			guardando_inmueble: false,
+	appVue = Vue.createApp({
+		data() {
+			return {
+				modo_actual: 1,
+				modos: {
+					listado: 1,
+					edicion: 2,
+				},
+				propietarioId: @propietarioId,
+				propietario: {},
+				propietario_original: {},
+				errores_propietario: { ...erroresPropietarioDefault },
+				guardando_propietario: false,
+				editando_propietario: false,
+				inmuebles: [],
+				inmuebleActual: { ...inmuebleDefault },
+				errores_inmueble: { ...erroresInmuebleDefault },
+				guardando_inmueble: false,
+			};
 		},
 		computed: {
 		},
@@ -224,10 +225,13 @@ $(document).ready(() => {
 					notyf.success(`Propietario guardado con éxito`);
 				}).fail((jqXHR, textStatus, errorThrown) => {
 					notyf.error("Error al guardar el propietario");
-					if (jqXHR.status === 400) {
+					if(jqXHR.responseJSON)
 						console.log(jqXHR.responseJSON);
-						this.errores = jqXHR.responseJSON;
-					} 
+					if (jqXHR.status === 400) {
+						Object.keys(jqXHR.responseJSON).forEach(key => {
+							this.errores_propietario[key] = jqXHR.responseJSON[key].join(', ');
+						});
+					}
 				}).always(() => {
 					this.guardando_propietario = false;
 				});
@@ -307,7 +311,7 @@ $(document).ready(() => {
 			this.cargarPropietario();
 			this.cargarInmuebles();
 		}
-	});
+	}).mount('#appVue');
 })
 </script>
 }

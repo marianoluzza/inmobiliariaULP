@@ -87,3 +87,8 @@ body>.container {
 	padding-right: 15px;
 	padding-left: 15px;
 }
+
+/* Oculta el template de Vue hasta que la app termina de montarse (evita ver los {{ }}) */
+[v-cloak] {
+	display: none;
+}

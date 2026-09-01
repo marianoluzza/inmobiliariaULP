@@ -2,6 +2,12 @@
 
 @{
 	ViewData["Title"] = "Propietarios";
+	// El controlador ya calcula estos valores; acá solo los acotamos por las dudas.
+	int totalPaginas = Math.Max((int?)ViewBag.TotalPaginas ?? 1, 1);
+	int paginaActual = Math.Clamp((int?)ViewBag.Pagina ?? 1, 1, totalPaginas);
+	// Ventana de a lo sumo 5 números alrededor de la página actual
+	int desde = Math.Max(1, Math.Min(paginaActual - 2, totalPaginas - 4));
+	int hasta = Math.Min(totalPaginas, desde + 4);
 }
 
 <h1>
@@ -61,11 +67,14 @@
 						<a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.IdPropietario" title="Editar">
 							<i class="fa-solid fa-pen"></i>
 						</a>
-						<a class="btn btn-danger" asp-action="Eliminar" asp-route-id="@item.IdPropietario" title="Eliminar">
-							<i class="fa-solid fa-trash-can"></i>
+						<a class="btn btn-secondary" asp-action="Details" asp-route-id="@item.IdPropietario" title="Detalles">
+							<i class="fa-solid fa-info-circle"></i>
 						</a>
 						<a class="btn btn-secondary" asp-action="PorPropietario" asp-controller="Inmuebles" asp-route-id="@item.IdPropietario" title="Mis Propiedades">
 							<i class="fa-solid fa-building"></i>
+						</a>
+						<a class="btn btn-danger" asp-action="Eliminar" asp-route-id="@item.IdPropietario" title="Eliminar">
+							<i class="fa-solid fa-trash-can"></i>
 						</a>
 					</div>
 				</td>
@@ -73,3 +82,49 @@
 		}
 	</tbody>
 </table>
+
+@if (totalPaginas > 1)
+{
+	<nav aria-label="Paginación de propietarios">
+		<ul class="pagination justify-content-center">
+			@if (paginaActual > 1)
+			{
+				<li class="page-item">
+					<a class="page-link" asp-action="Index" asp-route-pagina="@(paginaActual - 1)" title="Anterior">
+						<i class="fa-solid fa-chevron-left"></i>
+					</a>
+				</li>
+			}
+			else
+			{
+				<li class="page-item disabled"><span class="page-link"><i class="fa-solid fa-chevron-left"></i></span></li>
+			}
+
+			@for (int p = desde; p <= hasta; p++)
+			{
+				if (p == paginaActual)
+				{
+					<li class="page-item active" aria-current="page"><span class="page-link">@p</span></li>
+				}
+				else
+				{
+					<li class="page-item"><a class="page-link" asp-action="Index" asp-route-pagina="@p">@p</a></li>
+				}
+			}
+
+			@if (paginaActual < totalPaginas)
+			{
+				<li class="page-item">
+					<a class="page-link" asp-action="Index" asp-route-pagina="@(paginaActual + 1)" title="Siguiente">
+						<i class="fa-solid fa-chevron-right"></i>
+					</a>
+				</li>
+			}
+			else
+			{
+				<li class="page-item disabled"><span class="page-link"><i class="fa-solid fa-chevron-right"></i></span></li>
+			}
+		</ul>
+	</nav>
+	<p class="text-center text-muted">Página @paginaActual de @totalPaginas</p>
+}

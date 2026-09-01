@@ -41,6 +41,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			{
 				var tamaño = 5;
 				var lista = repositorio.ObtenerLista(Math.Max(pagina, 1), tamaño);
+				ViewBag.Tamaño = tamaño;
 				ViewBag.Pagina = pagina;
 				var total = repositorio.ObtenerCantidad();
 				ViewBag.TotalPaginas = total % tamaño == 0 ? total / tamaño : total / tamaño + 1;
@@ -229,6 +230,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
 				else
 				{
 					var p = repositorio.ObtenerPorId(id);
+					if (p == null)
+						return NotFound();
 					p.Nombre = entidad.Nombre;
 					p.Apellido = entidad.Apellido;
 					p.Dni = entidad.Dni;

@@ -11,10 +11,11 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" />
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" integrity="sha512-Zcn6bjR/8RZbLEpLIeOwNtzREBAJnUKESxces60Mpoj+2okopSAcSUIUOseddDm0cxnGQzxIR7vJgsLZbdLE3w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.7.16/vue.js"></script>
+	@* Build global con compilador en runtime: permite usar el HTML de la vista como template *@
+	<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
 	<!--Posibles estilos a aplicar. False porque es opcional. La página que lo necesita, declara la sección.-->
-	@RenderSection("Styles", false);
+	@RenderSection("Styles", false)
 	<title>@ViewBag.Title</title>
 	<!--<title>@ViewData["Title"]</title> SON SIMILARES-->
 </head>
