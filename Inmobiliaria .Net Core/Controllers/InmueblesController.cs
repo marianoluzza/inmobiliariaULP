@@ -15,6 +15,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
 	{
 		private readonly IRepositorioInmueble repositorio;
 		private readonly IRepositorioPropietario repoPropietario;
+		//Sólo estas extensiones se aceptan al subir imágenes
+		private static readonly string[] extensionesPermitidas = { ".jpg", ".jpeg", ".png" };
 
 		public InmueblesController(IRepositorioInmueble repositorio, IRepositorioPropietario repoPropietrio)
 		{
@@ -81,6 +83,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			var entidad = repositorio.ObtenerPorId(id);
 			if (entidad == null)
 				return NotFound();
+			if (TempData.ContainsKey("Error")) 
+				ViewBag.Error = TempData["Error"];
 			entidad.Imagenes = repoImagen.BuscarPorInmueble(id);
 			return View(entidad);
 		}
@@ -92,12 +96,20 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		{
 			try
 			{
+				//Validar la extensión ANTES de tocar el disco (si no viene archivo, se está eliminando la portada)
+				if (entidad.Archivo != null &&
+					!extensionesPermitidas.Contains(Path.GetExtension(entidad.Archivo.FileName).ToLowerInvariant()))
+				{
+					TempData["Error"] = "Las extensiones permitidas son .jpg, .png y .jpeg";
+					return RedirectToAction(nameof(Imagenes), new { id = entidad.InmuebleId });
+				}
 				//Recuperar el inmueble y eliminar la imagen anterior
 				var inmueble = repositorio.ObtenerPorId(entidad.InmuebleId);
 				if (inmueble != null && inmueble.Portada != null)
 				{
 					string rutaEliminar = Path.Combine(environment.WebRootPath, "Uploads", "Inmuebles", Path.GetFileName(inmueble.Portada));
-					System.IO.File.Delete(rutaEliminar);
+					if(System.IO.File.Exists(rutaEliminar))
+						System.IO.File.Delete(rutaEliminar);
 				}
 				if (entidad.Archivo != null)
 				{
@@ -119,7 +131,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 					{
 						entidad.Archivo.CopyTo(stream);
 					}
-					entidad.Url = Path.Combine("/Uploads/Inmuebles", fileName);
+					entidad.Url = $"/Uploads/Inmuebles/{fileName}";
 				}
 				else //sin imagen
 				{

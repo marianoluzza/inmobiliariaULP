@@ -14,16 +14,22 @@ namespace Inmobiliaria_.Net_Core.Controllers
 	public class ImagenesController : Controller
 	{
 		private readonly IRepositorioImagen repositorio;
+		//Sólo estas extensiones se aceptan al subir imágenes
+		private static readonly string[] extensionesPermitidas = { ".jpg", ".jpeg", ".png" };
 
 		public ImagenesController(IRepositorioImagen repositorio)
 		{
 			this.repositorio = repositorio;
 		}
 		[HttpPost]
+		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Alta(int id, List<IFormFile> imagenes, [FromServices] IWebHostEnvironment environment)
 		{
 			if (imagenes == null || imagenes.Count == 0)
 				return BadRequest("No se recibieron archivos.");
+			//Validar TODAS las extensiones antes de escribir ningún archivo, para no dejar la subida a medias
+			if (imagenes.Any(f => !extensionesPermitidas.Contains(Path.GetExtension(f.FileName).ToLowerInvariant())))
+				return BadRequest("Las extensiones permitidas son .jpg, .png y .jpeg");
 			string wwwPath = environment.WebRootPath;
 			string path = Path.Combine(wwwPath, "Uploads");
 			if (!Directory.Exists(path))

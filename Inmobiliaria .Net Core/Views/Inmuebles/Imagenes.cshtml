@@ -29,7 +29,7 @@
 			}
 			<form asp-controller="Inmuebles" asp-action="Portada" method="post" enctype="multipart/form-data">
 				<div class="form-group">
-					<label for="portada">Seleccionar imagen</label>
+					<label for="Archivo">Seleccionar imagen</label>
 					<input type="file" class="form-control-file" id="Archivo" name="Archivo" accept="image/*" required>
 					<input type="hidden" name="InmuebleId" value="@Id" />
 				</div>
@@ -43,14 +43,16 @@
 			<div class="mb-3">
 				<label>Imágenes actuales:</label>
 				<div class="d-flex flex-wrap" id="galeriaActual">
-					@if (Model?.Imagenes?.Count > 0) foreach (var imagen in Model.Imagenes)
-					{
-						<div class="m-2 position-relative imagen-con-hover">
-							<img src="@imagen.Url" class="img-thumbnail" style="max-width: 150px; max-height: 150px;" />
-							<button type="button" class="btn btn-danger btn-sm btn-eliminar-imagen" onclick="eliminarImagen(@imagen.Id)">
-								<i class="fas fa-times"></i>
-							</button>
-						</div>
+					@if (Model?.Imagenes?.Count > 0) {
+						foreach (var imagen in Model.Imagenes)
+						{
+							<div class="m-2 position-relative imagen-con-hover">
+								<img src="@imagen.Url" class="img-thumbnail" style="max-width: 150px; max-height: 150px;" />
+								<button type="button" class="btn btn-danger btn-sm btn-eliminar-imagen" onclick="eliminarImagen(@imagen.Id)">
+									<i class="fas fa-times"></i>
+								</button>
+							</div>
+						}
 					} else {
 						<p>No hay imágenes interiores disponibles.</p>
 					}
@@ -62,6 +64,7 @@
 					<input type="file" class="form-control-file" id="imagenes" name="imagenes" onchange="previsualizar(event)"
 						accept="image/*" multiple required>
 				</div>
+				@Html.AntiForgeryToken()
 				<button type="submit" class="btn btn-success"><i class="fas fa-upload"></i> Subir</button>
 			</form>
 
@@ -110,6 +113,9 @@
 			$.ajax({
 				url: `@Url.Action("Alta", "Imagenes", new {Id=Id})`,
 				//url: `/Imagenes/Alta/${id}`,
+				headers: {
+					'RequestVerificationToken': $('#formInterior input[name="__RequestVerificationToken"]').val()
+				},
 				type: 'POST',
 				data: formData,
 				contentType: false,
