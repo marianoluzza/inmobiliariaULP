@@ -4,6 +4,7 @@ using Inmobiliaria_.Net_Core.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -125,18 +126,26 @@ namespace Inmobiliaria_Tests
 		public async Task Get_MiPerfil_ProhibidoSinAutenticar()
 		{
 			// Arrange
-			var appServer = helper.BuildWebApplication();
-			await appServer.StartAsync();
-			var client = appServer.GetTestClient();
-			var url = "api/propietarios";
-			var codigo = HttpStatusCode.Unauthorized;
+			using (var factory = new WebApplicationFactory<Program>())
+			{
+				using (var client = factory.CreateClient())
+				{
+					// Act
+					var response = await client.GetAsync("/api/propietarios");
 
-			// Act
-			var response = await client.GetAsync(url);
+					// Assert
+					Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 
-			// Assert
-			Assert.Equal(codigo, response.StatusCode);
-			Assert.Contains("Bearer", response.Headers.WwwAuthenticate.First().ToString(), StringComparison.InvariantCultureIgnoreCase);
+					Assert.Contains(
+						response.Headers.WwwAuthenticate,
+						header => string.Equals(
+							header.Scheme,
+							"Bearer",
+							StringComparison.OrdinalIgnoreCase
+						)
+					);
+				}
+			}
 		}
 
 	}

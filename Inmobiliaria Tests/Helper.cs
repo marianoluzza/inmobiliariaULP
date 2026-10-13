@@ -1,19 +1,11 @@
 ﻿using Inmobiliaria_.Net_Core.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Sqlite;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using Microsoft.Data.Sqlite;
 using System.Data.Common;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.TestHost;
-using System.Text;
-using Inmobiliaria_.Net_Core.Api;
 
 namespace Inmobiliaria_Tests
 {
@@ -59,41 +51,6 @@ namespace Inmobiliaria_Tests
 			var identity = new ClaimsIdentity(claims, "TestAuthType", ClaimTypes.NameIdentifier, ClaimTypes.Role);
 			var claimsPrincipal = new ClaimsPrincipal(identity);
 			return claimsPrincipal;
-		}
-
-		// Construye y configura una WebApplication para tests (TestServer)
-		public WebApplication BuildWebApplication()
-		{
-			var builder = WebApplication.CreateBuilder(System.Array.Empty<string>());
-			builder.Configuration.AddConfiguration(Config);
-			// Registrar controllers de la app principal
-			builder.Services.AddControllers()
-				.AddApplicationPart(typeof(PropietariosController).Assembly);
-			builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-			.AddJwtBearer(options =>
-			{
-				var secreto = builder.Configuration["TokenAuthentication:SecretKey"];
-				if (string.IsNullOrEmpty(secreto))
-					throw new Exception("Falta configurar TokenAuthentication:Secret");
-				options.TokenValidationParameters = new TokenValidationParameters
-				{
-					ValidateIssuer = true,
-					ValidateAudience = true,
-					ValidateLifetime = true,
-					ValidateIssuerSigningKey = true,
-					ValidIssuer = builder.Configuration["TokenAuthentication:Issuer"],
-					ValidAudience = builder.Configuration["TokenAuthentication:Audience"],
-					IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secreto)),
-				};
-			});
-			builder.Services.AddAuthorization();
-			builder.WebHost.UseTestServer();
-			var appServer = builder.Build();
-			appServer.UseRouting();
-			appServer.UseAuthentication();
-			appServer.UseAuthorization();
-			appServer.MapControllers();
-			return appServer;
 		}
 
 		// Crea una conexión SQLite in-memory y la deja abierta

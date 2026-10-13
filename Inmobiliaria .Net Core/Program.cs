@@ -171,3 +171,8 @@ app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 app.MapHub<ChatHub>("/chathub");//para SignalR
 app.MapHub<ChatSeguroHub>("/chatsegurohub");//para SignalR
 app.Run();
+
+// Las instrucciones de nivel superior generan una clase Program interna.
+// La declaramos pública y parcial para que el proyecto de tests pueda usarla
+// como punto de entrada en las pruebas de integración con WebApplicationFactory.
+public partial class Program { }
