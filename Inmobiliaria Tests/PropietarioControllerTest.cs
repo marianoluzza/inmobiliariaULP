@@ -53,7 +53,7 @@ namespace Inmobiliaria_Tests
 			// Crear un controller que use el contexto sqlite
 			using (var context = new DataContext(options))
 			{
-				var localController = new PropietariosController(context, helper.Config, mockEnvironment.Object);
+				var localController = new PropietariosController(context, helper.Config, mockEnvironment.Object, new Inmobiliaria_.Net_Core.Services.ServicioClaves(helper.Config), Moq.Mock.Of<Microsoft.Extensions.Logging.ILogger<PropietariosController>>());
 				localController.ControllerContext = new ControllerContext()
 				{
 					HttpContext = new DefaultHttpContext() { User = helper.MockLogin(email, "Propietario", idPropietario) }
@@ -62,7 +62,7 @@ namespace Inmobiliaria_Tests
 				var res = await localController.Get();
 				var httpRes = res.Result as OkObjectResult;
 				Assert.NotNull(httpRes);
-				var propietario = httpRes.Value as Propietario;
+				var propietario = httpRes.Value as PropietarioView;
 				Assert.NotNull(propietario);
 				Assert.Equal(email, propietario.Email);
 				Assert.Equal("Mariano", propietario.Nombre);
@@ -89,7 +89,7 @@ namespace Inmobiliaria_Tests
 			// Crear un controller que use el contexto sqlite
 			using (var context = new DataContext(options))
 			{
-				var localController = new PropietariosController(context, helper.Config, mockEnvironment.Object);
+				var localController = new PropietariosController(context, helper.Config, mockEnvironment.Object, new Inmobiliaria_.Net_Core.Services.ServicioClaves(helper.Config), Moq.Mock.Of<Microsoft.Extensions.Logging.ILogger<PropietariosController>>());
 				localController.ControllerContext = new ControllerContext()
 				{
 					HttpContext = new DefaultHttpContext() { User = new ClaimsPrincipal(new ClaimsIdentity()) }
@@ -97,6 +97,35 @@ namespace Inmobiliaria_Tests
 				var res = await localController.Get();
 				var propietario = res.Value;
 				Assert.Null(propietario);
+			}
+		}
+
+		[Fact]
+		public async Task Get_MiPerfil_NoDevuelveLaClave()
+		{
+			using var connection = Helper.CreateInMemoryDatabase();
+			var options = Helper.CreateOptions(connection);
+			using (var seedCtx = new DataContext(options))
+			{
+				seedCtx.Database.EnsureCreated();
+				seedCtx.Propietarios.Add(new Propietario { IdPropietario = 7, Email = "p@p.com", Nombre = "Mariano", Apellido = "Luzza", Clave = "hash-guardado" });
+				seedCtx.SaveChanges();
+			}
+
+			using (var context = new DataContext(options))
+			{
+				var controller = new PropietariosController(context, helper.Config, mockEnvironment.Object, new Inmobiliaria_.Net_Core.Services.ServicioClaves(helper.Config), Moq.Mock.Of<Microsoft.Extensions.Logging.ILogger<PropietariosController>>());
+				controller.ControllerContext = new ControllerContext()
+				{
+					HttpContext = new DefaultHttpContext() { User = helper.MockLogin("p@p.com", "Propietario", 7) }
+				};
+
+				var res = await controller.Get();
+				var ok = Assert.IsType<OkObjectResult>(res.Result);
+				// Lo que viaja al cliente es el objeto serializado a JSON
+				var json = System.Text.Json.JsonSerializer.Serialize(ok.Value);
+				Assert.Contains("Mariano", json);
+				Assert.DoesNotContain("hash-guardado", json);
 			}
 		}
 
@@ -148,5 +177,59 @@ namespace Inmobiliaria_Tests
 			}
 		}
 
+		[Fact]
+		public async Task Login_ClaveConHashViejo_DevuelveTokenYGuardaElHashNuevo()
+		{
+			// Las claves de la base de ejemplo están con el hash anterior: tienen que seguir
+			// andando, y al iniciar sesión se reemplazan por el formato actual.
+			var hashViejo = ServicioClavesTest.HashLegado("123");
+			using var connection = Helper.CreateInMemoryDatabase();
+			var options = Helper.CreateOptions(connection);
+			using (var seedCtx = new DataContext(options))
+			{
+				seedCtx.Database.EnsureCreated();
+				seedCtx.Propietarios.Add(new Propietario { IdPropietario = 7, Email = "p@p.com", Nombre = "N", Apellido = "A", Clave = hashViejo });
+				seedCtx.SaveChanges();
+			}
+
+			var claves = ServicioClavesTest.Crear();
+			using (var context = new DataContext(options))
+			{
+				var controller = new PropietariosController(context, helper.Config, mockEnvironment.Object, claves, Moq.Mock.Of<Microsoft.Extensions.Logging.ILogger<PropietariosController>>());
+				var res = await controller.Login(new LoginView { Usuario = "p@p.com", Clave = "123" });
+				Assert.IsType<OkObjectResult>(res);
+			}
+
+			using (var context = new DataContext(options))
+			{
+				var guardada = context.Propietarios.Single(x => x.IdPropietario == 7).Clave;
+				Assert.NotEqual(hashViejo, guardada);
+				Assert.Equal(Inmobiliaria_.Net_Core.Services.ResultadoVerificacion.Correcta, claves.Verificar(guardada, "123"));
+			}
+		}
+
+		[Fact]
+		public async Task Post_GuardaLaClaveHasheada()
+		{
+			using var connection = Helper.CreateInMemoryDatabase();
+			var options = Helper.CreateOptions(connection);
+			using (var seedCtx = new DataContext(options))
+				seedCtx.Database.EnsureCreated();
+
+			var claves = ServicioClavesTest.Crear();
+			using (var context = new DataContext(options))
+			{
+				var controller = new PropietariosController(context, helper.Config, mockEnvironment.Object, claves, Moq.Mock.Of<Microsoft.Extensions.Logging.ILogger<PropietariosController>>());
+				var res = await controller.Post(new Propietario { Email = "nuevo@p.com", Nombre = "N", Apellido = "A", Clave = "123" });
+				Assert.IsType<CreatedAtActionResult>(res);
+			}
+
+			using (var context = new DataContext(options))
+			{
+				var guardada = context.Propietarios.Single(x => x.Email == "nuevo@p.com").Clave;
+				Assert.NotEqual("123", guardada);
+				Assert.Equal(Inmobiliaria_.Net_Core.Services.ResultadoVerificacion.Correcta, claves.Verificar(guardada, "123"));
+			}
+		}
 	}
 }

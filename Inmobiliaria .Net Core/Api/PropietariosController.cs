@@ -9,7 +9,6 @@ using Inmobiliaria_.Net_Core.Services;
 using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -31,16 +30,20 @@ namespace Inmobiliaria_.Net_Core.Api
 		private readonly DataContext contexto;
 		private readonly IConfiguration config;
 		private readonly IWebHostEnvironment environment;
+		private readonly IServicioClaves claves;
+		private readonly ILogger<PropietariosController> logger;
 
-		public PropietariosController(DataContext contexto, IConfiguration config, IWebHostEnvironment env)
+		public PropietariosController(DataContext contexto, IConfiguration config, IWebHostEnvironment env, IServicioClaves claves, ILogger<PropietariosController> logger)
 		{
 			this.contexto = contexto;
 			this.config = config;
 			environment = env;
+			this.claves = claves;
+			this.logger = logger;
 		}
 		// GET: api/<controller>
 		[HttpGet]
-		public async Task<ActionResult<Propietario>> Get()
+		public async Task<ActionResult<PropietarioView>> Get()
 		{
 			try
 			{
@@ -56,7 +59,8 @@ namespace Inmobiliaria_.Net_Core.Api
 					.SingleOrDefault(x => x.IdPropietario == propietarioId);*/
 				// Se busca por clave primaria: el email es mutable y no tiene índice único.
 				var res = await contexto.Propietarios.SingleOrDefaultAsync(x => x.IdPropietario == propietarioId);
-				return Ok(res);
+				// Se devuelve PropietarioView y no la entidad, para que no viaje la clave
+				return Ok(res == null ? null : new PropietarioView(res));
 			}
 			catch (Exception ex)
 			{
@@ -66,12 +70,12 @@ namespace Inmobiliaria_.Net_Core.Api
 
 		// GET api/<controller>/5
 		[HttpGet("{id}")]
-		public async Task<ActionResult<Propietario>> Get(int id)
+		public async Task<ActionResult<PropietarioView>> Get(int id)
 		{
 			try
 			{
 				var entidad = await contexto.Propietarios.SingleOrDefaultAsync(x => x.IdPropietario == id);
-				return entidad != null ? Ok(entidad) : NotFound();
+				return entidad != null ? Ok(new PropietarioView(entidad)) : NotFound();
 			}
 			catch (Exception ex)
 			{
@@ -152,7 +156,7 @@ namespace Inmobiliaria_.Net_Core.Api
 				var url = this.GenerarUrlCompleta("Token", "Propietarios", environment);
 				var dominio = environment.IsDevelopment() ? HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString() : "www.misitio.com";
 				//añadir: .....?access_token=token
-				return entidad != null ? Ok(entidad) : NotFound();
+				return entidad != null ? Ok(new PropietarioView(entidad)) : NotFound();
 			}
 			catch (Exception ex)
 			{
@@ -166,7 +170,7 @@ namespace Inmobiliaria_.Net_Core.Api
 		{
 			try
 			{
-				return Ok(await contexto.Propietarios.ToListAsync());
+				return Ok(await contexto.Propietarios.Select(x => new PropietarioView(x)).ToListAsync());
 			}
 			catch (Exception ex)
 			{
@@ -181,19 +185,27 @@ namespace Inmobiliaria_.Net_Core.Api
 		{
 			try
 			{
-				string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-					password: loginView.Clave,
-					salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"] ?? ""),
-					prf: KeyDerivationPrf.HMACSHA1,
-					iterationCount: 1000,
-					numBytesRequested: 256 / 8));
 				var p = await contexto.Propietarios.FirstOrDefaultAsync(x => x.Email == loginView.Usuario);
-				if (p == null || p.Clave != hashed)
+				var verificacion = claves.Verificar(p?.Clave, loginView.Clave);
+				if (p == null || verificacion == ResultadoVerificacion.Incorrecta)
 				{
 					return BadRequest("Nombre de usuario o clave incorrecta");
 				}
 				else
 				{
+					if (verificacion == ResultadoVerificacion.CorrectaRequiereRehash)
+					{// la clave estaba en un formato viejo: ahora que se la conoce, se guarda con el actual
+						try
+						{
+							p.Clave = claves.Hashear(loginView.Clave);
+							await contexto.SaveChangesAsync();
+						}
+						catch (Exception ex)
+						{// no impide entrar: se reintenta en el próximo login
+							logger.LogWarning(ex, "No se pudo actualizar el hash de la clave del propietario {Id}", p.IdPropietario);
+							contexto.ChangeTracker.Clear();
+						}
+					}
 					var secreto = config["TokenAuthentication:SecretKey"];
 					if (string.IsNullOrEmpty(secreto))
 						throw new Exception("Falta configurar TokenAuthentication:Secret");
@@ -234,9 +246,10 @@ namespace Inmobiliaria_.Net_Core.Api
 			{
 				if (ModelState.IsValid)
 				{
+					entidad.Clave = claves.Hashear(entidad.Clave);
 					await contexto.Propietarios.AddAsync(entidad);
 					contexto.SaveChanges();
-					return CreatedAtAction(nameof(Get), new { id = entidad.IdPropietario }, entidad);
+					return CreatedAtAction(nameof(Get), new { id = entidad.IdPropietario }, new PropietarioView(entidad));
 				}
 				return BadRequest();
 			}
@@ -264,16 +277,11 @@ namespace Inmobiliaria_.Net_Core.Api
 					}
 					else
 					{
-						entidad.Clave = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-							password: entidad.Clave,
-							salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"] ?? ""),
-							prf: KeyDerivationPrf.HMACSHA1,
-							iterationCount: 1000,
-							numBytesRequested: 256 / 8));
+						entidad.Clave = claves.Hashear(entidad.Clave);
 					}
 					contexto.Propietarios.Update(entidad);
 					await contexto.SaveChangesAsync();
-					return Ok(entidad);
+					return Ok(new PropietarioView(entidad));
 				}
 				return BadRequest();
 			}
@@ -296,7 +304,7 @@ namespace Inmobiliaria_.Net_Core.Api
 						return NotFound();
 					contexto.Propietarios.Remove(p);
 					await contexto.SaveChangesAsync();
-					return Ok(p);
+					return Ok(new PropietarioView(p));
 				}
 				return BadRequest();
 			}

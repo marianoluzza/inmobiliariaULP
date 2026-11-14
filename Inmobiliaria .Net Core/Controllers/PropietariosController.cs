@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Inmobiliaria_.Net_Core.Models;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Inmobiliaria_.Net_Core.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -19,9 +19,10 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		// Con inyección de dependencias (pedir en el ctor como parámetro)
 		private readonly IRepositorioPropietario repositorio;
 		private readonly IConfiguration config;
+		private readonly IServicioClaves claves;
 		private readonly ILogger<PropietariosController> logger;
 
-		public PropietariosController(IRepositorioPropietario repo, IConfiguration config, ILogger<PropietariosController> logger)
+		public PropietariosController(IRepositorioPropietario repo, IConfiguration config, IServicioClaves claves, ILogger<PropietariosController> logger)
 		{
 			// Sin inyección de dependencias y sin usar el config (quitar el parámetro repo del ctor)
 			//this.repositorio = new RepositorioPropietario();
@@ -30,6 +31,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			// Con inyección de dependencias
 			this.repositorio = repo;
 			this.config = config;
+			this.claves = claves;
 			this.logger = logger;
 		}
 
@@ -81,7 +83,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			try
 			{
 				var res = repositorio.ObtenerPorId(id);
-				return Ok(res);
+				// Se devuelve PropietarioView y no la entidad, para que no viaje la clave
+				return Ok(res == null ? null : new PropietarioView(res));
 			}
 			catch (Exception ex)
 			{
@@ -110,7 +113,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			try
 			{
 				var res = repositorio.BuscarPorNombre(q);
-				return Json(new { Datos = res });
+				return Json(new { Datos = res.Select(x => new PropietarioView(x)) });
 			}
 			catch (Exception ex)
 			{
@@ -142,12 +145,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 				if (ModelState.IsValid)// Pregunta si el modelo es válido
 				{
 					// Reemplazo de clave plana por clave con hash
-					propietario.Clave = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-							password: propietario.Clave,
-							salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
-							prf: KeyDerivationPrf.HMACSHA1,
-							iterationCount: 1000,
-							numBytesRequested: 256 / 8));
+					propietario.Clave = claves.Hashear(propietario.Clave);
 					repositorio.Alta(propietario);
 					TempData["Id"] = propietario.IdPropietario;
 					return RedirectToAction(nameof(Index));
@@ -221,10 +219,14 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		{
 			try
 			{
+				// Al editar no se cambia la clave (ni se recibe: Obtener ya no la devuelve)
+				if(id != 0)
+					ModelState.Remove(nameof(Propietario.Clave));
 				if(!ModelState.IsValid)
 					return BadRequest(ModelState);
-				if(id == 0) 
+				if(id == 0)
 				{
+					entidad.Clave = claves.Hashear(entidad.Clave);
 					id = repositorio.Alta(entidad);
 				}
 				else
@@ -240,7 +242,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 					repositorio.Modificacion(p);
 				}
 				var res = repositorio.ObtenerPorId(id);
-				return Ok(res);
+				return Ok(res == null ? null : new PropietarioView(res));
 			}
 			catch (Exception ex)
 			{//poner breakpoints para detectar errores
@@ -258,14 +260,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			{
 				// recuperar propietario original
 				propietario = repositorio.ObtenerPorId(id);
-				// verificar clave antigüa
-				var pass = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-					password: cambio.ClaveVieja ?? "",
-					salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"] ?? ""),
-					prf: KeyDerivationPrf.HMACSHA1,
-					iterationCount: 1000,
-					numBytesRequested: 256 / 8));
-				if (propietario?.Clave != pass)
+				// verificar clave antigüa (si estaba en el formato viejo, igual se reemplaza abajo)
+				if (propietario == null || claves.Verificar(propietario.Clave, cambio.ClaveVieja ?? "") == ResultadoVerificacion.Incorrecta)
 				{
 					TempData["Error"] = "Clave incorrecta";
 					// se rederige porque no hay vista de cambio de pass, está compartida con Edit
@@ -273,12 +269,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 				}
 				if (ModelState.IsValid)
 				{
-					propietario.Clave = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-							password: cambio.ClaveNueva,
-							salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"] ?? ""),
-							prf: KeyDerivationPrf.HMACSHA1,
-							iterationCount: 1000,
-							numBytesRequested: 256 / 8));
+					propietario.Clave = claves.Hashear(cambio.ClaveNueva);
 					repositorio.Modificacion(propietario);
 					TempData["Mensaje"] = "Contraseña actualizada correctamente";
 					return RedirectToAction(nameof(Index));

@@ -54,6 +54,23 @@ namespace Inmobiliaria_Tests
 		}
 
 		[Fact]
+		public void Guardar_EdicionSinClave_GuardaYNoDevuelveLaClave()
+		{
+			// La edición desde Details manda los datos sin la clave (ya no viene en la respuesta)
+			var mockRepo = new Mock<IRepositorioPropietario>();
+			mockRepo.Setup(x => x.ObtenerPorId(5)).Returns(new Propietario { IdPropietario = 5, Nombre = "Viejo", Clave = "hash-guardado" });
+			var controlador = BuildController(mockRepo, out _);
+			// Es el error que agrega el enlace de datos cuando falta la clave ([Required])
+			controlador.ModelState.AddModelError(nameof(Propietario.Clave), "La clave es obligatoria");
+
+			var res = controlador.Guardar(5, new Propietario { Nombre = "Nuevo", Apellido = "A", Dni = "1234567", Email = "a@a.com" });
+
+			var ok = Assert.IsType<OkObjectResult>(res);
+			mockRepo.Verify(x => x.Modificacion(It.Is<Propietario>(p => p.Nombre == "Nuevo" && p.Clave == "hash-guardado")), Times.Once);
+			Assert.DoesNotContain("hash-guardado", System.Text.Json.JsonSerializer.Serialize(ok.Value));
+		}
+
+		[Fact]
 		public void Portada_ReemplazaArchivoYActualizaUrl()
 		{
 			// Arrange
@@ -118,7 +135,7 @@ namespace Inmobiliaria_Tests
 			var inMemory = new System.Collections.Generic.Dictionary<string,string> { ["Salt"] = "Salada" };
 			var mockConfig = new ConfigurationBuilder().AddInMemoryCollection(inMemory!).Build();
 
-			var controller = new PropietariosController(mockRepo.Object, mockConfig, mockLogger.Object);
+			var controller = new PropietariosController(mockRepo.Object, mockConfig, new Inmobiliaria_.Net_Core.Services.ServicioClaves(mockConfig), mockLogger.Object);
 			var http = new DefaultHttpContext();
 			tempData = new TempDataDictionary(http, Mock.Of<ITempDataProvider>());
 			controller.TempData = tempData;

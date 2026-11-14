@@ -10,7 +10,6 @@ using Inmobiliaria_.Net_Core.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,12 +24,14 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		private readonly IConfiguration configuration;
 		private readonly IWebHostEnvironment environment;
 		private readonly IRepositorioUsuario repositorio;
+		private readonly IServicioClaves claves;
 
-		public UsuariosController(IConfiguration configuration, IWebHostEnvironment environment, IRepositorioUsuario repositorio, ILogger<UsuariosController> logger)
+		public UsuariosController(IConfiguration configuration, IWebHostEnvironment environment, IRepositorioUsuario repositorio, IServicioClaves claves, ILogger<UsuariosController> logger)
 		{
 			this.configuration = configuration;
 			this.environment = environment;
 			this.repositorio = repositorio;
+			this.claves = claves;
 			this.logger = logger;
 		}
 		// GET: Usuarios
@@ -67,13 +68,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 				return View();
 			try
 			{
-				string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-								password: u.Clave,
-								salt: System.Text.Encoding.ASCII.GetBytes(configuration["Salt"] ?? ""),
-								prf: KeyDerivationPrf.HMACSHA1,
-								iterationCount: 1000,
-								numBytesRequested: 256 / 8));
-				u.Clave = hashed;
+				u.Clave = claves.Hashear(u.Clave);
 				var nbreRnd = Guid.NewGuid();//posible nombre aleatorio
 				int res = repositorio.Alta(u);
 				if (u.AvatarFile != null && u.Id > 0)
@@ -302,19 +297,25 @@ namespace Inmobiliaria_.Net_Core.Controllers
 				var returnUrl = String.IsNullOrEmpty(TempData["returnUrl"] as string) ? "/Home" : (TempData["returnUrl"] ?? "").ToString();
 				if (ModelState.IsValid)
 				{
-					string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-						password: login.Clave,
-						salt: System.Text.Encoding.ASCII.GetBytes(configuration["Salt"] ?? ""),
-						prf: KeyDerivationPrf.HMACSHA1,
-						iterationCount: 1000,
-						numBytesRequested: 256 / 8));
-
 					var e = repositorio.ObtenerPorEmail(login.Usuario);
-					if (e == null || e.Clave != hashed)
+					var verificacion = claves.Verificar(e?.Clave, login.Clave);
+					if (e == null || verificacion == ResultadoVerificacion.Incorrecta)
 					{
 						ModelState.AddModelError("", "El email o la clave no son correctos");
 						TempData["returnUrl"] = returnUrl;
 						return View();
+					}
+					if (verificacion == ResultadoVerificacion.CorrectaRequiereRehash)
+					{// la clave estaba en un formato viejo: ahora que se la conoce, se guarda con el actual
+						try
+						{
+							e.Clave = claves.Hashear(login.Clave);
+							repositorio.Modificacion(e);
+						}
+						catch (Exception ex)
+						{// no impide entrar: se reintenta en el próximo login
+							logger.LogWarning(ex, "No se pudo actualizar el hash de la clave del usuario {Id}", e.Id);
+						}
 					}
 
 					var claims = new List<Claim>

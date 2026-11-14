@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using Inmobiliaria_.Net_Core.Controllers;
 using Microsoft.AspNetCore.SignalR;
 using System.Globalization;
+using Inmobiliaria_.Net_Core.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://localhost:5000","https://localhost:5001", "http://*:5000", "https://*:5001");
@@ -109,6 +110,8 @@ builder.Services.AddScoped<IRepositorioPropietario, RepositorioPropietario>();
 builder.Services.AddScoped<IRepositorioInmueble, RepositorioInmueble>();
 builder.Services.AddScoped<IRepositorioImagen, RepositorioImagen>();
 builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
+// Hashear y verificar claves (no guarda estado: una sola instancia para toda la app)
+builder.Services.AddSingleton<IServicioClaves, ServicioClaves>();
 // SOLO SI USA ENTITY FRAMEWORK:
 builder.Services.AddDbContext<DataContext>(
 	options => options.UseSqlServer(
